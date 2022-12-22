@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tweepy.auth import OAuth2UserHandler
+from tweepy.auth import OAuth2UserHandler, OAuthHandler
 from tweepy.client import Client
 
 
@@ -8,6 +8,10 @@ class TwitterClient(Client):
 
 
 class TwitterUserHandler(OAuth2UserHandler):
+    pass
+
+
+class TwitterOAuthHandler(OAuthHandler):
     pass
 
 

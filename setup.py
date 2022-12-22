@@ -16,7 +16,7 @@ DESCRIPTION = "Python Package for Social Network Analytics"
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ["tweepy", "tweepy[async]", "argparse"]
+INSTALL_REQUIRES = ["tweepy", "tweepy[async]", "argparse", "pandas", "python-dotenv"]
 
 setup(
     name=PACKAGE_NAME,

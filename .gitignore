@@ -1,6 +1,8 @@
 # Cache
 .idea/
 __pychache__/
+pysna/__pycache__
+*.pyc
 
 # Environments
 *.env
