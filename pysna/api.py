@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import List
+from typing import List, Set
 
+import tweepy
 from tweepy import API
 
 
 class TwitterAPI(API):
-    """_summary_
-    # TODO: fill me
-    Args:
-        API (_type_): Twitter API class in order to interact with the Twitter Search API v2. Enhanced tweepy.API object.
-    """
+    """Twitter API class in order to interact with the Twitter Search API v2. Inherited from tweepy API class"""
 
-    def _get_user_object(self, user: str):
-        """_summary_
-        # TODO: fill me
+    def _get_user_object(self, user: str) -> tweepy.User:
+        """Request Twitter User Object via tweepy
+
         Args:
-            user (str): _description_
+            user (str): Either User ID or screen name
 
         Returns:
-            _type_: _description_
+            tweepy.User: Twitter User object from tweepy
         """
         # check if string for user1 is convertible to int in order to check for user ID or screen name
         if user.isdigit():
@@ -30,14 +27,14 @@ class TwitterAPI(API):
             user_obj = API.get_user(self, screen_name=user)
         return user_obj
 
-    def _get_user_followers(self, user: str):
-        """_summary_
-        # TODO: fill me
+    def _get_user_followers(self, user: str) -> Set[int]:
+        """Request Twitter follower IDs from user
+
         Args:
-            user (str): _description_
+            user (str): Either User ID or screen name
 
         Returns:
-            _type_: _description_
+            Set[int]: Array containing follower IDs
         """
         # check if string for user1 is convertible to int in order to check for user ID or screen name
         if user.isdigit():
@@ -48,14 +45,14 @@ class TwitterAPI(API):
             user_followers = API.get_follower_ids(self, screen_name=user)
         return user_followers
 
-    def _get_user_follows(self, user: str):
-        """_summary_
-        # TODO: fill me
+    def _get_user_follows(self, user: str) -> Set[int]:
+        """Request Twitter follow IDs from user
+
         Args:
-            user (str): _description_
+            user (str): Either User ID or screen name
 
         Returns:
-            _type_: _description_
+            Set[int]: Array containing follow IDs
         """
         if user.isdigit():
             user_follows = API.get_friend_ids(self, user_id=user)
@@ -63,25 +60,34 @@ class TwitterAPI(API):
             user_follows = API.get_friend_ids(self, screen_name=user)
         return user_follows
 
-    def user_info(self, user: str, attributes: List[str], **kwargs) -> dict:
-        """_summary_
-        Receive requested user information from Twitter User Object
+    def user_info(self, user: str, attributes: List[str]) -> dict:
+        """Receive requested user information from Twitter User Object
+
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): 'id', 'id_str', 'name', 'screen_name', 'followers_info', 'follows_info', 'location', 'profile_location', 'description', 'url', 'entities', 'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at', 'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count', 'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color', 'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url', 'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color', 'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile', 'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications', 'translator_type', 'withheld_in_countries'
+            attributes (List[str]): 'id', 'id_str', 'name', 'screen_name', 'followers_info',
+            'follows_info', 'location', 'profile_location', 'description', 'url', 'entities',
+            'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at',
+            'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
+            'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
+            'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url',
+            'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color',
+            'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile',
+            'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
+            'translator_type', 'withheld_in_countries'
 
         Raises:
-            ValueError: User ID must be provided in string format.
-            ValueError: User name must be provided in string format.
-            TypeError: Eiher user ID or user name has to be provided, not both.
-            TypeError: Either user ID or user name has to be provided.
+            KeyError: If undefined attribute was provided
+
+        Returns:
+            dict: Requested user information
         """
 
         # get user object via tweepy
         user_obj = self._get_user_object(user)
 
-        # initialize dict to store requested attributes
-        user_info = {"id": user_obj.id, "name": user_obj.name, "screen_name": user_obj.screen_name}
+        # initialize empty dict to store requested attributes
+        user_info = {}
 
         # loop through the list of attributes and add them to the dictionary
         for attr in attributes:
@@ -105,17 +111,17 @@ class TwitterAPI(API):
 
         return user_info
 
-    # TODO: convert to list of users and list of compare attributes
-    def compare_users(self, user1: str, user2: str, compare: str):
-        """_summary_
-        # TODO: fill me
+    def compare_users(self, user1: str, user2: str, compare: str) -> dict | list:
+        """Compare two users with the specified comparison attribute
+
         Args:
-            user1 (_type_): _description_
-            user2 (_type_): _description_
-            compare (str): _description_
+            user1 (str): User ID or screen name
+            user2 (str): User ID or screen name
+            compare (str): 'num_followers', 'num_follows', 'common_followers',
+            'unique_followers', 'common_follows', 'unique_follows', 'created_at'
         """
 
-        # match compare attributes
+        # match comparison attributes
         match compare:
             # compare number of followers
             case "num_followers":
@@ -123,10 +129,10 @@ class TwitterAPI(API):
                 return {"user1_followers": user1_obj.followers_count(),
                         "user2_followers": user2_obj.followers_count()}
             # compare number of friends
-            case "num_friends":
+            case "num_follows":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                return {"user1_friends": user1_obj.friends_count(),
-                        "user2_friends": user2_obj.friends_count()}
+                return {"user1_follows": user1_obj.friends_count(),
+                        "user2_follows": user2_obj.friends_count()}
             # compare common followers
             case "common_followers":
                 user1_followers, user2_followers = self._get_user_followers(user1), self._get_user_followers(user2)
@@ -145,8 +151,8 @@ class TwitterAPI(API):
             case "common_follows":
                 user1_follows, user2_follows = self._get_user_follows(user1), self._get_user_follows(user2)
                # get intersectoin of both users
-                common_followers = user1_follows.intersection(user2_follows)
-                return list(common_followers)
+                common_follows = user1_follows.intersection(user2_follows)
+                return list(common_follows)
             # compare unique follows
             case "unique_follows":
                 user1_follows, user2_follows = self._get_user_follows(user1), self._get_user_follows(user2)
@@ -155,6 +161,7 @@ class TwitterAPI(API):
                 user2_unique_follows = user2_follows.difference(user1_follows)
                 return {"user1_unique_follows": list(user1_unique_follows),
                         "user2_unique_follows": list(user2_unique_follows)}
+            # compare creation date
             case "created_at":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
                 # FIXME: #? time diff will be negative if user1 was created after user2. Still okay? #?
@@ -166,11 +173,12 @@ class TwitterAPI(API):
                         "time_difference_in_days": time_difference_in_days,
                         "time_difference_in_weeks": time_difference_in_weeks,
                         "time_difference_in_hours": time_difference_in_hours}
+            # if other comparison attribute was provided
             case _:
-                raise ValueError("Invalid compare attribute for {}".format(compare))
+                raise ValueError("Invalid comparison attribute for {}".format(compare))
 
 
-        #* response from ChatGPT
+        #* alternative using list attribute as input
 
         # def compare_users(users, compare):
         #     # Authenticate to Twitter API
