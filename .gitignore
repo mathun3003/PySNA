@@ -2,6 +2,7 @@
 .idea/
 __pychache__/
 pysna/__pycache__
+tests/__pycache__
 *.pyc
 
 # Environments

@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-from .api import TwitterAPI
-from .auth import (TwitterAppAuthHandler, TwitterClient, TwitterOAuthHandler,
-                   TwitterUserHandler)
+from pysna.api import TwitterAPI
+from pysna.auth import (TwitterAppAuthHandler, TwitterClient,
+                        TwitterOAuthHandler, TwitterUserHandler)
