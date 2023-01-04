@@ -3,10 +3,10 @@ import logging
 from typing import List, Set
 
 import tweepy
-from tweepy import API
+from tweepy import API, Client
 
 
-class TwitterAPI(API):
+class TwitterAPI(API, Client):
     """Twitter API class in order to interact with the Twitter Search API v2. Inherited from tweepy API class"""
 
     def _get_user_object(self, user: str) -> tweepy.User:
@@ -43,7 +43,7 @@ class TwitterAPI(API):
         else:
             # get profile for user1 by screen name
             user_followers = API.get_follower_ids(self, screen_name=user)
-        return user_followers
+        return set(user_followers)
 
     def _get_user_follows(self, user: str) -> Set[int]:
         """Request Twitter follow IDs from user
@@ -58,7 +58,21 @@ class TwitterAPI(API):
             user_follows = API.get_friend_ids(self, user_id=user)
         else:
             user_follows = API.get_friend_ids(self, screen_name=user)
-        return user_follows
+        return set(user_follows)
+
+    def _get_tweet_object(self, tweet: str) -> tweepy.Tweet:
+        """_summary_
+
+        Args:
+            tweet (str): _description_
+
+        Returns:
+            tweepy.Tweet: _description_
+
+        Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
+        """
+        tweet_obj = API.get_oembed(self, url=tweet)
+        return tweet_obj
 
     def user_info(self, user: str, attributes: List[str]) -> dict:
         """Receive requested user information from Twitter User Object
@@ -87,19 +101,21 @@ class TwitterAPI(API):
         user_obj = self._get_user_object(user)
 
         # initialize empty dict to store requested attributes
-        user_info = {}
+        user_info = dict()
 
         # loop through the list of attributes and add them to the dictionary
         for attr in attributes:
             if attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
             elif attr == "followers_info":
+                # TODO: optimize runtime with only one list walk through
                 user_info[attr] = {
                     "follower_ids": user_obj.follower_ids(),
                     "follower_names": [follower.name for follower in user_obj.followers()],
                     "follower_screen_names": [follower.screen_name for follower in user_obj.followers()],
                 }
             elif attr == "follows_info":
+                # TODO: optimize runtime with only one list walk through
                 follows_ids = [friend.id for friend in user_obj.friends()]
                 user_info[attr] = {
                     "follows_ids": follows_ids,
@@ -107,7 +123,7 @@ class TwitterAPI(API):
                     "follows_screen_names": [friend.screen_name for friend in user_obj.friends()],
                 }
             else:
-                raise KeyError("Invalid attribute for {}".format(attr))
+                raise ValueError("Invalid attribute for {}".format(attr))
 
         return user_info
 
@@ -126,13 +142,13 @@ class TwitterAPI(API):
             # compare number of followers
             case "num_followers":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                return {"user1_followers": user1_obj.followers_count(),
-                        "user2_followers": user2_obj.followers_count()}
+                return {f"{user1}_followers": user1_obj.followers_count,
+                        f"{user2}_followers": user2_obj.followers_count}
             # compare number of friends
             case "num_follows":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                return {"user1_follows": user1_obj.friends_count(),
-                        "user2_follows": user2_obj.friends_count()}
+                return {f"{user1}_follows": user1_obj.friends_count,
+                        f"{user2}_follows": user2_obj.friends_count}
             # compare common followers
             case "common_followers":
                 user1_followers, user2_followers = self._get_user_followers(user1), self._get_user_followers(user2)
@@ -145,8 +161,8 @@ class TwitterAPI(API):
                 # get unique followers
                 user1_unique_followers = user1_followers.difference(user2_followers)
                 user2_unique_followers = user2_followers.difference(user1_followers)
-                return {"user1_unique_followers": list(user1_unique_followers),
-                        "user2_unique_followers": list(user2_unique_followers)}
+                return {f"{user1}_unique_followers": list(user1_unique_followers),
+                        f"{user2}_unique_followers": list(user2_unique_followers)}
             # compare common follows
             case "common_follows":
                 user1_follows, user2_follows = self._get_user_follows(user1), self._get_user_follows(user2)
@@ -159,8 +175,8 @@ class TwitterAPI(API):
                 # get unique followers
                 user1_unique_follows = user1_follows.difference(user2_follows)
                 user2_unique_follows = user2_follows.difference(user1_follows)
-                return {"user1_unique_follows": list(user1_unique_follows),
-                        "user2_unique_follows": list(user2_unique_follows)}
+                return {f"{user1}_unique_follows": list(user1_unique_follows),
+                        f"{user2}_unique_follows": list(user2_unique_follows)}
             # compare creation date
             case "created_at":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
@@ -170,9 +186,9 @@ class TwitterAPI(API):
                 time_difference_in_weeks = time_difference_in_days // 7
                 time_difference_in_hours = time_difference_in_seconds // 3600
                 return {"time_difference_in_seconds": time_difference_in_seconds,
+                        "time_difference_in_hours": time_difference_in_hours,
                         "time_difference_in_days": time_difference_in_days,
-                        "time_difference_in_weeks": time_difference_in_weeks,
-                        "time_difference_in_hours": time_difference_in_hours}
+                        "time_difference_in_weeks": time_difference_in_weeks}
             # if other comparison attribute was provided
             case _:
                 raise ValueError("Invalid comparison attribute for {}".format(compare))
@@ -276,6 +292,20 @@ class TwitterAPI(API):
 
 
         pass
+
+    def tweet_info(self, tweet_url: str, attributes: List[str]) -> dict:
+        # get tweet object
+        tweet_obj = self._get_tweet_object(tweet_url)
+
+        # initialize empty dict to store request information
+        tweet_info = dict()
+
+        # loop through the list of attributes and add them to the dictionary
+        for attr in attributes:
+            if attr in tweet_obj.keys():
+                tweet_info[attr] = tweet_obj.__dict__[attr]
+
+        return tweet_info
 
     def compare_tweets(self, tweets: List[str], compare: str):
         """_summary_

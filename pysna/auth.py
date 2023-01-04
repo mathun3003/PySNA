@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from tweepy import AppAuthHandler
+from tweepy import AppAuthHandler, Client
 from tweepy.auth import OAuth2UserHandler, OAuthHandler
-from tweepy.client import Client
 
 
 class TwitterClient(Client):
