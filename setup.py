@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*-
 import pathlib
+import re
 
 from setuptools import find_packages, setup
+
+VERSION_FILE = "pysna/__init__.py"
+with open(VERSION_FILE) as version_file:
+    match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file.read(), re.MULTILINE)
+
+if match:
+    version = match.group(1)
+else:
+    raise RuntimeError(f"Unable to find version string in {VERSION_FILE}.")
 
 HERE = pathlib.Path(__file__).parent
 
@@ -30,4 +40,11 @@ setup(
     url=URL,
     install_requires=INSTALL_REQUIRES,
     packages=find_packages(),
+    python_requires=">=3.10",
+    entry_points={
+        "console_scripts": [
+            "pysna_compare_users = pysna.cli:compare_users_cli",
+            "pysna_user_info = pysna.cli.user_info_cli",
+        ]
+    },
 )
