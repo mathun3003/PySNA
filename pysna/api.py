@@ -75,7 +75,7 @@ class TwitterAPI(API, Client):
         return tweet_obj
 
     def user_info(self, user: str, attributes: List[str]) -> dict:
-        """Receive requested user information from Twitter User Object
+        """Receive requested user information from Twitter User Object.
 
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
@@ -91,10 +91,10 @@ class TwitterAPI(API, Client):
             'translator_type', 'withheld_in_countries'
 
         Raises:
-            KeyError: If undefined attribute was provided
+            KeyError: If undefined attribute was provided.
 
         Returns:
-            dict: Requested user information
+            dict: Requested user information.
         """
 
         # get user object via tweepy
@@ -107,21 +107,25 @@ class TwitterAPI(API, Client):
         for attr in attributes:
             if attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
+            # get follower information
             elif attr == "followers_info":
-                # TODO: optimize runtime with only one list walk through
-                user_info[attr] = {
-                    "follower_ids": user_obj.follower_ids(),
-                    "follower_names": [follower.name for follower in user_obj.followers()],
-                    "follower_screen_names": [follower.screen_name for follower in user_obj.followers()],
-                }
+                # define dict to store follower information
+                user_info[attr] = {"follower_ids": list(), "follower_names": list(), "follower_screen_names": list()}
+                # get follower IDs
+                user_info[attr]["follower_ids"] = user_obj.follower_ids()
+                # get follower names and screen names
+                for follower in user_obj.followers():
+                    user_info[attr]["follower_names"].append(follower.name)
+                    user_info[attr]["follower_screen_names"].append(follower.screen_name)
+            # get follows information
             elif attr == "follows_info":
-                # TODO: optimize runtime with only one list walk through
-                follows_ids = [friend.id for friend in user_obj.friends()]
-                user_info[attr] = {
-                    "follows_ids": follows_ids,
-                    "follows_names": [friend.name for friend in user_obj.friends()],
-                    "follows_screen_names": [friend.screen_name for friend in user_obj.friends()],
-                }
+                # define dict to store follows information
+                user_info[attr] = dict.fromkeys(["follows_ids", "follows_names", "follows_screen_names"])
+                # get follows ID, names, and screen names
+                for friend in user_obj.friends():
+                    user_info[attr]["follows_ids"].append(friend.id)
+                    user_info[attr]["follows_names"].append(friend.name)
+                    user_info[attr]["follows_screen_names"].append(friend.screen_name)
             else:
                 raise ValueError("Invalid attribute for {}".format(attr))
 
@@ -134,7 +138,13 @@ class TwitterAPI(API, Client):
             user1 (str): User ID or screen name
             user2 (str): User ID or screen name
             compare (str): 'num_followers', 'num_follows', 'common_followers',
-            'unique_followers', 'common_follows', 'unique_follows', 'created_at'
+            'distinct_followers', 'common_follows', 'distinct_follows', 'created_at'
+
+        Raises:
+            ValueError: If invalid comparison attribute was provided.
+
+        Returns:
+            dict | list: Requested comparison attribute for specified users.
         """
 
         # match comparison attributes
@@ -155,28 +165,28 @@ class TwitterAPI(API, Client):
                 # get intersection of both users
                 common_followers = user1_followers.intersection(user2_followers)
                 return list(common_followers)
-            # compare unique followers
-            case "unique_followers":
+            # compare distinct followers
+            case "distinct_followers":
                 user1_followers, user2_followers = self._get_user_followers(user1), self._get_user_followers(user2)
-                # get unique followers
-                user1_unique_followers = user1_followers.difference(user2_followers)
-                user2_unique_followers = user2_followers.difference(user1_followers)
-                return {f"{user1}_unique_followers": list(user1_unique_followers),
-                        f"{user2}_unique_followers": list(user2_unique_followers)}
+                # get distinct followers
+                user1_distinct_followers = user1_followers.difference(user2_followers)
+                user2_distinct_followers = user2_followers.difference(user1_followers)
+                return {f"{user1}_distinct_followers": list(user1_distinct_followers),
+                        f"{user2}_distinct_followers": list(user2_distinct_followers)}
             # compare common follows
             case "common_follows":
                 user1_follows, user2_follows = self._get_user_follows(user1), self._get_user_follows(user2)
                # get intersectoin of both users
                 common_follows = user1_follows.intersection(user2_follows)
                 return list(common_follows)
-            # compare unique follows
-            case "unique_follows":
+            # compare distinct follows
+            case "distinct_follows":
                 user1_follows, user2_follows = self._get_user_follows(user1), self._get_user_follows(user2)
-                # get unique followers
-                user1_unique_follows = user1_follows.difference(user2_follows)
-                user2_unique_follows = user2_follows.difference(user1_follows)
-                return {f"{user1}_unique_follows": list(user1_unique_follows),
-                        f"{user2}_unique_follows": list(user2_unique_follows)}
+                # get distinct followers
+                user1_distinct_follows = user1_follows.difference(user2_follows)
+                user2_distinct_follows = user2_follows.difference(user1_follows)
+                return {f"{user1}_distinct_follows": list(user1_distinct_follows),
+                        f"{user2}_distinct_follows": list(user2_distinct_follows)}
             # compare creation date
             case "created_at":
                 user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
@@ -185,7 +195,9 @@ class TwitterAPI(API, Client):
                 time_difference_in_days = time_difference_in_seconds // 86400
                 time_difference_in_weeks = time_difference_in_days // 7
                 time_difference_in_hours = time_difference_in_seconds // 3600
-                return {"time_difference_in_seconds": time_difference_in_seconds,
+                return {f"{user1}_creation_date": user1_obj.created_at,
+                        f"{user2}_creation_date": user2_obj.created_at,
+                        "time_difference_in_seconds": time_difference_in_seconds,
                         "time_difference_in_hours": time_difference_in_hours,
                         "time_difference_in_days": time_difference_in_days,
                         "time_difference_in_weeks": time_difference_in_weeks}
@@ -254,44 +266,75 @@ class TwitterAPI(API, Client):
 
 
     #* same with list of users
-    def compare_users_list(self, users: List[str], compare):
+    def compare_users_list(self, users: List[str], compare: str) -> dict | list:
+        """Compare two or more users with the specified comparison attribute.
 
-        # Get user objects for all users in the list
-        user_objs = [self._get_user_object(user) for user in users]
+        Args:
+            users (List[str]): User IDs or screen names
+            compare (str): 'num_followers', 'num_follows', 'common_followers',
+            'distinct_followers', 'common_follows', 'distinct_follows'
 
-        # Compare all users in the list based on the requested attribute
-        comparison_results = {}
-        for i, user1_obj in enumerate(user_objs):
-            user1 = user1_obj.screen_name
-            comparison_results[user1] = {}
-            for j, user2_obj in enumerate(user_objs):
-                if i == j:
-                    continue
-                user2 = user2_obj.screen_name
-                if compare == 'followers':
-                    comparison_results[user1][user2] = {'user1_followers': user1_obj.followers_count, 'user2_followers': user2_obj.followers_count}
-                elif compare == 'friends':
-                    comparison_results[user1][user2] = {'user1_friends': user1_obj.friends_count, 'user2_friends': user2_obj.friends_count}
-                elif compare == 'common_followers':
-                    user1_followers = set(API.get_follower_ids(self, user_id=user1))
-                    user2_followers = set(API.get_follower_ids(self, user_id=user2))
-                    common_followers = user1_followers.intersection(user2_followers)
-                    comparison_results[user1][user2] = list(common_followers)
-                elif compare == 'unique_follows':
-                    user1_friends = set(API.get_friend_ids(self, user_id=user1))
-                    user2_friends = set(API.get_friend_ids(self, user_id=user2))
-                    user1_unique_follows = user1_friends.difference(user2_friends)
-                    user2_unique_follows = user2_friends.difference(user1_friends)
-                    comparison_results[user1][user2] = {'user1_unique_follows': list(user1_unique_follows), 'user2_unique_follows': list(user2_unique_follows)}
-                elif compare == 'created_at':
-                    time_difference_in_seconds = (user2_obj.created_at - user1_obj.created_at).total_seconds()
-                    time_difference_in_days = time_difference_in_seconds // 86400
-                    time_difference_in_weeks = time_difference_in_days // 7
-                    time_difference_in_hours = time_difference_in_seconds // 3600
-                    comparison_results[user1][user2] = {'time_difference_in_seconds': time_difference_in_seconds}
+        Raises:
+            ValueError: If users list only contains one entry.
+            ValueError: If invalid comparison attribute was provided.
 
+        Returns:
+            dict | list: Requested comparison attribute. Provide screen names
+            to display them in the results.
+        """
+        # list must contain at least two elements
+        if len(users) < 2:
+            raise ValueError("{} list must contain at least two elements.".format(users))
 
-        pass
+        # match comparison attributes
+        match compare:
+            # compare number of follwoers
+            case "num_followers":
+                followers_dict = dict()
+                for user in users:
+                    tmp_user_obj = self._get_user_object(user)
+                    followers_dict[user] = tmp_user_obj.followers_count
+                return followers_dict
+            # compare number of friends
+            case "num_follows":
+                follows_dict = dict()
+                for user in users:
+                    tmp_user_obj = self._get_user_object(user)
+                    follows_dict[user] = tmp_user_obj.friends_count
+                return follows_dict
+            # compare common followers
+            case "common_followers":
+                individual_followers = [self._get_user_followers(user) for user in users]
+                common_followers = set.intersection(*map(set, individual_followers))
+                return list(common_followers)
+            # compare distinct followers
+            case "distinct_followers":
+                individual_followers = {user: self._get_user_followers(user) for user in users}
+                distinct_followers = dict()
+                for user, followers in individual_followers.items():
+                    distinct_followers[user] = list(set(followers))
+                    for other_user, other_followers in individual_followers.items():
+                        if user != other_user:
+                            distinct_followers[user] = list(set(distinct_followers[user]) - set(other_followers))
+                return distinct_followers
+            # compare common follows
+            case "common_follows":
+                individual_follows = [self._get_user_follows(user) for user in users]
+                common_follows = set.intersection(*map(set, individual_follows))
+                return list(common_follows)
+            # compare distinct follows
+            case "distinct_follows":
+                individual_follows = {user: self._get_user_follows(user) for user in users}
+                distinct_follows = dict()
+                for user, follows in individual_follows.items():
+                    distinct_follows[user] = list(set(follows))
+                    for other_user, other_follows in individual_follows.items():
+                        if user != other_user:
+                            distinct_follows[user] = list(set(distinct_follows[user]) - set(other_follows))
+                return distinct_follows
+            # if other comparison attribute was provided
+            case _:
+                raise ValueError("Invalid comparison attribute for {}".format(compare))
 
     def tweet_info(self, tweet_url: str, attributes: List[str]) -> dict:
         # get tweet object
@@ -299,7 +342,7 @@ class TwitterAPI(API, Client):
 
         # initialize empty dict to store request information
         tweet_info = dict()
-
+        # FIXME
         # loop through the list of attributes and add them to the dictionary
         for attr in attributes:
             if attr in tweet_obj.keys():
