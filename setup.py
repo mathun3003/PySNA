@@ -43,8 +43,9 @@ setup(
     python_requires=">=3.10",
     entry_points={
         "console_scripts": [
-            "pysna_compare_users = pysna.cli:compare_users_cli",
-            "pysna_user_info = pysna.cli.user_info_cli",
+            "pysna compare_users = pysna.cli:compare_users_cli",
+            "pysna user_info = pysna.cli.user_info_cli",
+            "pysna compare_users_list = pysna.cli.compare_users_list_cli",
         ]
     },
 )
