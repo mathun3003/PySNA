@@ -10,14 +10,14 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
-def export_to_file(data: dict, filename: str, type: Literal['json', 'csv', 'xlsx'] | None, export_path='./'):
+def export_to_file(data: dict, filename: str, type: Literal['json', 'csv', 'xlsx'] | None, export_path: str | None):
     """_summary_
 
     Args:
         data (dict): _description_
         filename (str): _description_
         type (Literal[&#39;json&#39;, &#39;csv&#39;, &#39;xlsx&#39;]): _description_
-        export_path (str, optional): _description_. Defaults to './'.
+        export_path (str, optional): _description_.
 
     Raises:
         ValueError: _description_
