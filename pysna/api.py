@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+
 from typing import Dict, List, Literal, Set
 
 import tweepy
@@ -27,7 +28,6 @@ class TwitterAPI():
         self._auth = _auth
         self._api = _api
         self._client = _client
-
 
     def _get_user_object(self, user: str) -> tweepy.User:
         """Request Twitter User Object via tweepy
@@ -91,8 +91,43 @@ class TwitterAPI():
 
         Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
         """
-        tweet = self._client.get_tweet(id=tweet, **additional_fields)
-        return tweet
+        tweet_obj = self._client.get_tweet(id=tweet, **additional_fields)
+        return tweet_obj
+
+    def _get_liking_users(self, tweet: str | int, max_results=100) -> Set[int]:
+        liking_users = set()
+        params = {"id": tweet, "max_results": max_results, "pagination_token": None}
+
+        while True:
+            results = self._client.get_liking_users(**params)
+            if results.data is not None:
+                for user in results.data:
+                    liking_users.add(user.id)
+                if not results.meta["next_token"]:
+                    break
+                else:
+                    params["pagination_token"] = results.meta["next_token"]
+            else:
+                break
+        return liking_users
+
+    def _get_retweeters(self, tweet: str | int, max_results=100) -> Set[int]:
+        retweeters = set()
+        params = {"id": tweet, "max_results": max_results, "pagination_token": None}
+
+        while True:
+            results = self._client.get_retweeters(**params)
+            if results.data is not None:
+                for user in results.data:
+                    retweeters.add(user.id)
+                if not results.meta["next_token"]:
+                    break
+                else:
+                    params["pagination_token"] = results.meta["next_token"]
+            else:
+                break
+        return retweeters
+
 
     LITERALS_USER_INFO = Literal['id', 'id_str', 'name', 'screen_name', 'followers_info',
             'follows_info', 'location', 'profile_location', 'description', 'url', 'entities',
@@ -383,7 +418,7 @@ class TwitterAPI():
                                       'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users',
                                       'common_retweeters', 'distinct_retweets']
 
-    def compare_tweets(self, tweets: List[str | int], compare: str & LITERALS_COMPARE_TWEETS) -> dict | set:
+    def compare_tweets(self, tweets: List[str | int], compare: LITERALS_COMPARE_TWEETS) -> dict | set:
         """Compare two or more Tweets with the specified comparison attribute.
 
         Args:
@@ -405,6 +440,7 @@ class TwitterAPI():
 
         # match comparison attribute
         match compare:
+            # FIXME: #! media key object not found
             case "num_views":
                 num_views = dict()
                 for tweet in tweets:
@@ -416,6 +452,7 @@ class TwitterAPI():
                     public_metrics = response.includes["media"][0].public_metrics
                     num_views[tweet] = public_metrics["view_count"]
                 return num_views
+            # FIXME: #! public_metrics not accessible
             case "num_likes":
                 num_likes = dict()
                 for tweet in tweets:
@@ -470,11 +507,7 @@ class TwitterAPI():
                                                                     expansions="author_id")
                         for user in quote_results.includes['users']:
                             # Add the user to the list
-                            individual_qouting_users.append({
-                                "id": user.id,
-                                "name": user.name,
-                                "screen_name": user.username
-                            })
+                            individual_qouting_users.add(user.id)
 
                         # Break out of the loop if we have reached the end of the search results
                         if not quote_results.meta["next_token"]:
@@ -485,7 +518,7 @@ class TwitterAPI():
                     # store quoting users of the current tweet
                     all_quoting_users[tweet] = individual_qouting_users
                 # get intersection of individual quoting users of all tweets
-                common_quoting_users =  set.intersection(*map, all_quoting_users)
+                common_quoting_users =  set.intersection(*map(set, all_quoting_users))
                 # return quoting users
                 return common_quoting_users
             # get distinct quoting users of all Tweets
@@ -502,60 +535,65 @@ class TwitterAPI():
                     params = {
                         "id": tweet,
                         "max_results": 100,  # The maximum allowed by the Twitter API
-                        "next_token": None
+                        "pagination_token": None
                     }
-                    # get all liking users of that tweet
+                    # get all liking users of that tweet by pagination
+                    # TODO: write pagination as decorator
                     while True:
+                        # get liking users
                         like_results = self._client.get_liking_users(**params)
-                        for user in like_results.data:
-                            # Add the user to the list
-                            individual_liking_users.add({
-                                "id": user.id,
-                                "name": user.name,
-                                "screen_name": user.username
-                            })
+                        # if results exist
+                        if like_results.data is not None:
+                            for user in like_results.data:
+                                # Add the user to the list
+                                individual_liking_users.add(user.id)
 
-                        # Break out of the loop if we have reached the end of the search results
-                        if not like_results.meta["next_token"]:
-                            break
+                            # Break out of the loop if we have reached the end of the search results
+                            if not like_results.meta["next_token"]:
+                                break
+                            else:
+                                # Update the search parameters for the next iteration
+                                params["pagination_token"] = like_results.meta["next_token"]
+                        # if no results exist, break
                         else:
-                            # Update the search parameters for the next iteration
-                            params["next_token"] = like_results.meta["next_token"]
+                            break
+
                     # add set of individual liking users of current tweet to list
                     all_liking_users.append(individual_liking_users)
                 # get intersection of all individual liking users of all tweets
-                common_liking_users = set.intersection(*map, all_liking_users)
-                return common_liking_users
+                common_liking_users = set.intersection(*map(set, all_liking_users))
+                return list(common_liking_users)
             # get all distinct liking users of all tweets
             case "distinct_liking_users":
                 # init empty dicts to store all liking users and distinct liking users of all tweets
                 all_liking_users = dict()
-                distinct_liking_users = list()
+                distinct_liking_users = dict()
                 for tweet in tweets:
-                    individual_liking_users = list()
+                    individual_liking_users = set()
                     # Set the initial search parameters
                     params = {
                         "id": tweet,
                         "max_results": 100,  # The maximum allowed by the Twitter API
-                        "next_token": None
+                        "pagination_token": None
                     }
                     # get all liking users of that tweet
                     while True:
                         like_results = self._client.get_liking_users(**params)
-                        for user in like_results.data:
-                            # Add the user to the list
-                            individual_liking_users.add({
-                                "id": user.id,
-                                "name": user.name,
-                                "screen_name": user.username
-                            })
+                        # if results exist
+                        if like_results.data is not None:
+                            for user in like_results.data:
+                                # Add the user to the list
+                                individual_liking_users.add(user.id)
 
-                        # Break out of the loop if we have reached the end of the search results
-                        if not like_results.meta["next_token"]:
-                            break
+                            # Break out of the loop if we have reached the end of the search results
+                            if not like_results.meta["next_token"]:
+                                break
+                            else:
+                                # Update the search parameters for the next iteration
+                                params["pagination_token"] = like_results.meta["next_token"]
+                        # if no results exist, break
                         else:
-                            # Update the search parameters for the next iteration
-                            params["next_token"] = like_results.meta["next_token"]
+                            break
                     # add set of individual liking users of current tweet to list
                     all_liking_users[tweet] = individual_liking_users
 
@@ -576,60 +614,66 @@ class TwitterAPI():
                     params = {
                         "id": tweet,
                         "max_results": 100,  # The maximum allowed by the Twitter API
-                        "next_token": None
+                        "pagination_token": None
                     }
                     # get all retweeters of that tweet
                     while True:
+                        # get retweeters
                         retweeters = self._client.get_retweeters(**params)
-                        for user in retweeters.data:
-                            # Add retweeters to the list
-                            individual_retweeters.add({
-                                "id": user.id,
-                                "name": user.name,
-                                "screen_name": user.username
-                            })
+                        # if results exist
+                        if retweeters.data is not None:
+                            # collect retweeter IDs
+                            for user in retweeters.data:
+                                # Add retweeters to the list
+                                individual_retweeters.add(user.id)
 
-                        # Break out of the loop if we have reached the end of the search results
-                        if not retweeters.meta["next_token"]:
-                            break
+                            # Break out of the loop if we have reached the end of the search results
+                            if not retweeters.meta["next_token"]:
+                                break
+                            else:
+                                # Update the search parameters for the next iteration
+                                params["pagination_token"] = retweeters.meta["next_token"]
+                        # if no results exist, break
                         else:
-                            # Update the search parameters for the next iteration
-                            params["next_token"] = retweeters.meta["next_token"]
+                            break
                     # add set of individual retweeters current tweet to list
                     all_retweeters.append(individual_retweeters)
                 # get intersection of all individual retweeters of all tweets
-                common_retweeters = set.intersection(*map, all_retweeters)
-                return common_retweeters
+                common_retweeters = set.intersection(*map(set, all_retweeters))
+                return list(common_retweeters)
             # compare all tweets regarding their distinct retweeters
             case "distinct_retweeters":
                 # init empty dicts to store all retweeters and distinct retweeters of all tweets
                 all_retweeters = dict()
-                distinct_retweeters = list()
+                distinct_retweeters = dict()
                 for tweet in tweets:
-                    individual_retweeters = list()
+                    individual_retweeters = set()
                     # Set the initial search parameters
                     params = {
                         "id": tweet,
                         "max_results": 100,  # The maximum allowed by the Twitter API
-                        "next_token": None
+                        "pagination_token": None
                     }
                     # get all retweeters of that tweet
                     while True:
-                        retweeters_results = self._client.get_retweeters(**params)
-                        for user in retweeters_results.data:
-                            # Add the user to the list
-                            individual_retweeters.add({
-                                "id": user.id,
-                                "name": user.name,
-                                "screen_name": user.username
-                            })
+                        # get retweeters
+                        retweeters = self._client.get_retweeters(**params)
+                        # if results exist
+                        if retweeters.data is not None:
+                            # collect retweeter IDs
+                            for user in retweeters.data:
+                                # Add the user to the list
+                                individual_retweeters.add(user.id)
 
-                        # Break out of the loop if we have reached the end of the search results
-                        if not retweeters_results.meta["next_token"]:
-                            break
+                            # Break out of the loop if we have reached the end of the search results
+                            if not retweeters.meta["next_token"]:
+                                break
+                            else:
+                                # Update the search parameters for the next iteration
+                                params["pagination_token"] = retweeters.meta["next_token"]
+                        # if no results exist, break
                         else:
-                            # Update the search parameters for the next iteration
-                            params["next_token"] = retweeters_results.meta["next_token"]
+                            break
                     # add set of individual retweeters of current tweet to list
                     all_retweeters[tweet] = individual_retweeters
 
