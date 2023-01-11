@@ -26,7 +26,7 @@ DESCRIPTION = "Python Package for Social Network Analytics"
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ["tweepy", "argparse", "pandas", "python-dotenv"]
+INSTALL_REQUIRES = ["tweepy>=4.12.1", "argparse>=1.4.0", "pandas>=1.5.2", "python-dotenv>=0.21.0"]
 
 setup(
     name=PACKAGE_NAME,
@@ -46,6 +46,7 @@ setup(
             "pysna compare_users = pysna.cli:compare_users_cli",
             "pysna user_info = pysna.cli.user_info_cli",
             "pysna compare_users_list = pysna.cli.compare_users_list_cli",
+            "pysna compare_tweets = pysna.cli.compare_tweets_cli",
         ]
     },
 )
