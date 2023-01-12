@@ -18,6 +18,7 @@ class TwitterUserHandler(OAuth2UserHandler):
 class TwitterOAuthHandler(OAuthHandler):
     pass
 
+
 class TwitterOAuth1UserHandler(OAuth1UserHandler):
     pass
 
