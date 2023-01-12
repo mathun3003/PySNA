@@ -25,7 +25,7 @@ def user_info_cli():
         type=List[str],
         required=True,
         help="""Available user information. Needs to be one of the following: 'id', 'id_str', 'name', 'screen_name', 'followers_info',
-            'follows_info', 'location', 'profile_location', 'description', 'url', 'entities',
+            'followees_info', 'location', 'profile_location', 'description', 'url', 'entities',
             'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at',
             'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
             'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
@@ -65,63 +65,20 @@ def user_info_cli():
 
 
 def compare_users_cli():
-    """CLI function of the TwitterAPI.compare_users function"""
-    # define parser
-    parser = argparse.ArgumentParser(
-        prog="pysna", description="CLI function to compare two Twitter users with the specified comparison attribute."
-    )
-    # set first input param
-    parser.add_argument("user1", type=str, required=True, help="The ID or screen name of the first user.")
-    # set second input param
-    parser.add_argument("user2", type=str, required=True, help="The ID or screen name of the second user.")
-    # set third input param
-    parser.add_argument(
-        "compare",
-        type=str,
-        required=True,
-        help="The comparison attribute. Needs to be one of the following: 'num_followers', 'num_follows', 'common_followers', 'distinct_followers', 'common_follows', 'distinct_follows', 'created_at'",
-    )
-    # set fourth input argument (optional)
-    parser.add_argument("-o", "--output", type=str, required=False, help="Output file path. Include file name.")
-    # parse args
-    args = parser.parse_args()
-    # catch environmental variables
-    if not "TWITTER_CONSUMER_KEY" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_KEY must be provided in the environment variables.")
-    elif not "TWITTER_CONSUMER_SECRET" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_SECRET must be provided in the environment variables.")
-
-    # authorization from environment variables
-    auth = TwitterAppAuthHandler(
-        consumer_key=os.environ.get("TWITTER_CONSUMER_KEY"), consumer_secret=os.environ.get("TWITTER_CONSUMER_SECRET")
-    )
-    # establish connection to the API
-    api = TwitterAPI(auth)
-    # get results
-    result = api.compare_users(user1=args.user1, user2=args.user2, compare=args.compare)
-    # either print results if '--output' arg was provided
-    if args.output is not None:
-        with open(args.output, "w") as f:
-            json.dump(result, f, indent=4)
-    # or print them to the CLI
-    else:
-        print(result)
-    pass
-
-
-def compare_users_list_cli():
     """CLI function of the TwitterAPI.compare_users_list function"""
     # define parser
     parser = argparse.ArgumentParser(
         prog="pysna",
         description="CLI function to compare multiple Twitter users with the specified comparision attribute.",
     )
-    parser.add_argument("users", type=List[str], nargs="+", required=True, help="The IDs or screen names of the users.")
+    parser.add_argument(
+        "users", type=List[str], nargs="+", required=True, default=[], help="The IDs or screen names of the users."
+    )
     parser.add_argument(
         "compare",
         type=str,
         required=True,
-        help="The comparison attribute. Needs to be one of the following: 'num_followers', 'num_follows', 'common_followers', 'distinct_followers', 'common_follows', 'distinct_follows', 'created_at'",
+        help="The comparison attribute. Needs to be one of the following: 'num_followers', 'num_followees', 'common_followers', 'distinct_followers', 'common_followees', 'distinct_followees', 'created_at'",
     )
     parser.add_argument("-o", "--output", type=str, required=False, help="Output file path. Include file name.")
     args = parser.parse_args()
@@ -191,5 +148,4 @@ def compare_tweets_cli():
 if __name__ == "__main__":
     compare_users_cli()
     user_info_cli()
-    compare_users_list_cli()
     compare_tweets_cli()

@@ -45,7 +45,6 @@ setup(
         "console_scripts": [
             "pysna compare_users = pysna.cli:compare_users_cli",
             "pysna user_info = pysna.cli.user_info_cli",
-            "pysna compare_users_list = pysna.cli.compare_users_list_cli",
             "pysna compare_tweets = pysna.cli.compare_tweets_cli",
         ]
     },
