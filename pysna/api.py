@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 from typing import Any, Dict, List, Literal, Set
 
+import requests
 import tweepy
 
 from pysna.utils import strf_datetime
@@ -21,12 +23,40 @@ class TwitterAPI(tweepy.Client):
                                              wait_on_rate_limit=wait_on_rate_limit)
         # create a tweepy.AppAuthHandler instance
         _auth = tweepy.AppAuthHandler(consumer_key=consumer_key,
-                                     consumer_secret=consumer_secret)
+                                      consumer_secret=consumer_secret)
         # create a tweepy.API instance
         self._api = tweepy.API(_auth, wait_on_rate_limit=wait_on_rate_limit)
         # create a tweepy.Client instance from parent class
         self._client = super(self.__class__, self)
+        # store bearer token for manual request
+        self._bearer_token = bearer_token
 
+    def _manual_request(self, url: str, additional_fields: Dict[str, List[str]] | None = None) -> dict:
+        # if additional_fields were provided
+        if additional_fields:
+            # init empty string
+            fields = "&"
+            # create fields string dynamically for every field in additional_fields
+            for field in additional_fields.keys():
+                # e.g., in format "tweet.fields=lang,author_id"
+                fields += f"{field}={','.join(additional_fields[field])}"
+            # append fields to url
+            url += fields
+        # set header
+        header = {"Authorization": f"Bearer {self._bearer_token}"}
+        response = requests.get(url, headers=header)
+        # for debugging
+        log.debug("HTTP response status code: {}".format(response.status_code))
+        log.debug("HTTP response content: {}".format(response.content))
+        log.debug("HTTP response body: {}".format(response.body))
+        # if something went wrong
+        if response.status_code != 200:
+            raise Exception(
+                "Request returned an error: {} {}".format(
+                    response.status_code, response.text
+                )
+            )
+        return response.json()
 
     def _get_user_object(self, user: str | int) -> tweepy.User:
         """Request Twitter User Object via tweepy
@@ -46,7 +76,7 @@ class TwitterAPI(tweepy.Client):
             user_obj = self._api.get_user(screen_name=user)
         return user_obj
 
-    def _get_user_followers(self, user: str) -> Set[int]:
+    def _get_user_followers(self, user: str | int) -> Set[int]:
         """Request Twitter follower IDs from user
 
         Args:
@@ -56,7 +86,7 @@ class TwitterAPI(tweepy.Client):
             Set[int]: Array containing follower IDs
         """
         # check if string for user1 is convertible to int in order to check for user ID or screen name
-        if user.isdigit():
+        if (user.isdigit()) or (isinstance(user, int)):
             # get profile for user1 by user ID
             user_followers = self._api.get_follower_ids(user_id=user)
         else:
@@ -64,7 +94,7 @@ class TwitterAPI(tweepy.Client):
             user_followers = self._api.get_follower_ids(screen_name=user)
         return set(user_followers)
 
-    def _get_user_followees(self, user: str) -> Set[int]:
+    def _get_user_followees(self, user: str | int) -> Set[int]:
         """Request Twitter follow IDs from user
 
         Args:
@@ -73,26 +103,27 @@ class TwitterAPI(tweepy.Client):
         Returns:
             Set[int]: Array containing follow IDs
         """
-        if user.isdigit():
+        if (user.isdigit()) or (isinstance(user, int)):
             user_followees = self._api.get_friend_ids(user_id=user)
         else:
             user_followees = self._api.get_friend_ids(screen_name=user)
         return set(user_followees)
 
-    def _get_tweet_object(self, tweet: int | str, additional_fields: Dict[str, List[str]]):
-        """_summary_
+    def _get_tweet_object(self, tweet: str | int) -> tweepy.models.Status:
+        """Request Twitter Tweet Object via tweepy
 
         Args:
-            tweet (str): _description_
+            tweet (int | str): Tweet ID
 
         Returns:
-            tweepy.Tweet: _description_
+            tweepy.models.Status: tweepy Status Model
 
         Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
         """
-        tweet_obj = self._client.get_tweet(id=tweet, **additional_fields)
+        tweet_obj = self._api.get_status(tweet, include_entities=True)
         return tweet_obj
 
+    # TODO OPTIONAL: write pagination as decorator
     def _get_all_liking_users(self, tweet: str | int) -> Set[int]:
         # init emtpy set to store all liking users
         liking_users = set()
@@ -244,7 +275,7 @@ class TwitterAPI(tweepy.Client):
             'translator_type', 'withheld_in_countries'
 
         Raises:
-            KeyError: If undefined attribute was provided.
+            KeyError: If invalid attribute was provided.
 
         Returns:
             dict: Requested user information.
@@ -273,7 +304,7 @@ class TwitterAPI(tweepy.Client):
             # get followees information
             elif attr == "followees_info":
                 # define dict to store followees information
-                user_info[attr] = dict.fromkeys(["followees_ids", "followees_names", "followees_screen_names"])
+                user_info[attr] = dict.fromkeys(["followees_ids", "followees_names", "followees_screen_names"], list())
                 # get followees ID, names, and screen names
                 for friend in user_obj.friends():
                     user_info[attr]["followees_ids"].append(friend.id)
@@ -301,9 +332,9 @@ class TwitterAPI(tweepy.Client):
                 else:
                     user_id = user
                 # request all composed Tweets
-                composed_tweets = self._client._get_all_composed_tweets(user_id)
+                composed_tweets = self._get_all_composed_tweets(user_id)
                 user_info[attr] = composed_tweets
-            # if invalid comparison attribute was provided
+            # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for {}".format(attr))
 
@@ -312,91 +343,15 @@ class TwitterAPI(tweepy.Client):
     LITERALS_COMPARE_USERS = Literal['num_followers', 'num_followees', 'common_followers',
             'distinct_followers', 'common_followees', 'distinct_followees', 'created_at']
 
-    def compare_users(self, user1: str, user2: str, compare: LITERALS_COMPARE_USERS) -> dict | list:
-        """Compare two users with the specified comparison attribute
-
-        Args:
-            user1 (str): User ID or screen name
-            user2 (str): User ID or screen name
-            compare (str): 'num_followers', 'num_followees', 'common_followers',
-            'distinct_followers', 'common_followees', 'distinct_followees', 'created_at'
-
-        Raises:
-            ValueError: If invalid comparison attribute was provided.
-
-        Returns:
-            dict | list: Requested comparison attribute for specified users.
-        """
-
-        # match comparison attributes
-        match compare:
-            # compare number of followers
-            case "num_followers":
-                user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                return {f"{user1}_followers": user1_obj.followers_count,
-                        f"{user2}_followers": user2_obj.followers_count}
-            # compare number of friends
-            case "num_followees":
-                user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                return {f"{user1}_followees": user1_obj.friends_count,
-                        f"{user2}_followees": user2_obj.friends_count}
-            # compare common followers
-            case "common_followers":
-                user1_followers, user2_followers = self._get_user_followers(user1), self._get_user_followers(user2)
-                # get intersection of both users
-                common_followers = user1_followers.intersection(user2_followers)
-                return list(common_followers)
-            # compare distinct followers
-            case "distinct_followers":
-                user1_followers, user2_followers = self._get_user_followers(user1), self._get_user_followers(user2)
-                # get distinct followers
-                user1_distinct_followers = user1_followers.difference(user2_followers)
-                user2_distinct_followers = user2_followers.difference(user1_followers)
-                return {f"{user1}_distinct_followers": list(user1_distinct_followers),
-                        f"{user2}_distinct_followers": list(user2_distinct_followers)}
-            # compare common followees
-            case "common_followees":
-                user1_followees, user2_followees = self._get_user_followees(user1), self._get_user_followees(user2)
-               # get intersectoin of both users
-                common_followees = user1_followees.intersection(user2_followees)
-                return list(common_followees)
-            # compare distinct followees
-            case "distinct_followees":
-                user1_followees, user2_followees = self._get_user_followees(user1), self._get_user_followees(user2)
-                # get distinct followers
-                user1_distinct_followees = user1_followees.difference(user2_followees)
-                user2_distinct_followees = user2_followees.difference(user1_followees)
-                return {f"{user1}_distinct_followees": list(user1_distinct_followees),
-                        f"{user2}_distinct_followees": list(user2_distinct_followees)}
-            # compare creation date
-            case "created_at":
-                user1_obj, user2_obj = self._get_user_object(user1), self._get_user_object(user2)
-                # FIXME: #? time diff will be negative if user1 was created after user2. Still okay? #?
-                time_difference_in_seconds = (user2_obj.created_at - user1_obj.created_at).total_seconds()
-                time_difference_in_days = time_difference_in_seconds // 86400
-                time_difference_in_weeks = time_difference_in_days // 7
-                time_difference_in_hours = time_difference_in_seconds // 3600
-                return {f"{user1}_creation_date": strf_datetime(user1_obj.created_at),
-                        f"{user2}_creation_date": strf_datetime(user2_obj.created_at),
-                        "time_difference_in_seconds": time_difference_in_seconds,
-                        "time_difference_in_hours": time_difference_in_hours,
-                        "time_difference_in_days": time_difference_in_days,
-                        "time_difference_in_weeks": time_difference_in_weeks}
-            # if other comparison attribute was provided
-            case _:
-                raise ValueError("Invalid comparison attribute for {}".format(compare))
-
-    #? same with list of users
-    def compare_users_list(self, users: List[str], compare: str) -> dict | list:
+    def compare_users(self, users: List[str | int], compare: str) -> dict | list:
         """Compare two or more users with the specified comparison attribute.
 
         Args:
-            users (List[str]): User IDs or screen names
+            users (List[str  |  int]): User IDs or screen names
             compare (str): 'num_followers', 'num_followees', 'common_followers',
             'distinct_followers', 'common_followees', 'distinct_followees'
 
         Raises:
-            ValueError: If users list only contains one entry.
             ValueError: If invalid comparison attribute was provided.
 
         Returns:
@@ -452,21 +407,36 @@ class TwitterAPI(tweepy.Client):
                         if user != other_user:
                             distinct_followees[user] = list(set(distinct_followees[user]) - set(other_followees))
                 return distinct_followees
+            # compare creation dates
+            case "created_at":
+                # TODO
+                pass
             # if other comparison attribute was provided
             case _:
                 raise ValueError("Invalid comparison attribute for {}".format(compare))
 
-    def tweet_info(self, tweet_id: str, attributes: List[str]) -> dict:
-        """_summary_
+    LITERALS_TWEET_INFO = Literal['created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source', 'author_info',
+                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str',
+                                  'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status',
+                                  'view_count', 'retweet_count', 'favorite_count', 'quoting_users', 'favorited', 'retweeted',
+                                  'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
+
+    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO]) -> dict:
+        """Receive requested Tweet information from Tweet Object.
 
         Args:
-            tweet_id (str): _description_
-            attributes (List[str]): _description_
+            tweet_id (str | int): Tweet ID
+            attributes (List[LITERALS_TWEET_INFO]): 'created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source',
+            'author_info', 'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id',
+            'in_reply_to_user_id_str', 'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors',
+            'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 'quoting_users', 'favorited', 'retweeted',
+            'possibly_sensitive', 'possibly_sensitive_appealable', 'lang'
+
+        Raises:
+            ValueError: If invalid attribute was provided.
 
         Returns:
-            dict: _description_
-
-        Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
+            dict: Requested Tweet information.
         """
         # get tweet object
         tweet_obj = self._get_tweet_object(tweet_id)
@@ -475,51 +445,29 @@ class TwitterAPI(tweepy.Client):
         tweet_info = dict()
 
         for attr in attributes:
-            # TODO: finish if default field was provided from expansions or user.fields, tweet.fields
-            if attr in []:
-                tweet_info[attr] = None
-            # get quoting users
+            # get default attributes from tweepy Status model
+            if attr in tweet_obj._json.keys():
+                tweet_info[attr] = tweet_obj._json[attr]
+            # get information about author
+            elif attr == "author_info":
+                author_info = dict()
+                for field in tweet_obj.user._json.keys():
+                    author_info[field] = tweet_obj.user._json[field]
+                tweet_info[attr] = author_info
+            # get all quoting users
             elif attr == "quoting_users":
-                # Initialize a list to store the quoting users
-                quoting_users = []
-
-                # Set the initial search parameters
-                params = {
-                    "id": tweet_id,
-                    "max_results": 100,  # The maximum allowed by the Twitter API
-                    "next_token": None
-                }
-
-                while True:
-                    quote_results = self._client.get_quote_tweets(**params,
-                                                                  expansions="author_id")
-                    for user in quote_results.includes['users']:
-                        # Add the user to the list
-                        quoting_users.append({
-                            "id": user.id,
-                            "name": user.name,
-                            "screen_name": user.username
-                        })
-
-                    # Break out of the loop if we have reached the end of the search results
-                    if not quote_results.meta["next_token"]:
-                        break
-                    else:
-                        # Update the search parameters for the next iteration
-                        params["next_token"] = quote_results.meta["next_token"]
-
-                # store in tweet_info dict
-                tweet_info['quoting_users'] = quoting_users
-            # TODO: add more attributes
+                quoting_users = self._get_all_quoting_users(tweet_id)
+                tweet_info[attr] = quoting_users
+            # get the number of views
+            elif attr == "view_count":
+                # TODO: go via manual request and public metrics
+                pass
+            # get the number if likes
             elif attr == "":
                 pass
-
-        # FIXME
-        # loop through the list of attributes and add them to the dictionary
-        for attr in attributes:
-            if attr in tweet_obj.keys():
-                tweet_info[attr] = tweet_obj.__dict__[attr]
-
+            # if invalid attribute was provided
+            else:
+                raise ValueError("Invalid attribute for {}".format(attr))
         return tweet_info
 
     LITERALS_COMPARE_TWEETS = Literal['num_views', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
