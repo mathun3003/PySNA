@@ -32,23 +32,37 @@ class TwitterAPI(tweepy.Client):
         self._bearer_token = bearer_token
 
     def _manual_request(self, url: str, additional_fields: Dict[str, List[str]] | None = None) -> dict:
+        """Perform a manual GET request to the Twitter API.
+
+        Args:
+            url (str): API URL (without specified fields)
+            additional_fields (Dict[str, List[str]] | None, optional): Fields can be specified (e.g., tweet.fields) according to the official API reference. Defaults to None.
+
+        Raises:
+            Exception: If status code != 200.
+
+        Returns:
+            dict: JSON formatted response of API request.
+
+        Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
+        """
         # if additional_fields were provided
         if additional_fields:
             # init empty string
-            fields = "&"
+            fields = "?"
             # create fields string dynamically for every field in additional_fields
             for field in additional_fields.keys():
                 # e.g., in format "tweet.fields=lang,author_id"
-                fields += f"{field}={','.join(additional_fields[field])}"
+                fields += f"{field}={','.join(additional_fields[field])}&"
             # append fields to url
-            url += fields
+            url += fields[:-1]
         # set header
         header = {"Authorization": f"Bearer {self._bearer_token}"}
         response = requests.get(url, headers=header)
         # for debugging
         log.debug("HTTP response status code: {}".format(response.status_code))
         log.debug("HTTP response content: {}".format(response.content))
-        log.debug("HTTP response body: {}".format(response.body))
+        log.debug("HTTP response body: {}".format(response.json()))
         # if something went wrong
         if response.status_code != 200:
             raise Exception(
@@ -258,7 +272,7 @@ class TwitterAPI(tweepy.Client):
             'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
             'translator_type', 'withheld_in_countries']
 
-    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO]) -> dict:
+    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str) -> dict:
         """Receive requested user information from Twitter User Object.
 
         Args:
@@ -286,6 +300,11 @@ class TwitterAPI(tweepy.Client):
 
         # initialize empty dict to store requested attributes
         user_info = dict()
+
+        # if single string was provided
+        if isinstance(attributes, str):
+            # convert to list for iteration
+            attributes = [attributes]
 
         # loop through the list of attributes and add them to the dictionary
         for attr in attributes:
@@ -415,21 +434,21 @@ class TwitterAPI(tweepy.Client):
             case _:
                 raise ValueError("Invalid comparison attribute for {}".format(compare))
 
-    LITERALS_TWEET_INFO = Literal['created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source', 'author_info',
+    LITERALS_TWEET_INFO = Literal['created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source', 'author_info', 'retweeters'
                                   'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str',
                                   'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status',
-                                  'view_count', 'retweet_count', 'favorite_count', 'quoting_users', 'favorited', 'retweeted',
-                                  'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
+                                  'view_count', 'retweet_count', 'favorite_count', 'quote_count', 'reply_count', 'quoting_users',
+                                  'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
 
-    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO]) -> dict:
+    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str) -> dict:
         """Receive requested Tweet information from Tweet Object.
 
         Args:
             tweet_id (str | int): Tweet ID
             attributes (List[LITERALS_TWEET_INFO]): 'created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source',
-            'author_info', 'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id',
-            'in_reply_to_user_id_str', 'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors',
-            'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 'quoting_users', 'favorited', 'retweeted',
+            'author_info', 'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str',
+            'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors', 'retweeters',  'is_quote_status',
+            'view_count', 'retweet_count', 'favorite_count', 'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted',
             'possibly_sensitive', 'possibly_sensitive_appealable', 'lang'
 
         Raises:
@@ -444,6 +463,11 @@ class TwitterAPI(tweepy.Client):
         # initialize empty dict to store request information
         tweet_info = dict()
 
+        # if single string was provided
+        if isinstance(attributes, str):
+            # convert to list for iteration
+            attributes = [attributes]
+
         for attr in attributes:
             # get default attributes from tweepy Status model
             if attr in tweet_obj._json.keys():
@@ -457,20 +481,38 @@ class TwitterAPI(tweepy.Client):
             # get all quoting users
             elif attr == "quoting_users":
                 quoting_users = self._get_all_quoting_users(tweet_id)
-                tweet_info[attr] = quoting_users
+                tweet_info[attr] = list(quoting_users)
+            # get all retweeters
+            elif attr == "retweeters":
+                retweeters = self._get_all_retweeters(tweet_id)
+                tweet_info[attr] = list(retweeters)
             # get the number of views
             elif attr == "view_count":
-                # TODO: go via manual request and public metrics
-                pass
-            # get the number if likes
-            elif attr == "":
-                pass
+                # go via manual request and public metrics
+                url = f"https://api.twitter.com/2/tweets/{tweet_id}"
+                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                public_metrics = response_json["data"]["public_metrics"]
+                tweet_info[attr] = public_metrics["impression_count"]
+            # get the number of likes
+            elif attr == "quote_count":
+                # go via manual request and public metrics
+                url = f"https://api.twitter.com/2/tweets/{tweet_id}"
+                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                public_metrics = response_json["data"]["public_metrics"]
+                tweet_info[attr] = public_metrics["quote_count"]
+            # get the number of replies
+            elif attr == "reply_count":
+                # go via manual request and public metrics
+                url = f"https://api.twitter.com/2/tweets/{tweet_id}"
+                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                public_metrics = response_json["data"]["public_metrics"]
+                tweet_info[attr] = public_metrics["reply_count"]
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for {}".format(attr))
         return tweet_info
 
-    LITERALS_COMPARE_TWEETS = Literal['num_views', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
+    LITERALS_COMPARE_TWEETS = Literal['view_count', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
                                       'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users',
                                       'common_retweeters', 'distinct_retweets']
 
@@ -479,7 +521,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
-            compare (str): Comparison attribute. Needs to be one of the following: 'num_views', 'num_likes', 'num_retweets', 'num_quotes',
+            compare (str): Comparison attribute. Needs to be one of the following: 'view_count', 'like_count', 'retweet_count', 'num_quotes',
             'common_quoting_users', 'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users', 'common_retweeters', 'distinct_retweets'.
 
         Raises:
@@ -494,52 +536,38 @@ class TwitterAPI(tweepy.Client):
 
         # match comparison attribute
         match compare:
-            # FIXME: #! media key object not found
-            case "num_views":
-                num_views = dict()
+            # compare numer of views / impressions
+            case "view_count":
+                view_count = dict()
                 for tweet in tweets:
-                    response = self._get_tweet_object(tweet, additional_fields={
-                        "tweet_fields": ["public_metrics"],
-                        "expansions": ["attachments.media_keys"],
-                        "media_fields": ["public_metrics"]
-                    })
-                    public_metrics = response.includes["media"][0].public_metrics
-                    num_views[tweet] = public_metrics["view_count"]
-                return num_views
-            # FIXME: #! public_metrics not accessible
-            case "num_likes":
-                num_likes = dict()
+                    url = f"https://api.twitter.com/2/tweets/{tweet}"
+                    response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                    public_metrics = response_json["data"]["public_metrics"]
+                    view_count[tweet] = public_metrics["impression_count"]
+                return view_count
+            # compare number of likes
+            case "like_count":
+                like_count = dict()
                 for tweet in tweets:
-                    response = self._get_tweet_object(tweet, additional_fields={
-                        "tweet_fields": ["public_metrics"],
-                        "expansions": ["attachments.media_keys"],
-                        "media_fields": ["public_metrics"]
-                    })
-                    public_metrics = response.data[0].public_metrics
-                    num_likes[tweet] = public_metrics["like_count"]
-                return num_likes
-            case "num_retweets":
-                num_retweets = dict()
+                    response = self._get_tweet_object(tweet)
+                    like_count[tweet] = response._json["favorite_count"]
+                return like_count
+            # compare number of retweets
+            case "retweet_count":
+                retweet_count = dict()
                 for tweet in tweets:
-                    response = self._get_tweet_object(tweet, additional_fields={
-                        "tweet_fields": ["public_metrics"],
-                        "expansions": ["attachments.media_keys"],
-                        "media_fields": ["public_metrics"]
-                    })
-                    public_metrics = response.data[0].public_metrics
-                    num_retweets[tweet] = public_metrics["retweet_count"]
-                return num_retweets
-            case "num_quotes":
-                num_quotes = dict()
+                    response = self._get_tweet_object(tweet)
+                    retweet_count[tweet] = response._json["retweet_count"]
+                return retweet_count
+            # compare number of quotes
+            case "quote_count":
+                quote_count = dict()
                 for tweet in tweets:
-                    response = self._get_tweet_object(tweet, additional_fields={
-                        "tweet_fields": ["public_metrics"],
-                        "expansions": ["attachments.media_keys"],
-                        "media_fields": ["public_metrics"]
-                    })
-                    public_metrics = response.data[0].public_metrics
-                    num_quotes[tweet] = public_metrics["quote_count"]
-                return num_quotes
+                    url = f"https://api.twitter.com/2/tweets/{tweet}"
+                    response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                    public_metrics = response_json["data"]["public_metrics"]
+                    quote_count[tweet] = public_metrics["quote_count"]
+                return quote_count
             # get all quoting users all Tweets have in common
             case "common_quoting_users":
                 all_quoting_users = list()
