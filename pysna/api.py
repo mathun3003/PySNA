@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Set
+from typing import Any, Dict, List, Literal, Set, get_args
 
 import numpy as np
 import requests
@@ -12,6 +12,31 @@ from pysna.utils import strf_datetime
 
 class TwitterAPI(tweepy.Client):
     """Twitter API class in order to interact with the Twitter Search API v2."""
+
+    LITERALS_USER_INFO = Literal['id', 'id_str', 'name', 'screen_name', 'utc_timestamp', 'followers_info',
+                                 'followees_info', 'location', 'profile_location', 'description', 'url', 'entities',
+                                 'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at', 'liked_tweets', 'composed_tweets',
+                                 'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
+                                 'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
+                                 'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url',
+                                 'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color',
+                                 'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile',
+                                 'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
+                                 'translator_type', 'withheld_in_countries']
+
+    LITERALS_TWEET_INFO = Literal['id', 'id_str', 'text', 'truncated', 'created_at', 'entities', 'source', 'utc_timestamp', 'author_info', 'retweeters', 'available',
+                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name',
+                                  'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count',
+                                  'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
+
+    LITERALS_COMPARE_USERS = Literal['num_followers', 'num_followees', 'common_followers',
+            'distinct_followers', 'common_followees', 'distinct_followees', 'created_at']
+
+    LITERALS_COMPARE_TWEETS = Literal['view_count', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
+                                      'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users',
+                                      'common_retweeters', 'distinct_retweets']
+
+
 
     def __init__(self, bearer_token: Any | None = None, consumer_key: Any | None = None, consumer_secret: Any | None = None,
                  access_token: Any | None = None, access_token_secret: Any | None = None, wait_on_rate_limit: bool = True):
@@ -254,33 +279,12 @@ class TwitterAPI(tweepy.Client):
                 break
         return composed_tweets
 
-
-    LITERALS_USER_INFO = Literal['id', 'id_str', 'name', 'screen_name', 'utc_timestamp', 'followers_info',
-            'followees_info', 'location', 'profile_location', 'description', 'url', 'entities',
-            'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at', 'liked_tweets', 'composed_tweets',
-            'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
-            'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
-            'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url',
-            'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color',
-            'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile',
-            'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
-            'translator_type', 'withheld_in_countries']
-
     def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str) -> dict:
-        """Receive requested user information from Twitter User Object.
+        f"""Receive requested user information from Twitter User Object.
 
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): 'id', 'id_str', 'name', 'screen_name', 'utc_timestamp', 'followers_info', 'liked_tweets',
-            'followees_info', 'location', 'profile_location', 'description', 'url', 'entities', 'composed_tweets',
-            'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at',
-            'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
-            'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
-            'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url',
-            'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color',
-            'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile',
-            'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
-            'translator_type', 'withheld_in_countries'
+            attributes (List[str]): Attributes of the User object. These must be from {', '.join(get_args(self.LITERALS_USER_INFO))}.
 
         Raises:
             KeyError: If invalid attribute was provided.
@@ -357,16 +361,12 @@ class TwitterAPI(tweepy.Client):
 
         return user_info
 
-    LITERALS_COMPARE_USERS = Literal['num_followers', 'num_followees', 'common_followers',
-            'distinct_followers', 'common_followees', 'distinct_followees', 'created_at']
-
     def compare_users(self, users: List[str | int], compare: str) -> dict | list:
-        """Compare two or more users with the specified comparison attribute.
+        f"""Compare two or more users with the specified comparison attribute.
 
         Args:
             users (List[str  |  int]): User IDs or screen names
-            compare (str): 'num_followers', 'num_followees', 'common_followers',
-            'distinct_followers', 'common_followees', 'distinct_followees'
+            compare (str): Comparison attribute. Must be one of {', '.join(get_args(self.LITERALS_COMPARE_USERS))}.
 
         Raises:
             ValueError: If invalid comparison attribute was provided.
@@ -432,20 +432,12 @@ class TwitterAPI(tweepy.Client):
             case _:
                 raise ValueError("Invalid comparison attribute for {}".format(compare))
 
-    LITERALS_TWEET_INFO = Literal['id', 'id_str', 'text', 'truncated', 'created_at', 'entities', 'source', 'utc_timestamp', 'author_info', 'retweeters', 'available',
-                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name', 
-                                  'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 
-                                  'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
-
     def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str) -> dict:
-        """Receive requested Tweet information from Tweet Object.
+        f"""Receive requested Tweet information from Tweet Object.
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO]): 'id', 'id_str', 'text', 'truncated', 'created_at', 'entities', 'source', 'utc_timestamp', 'author_info', 'retweeters', 'available',
-                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name', 
-                                  'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 
-                                  'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang'
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from {', '.join(get_args(self.LITERALS_TWEET_INFO))}.
 
         Raises:
             ValueError: If invalid attribute was provided.
@@ -523,17 +515,12 @@ class TwitterAPI(tweepy.Client):
                 raise ValueError("Invalid attribute for {}".format(attr))
         return tweet_info
 
-    LITERALS_COMPARE_TWEETS = Literal['view_count', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
-                                      'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users',
-                                      'common_retweeters', 'distinct_retweets']
-
     def compare_tweets(self, tweets: List[str | int], compare: LITERALS_COMPARE_TWEETS) -> dict | set:
-        """Compare two or more Tweets with the specified comparison attribute.
+        f"""Compare two or more Tweets with the specified comparison attribute.
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
-            compare (str): Comparison attribute. Needs to be one of the following: 'view_count', 'like_count', 'retweet_count', 'num_quotes',
-            'common_quoting_users', 'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users', 'common_retweeters', 'distinct_retweets'.
+            compare (str): Comparison attribute. Needs to be one of the following: {', '.join(get_args(self.LITERALS_COMPARE_TWEETS))}.
 
         Raises:
             AssertionError: If a list of one Tweet ID was provided.

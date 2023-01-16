@@ -5,14 +5,17 @@ The command-line interface for the PySNA package
 import argparse
 import json
 import os
-from typing import List
+from typing import List, get_args
+
+from dotenv import load_dotenv
 
 from .api import TwitterAPI
-from .auth import TwitterAppAuthHandler
+
+REQUIRED_SECRETS = ["BEARER_TOKEN", "CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET"]
 
 
 def user_info_cli():
-    """CLI function of the TwitterAPI.user_info function"""
+    """CLI function of the TwitterAPI().user_info function"""
     # define parser
     parser = argparse.ArgumentParser(
         prog="pysna", description="CLI function to request information from the specified Twitter user."
@@ -24,34 +27,27 @@ def user_info_cli():
         "attributes",
         type=List[str],
         required=True,
-        help="""Available user information. Needs to be one of the following: 'id', 'id_str', 'name', 'screen_name', 'followers_info',
-            'followees_info', 'location', 'profile_location', 'description', 'url', 'entities',
-            'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at',
-            'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
-            'lang', 'status', 'contributors_enabled', 'is_translator', 'is_translation_enabled', 'profile_background_color',
-            'profile_background_image_url', 'profile_background_image_url_https', 'profile_background_tile', 'profile_image_url',
-            'profile_image_url_https', 'profile_banner_url', 'profile_link_color', 'profile_sidebar_border_color',
-            'profile_sidebar_fill_color', 'profile_text_color', 'profile_use_background_image', 'has_extended_profile',
-            'default_profile', 'default_profile_image', 'following', 'follow_request_sent', 'notifications',
-            'translator_type', 'withheld_in_countries'""",
+        help=f"""Available user information attributes. These must be from: {', '.join(get_args(TwitterAPI.LITERALS_USER_INFO))}.""",
     )
     # set fourth input argument (optional)
     parser.add_argument("-o", "--output", type=str, required=False, help="Output file path. Include file name.")
+    # set optional argument in order to read secrets from .env file
+    parser.add_argument("-e", "--env", type=str, required=False, help="Path to an .env file including the secrets.")
 
     # parse args
     args = parser.parse_args()
+    # if path to .env file was provided
+    if args.env is not None:
+        load_dotenv(args.env)
     # catch environmental variables
-    if not "TWITTER_CONSUMER_KEY" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_KEY must be provided in the environment variables.")
-    elif not "TWITTER_CONSUMER_SECRET" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_SECRET must be provided in the environment variables.")
+    for secret in REQUIRED_SECRETS:
+        if not str(secret) in os.environ:
+            raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
+    # collect secrets
+    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
 
-    # authorization from environment variables
-    auth = TwitterAppAuthHandler(
-        consumer_key=os.environ.get("TWITTER_CONSUMER_KEY"), consumer_secret=os.environ.get("TWITTER_CONSUMER_SECRET")
-    )
     # establish connection to the API
-    api = TwitterAPI(auth)
+    api = TwitterAPI(**secrets)
     # get results
     result = api.user_info(user=args.user, attributes=args.attributes)
     # either print results if '--output' arg was provided
@@ -65,7 +61,7 @@ def user_info_cli():
 
 
 def compare_users_cli():
-    """CLI function of the TwitterAPI.compare_users_list function"""
+    """CLI function of the TwitterAPI().compare_users_list function"""
     # define parser
     parser = argparse.ArgumentParser(
         prog="pysna",
@@ -78,20 +74,24 @@ def compare_users_cli():
         "compare",
         type=str,
         required=True,
-        help="The comparison attribute. Needs to be one of the following: 'num_followers', 'num_followees', 'common_followers', 'distinct_followers', 'common_followees', 'distinct_followees', 'created_at'",
+        help=f"The comparison attribute. Needs to be one of the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_USERS))}.",
     )
     parser.add_argument("-o", "--output", type=str, required=False, help="Output file path. Include file name.")
-    args = parser.parse_args()
-    # catch environmental variables
-    if not "TWITTER_CONSUMER_KEY" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_KEY must be provided in the environment variables.")
-    elif not "TWITTER_CONSUMER_SECRET" in os.environ:
-        raise KeyError("TWITTER_CONSUMER_SECRET must be provided in the environment variables.")
+    # set optional argument in order to read secrets from .env file
+    parser.add_argument("-e", "--env", type=str, required=False, help="Path to an .env file including the secrets.")
 
-    auth = TwitterAppAuthHandler(
-        consumer_key=os.environ.get("TWITTER_CONSUMER_KEY"), consumer_secret=os.environ.get("TWITTER_CONSUMER_SECRET")
-    )
-    api = TwitterAPI(auth)
+    args = parser.parse_args()
+    # if path to .env file was provided
+    if args.env is not None:
+        load_dotenv(args.env)
+    # catch environmental variables
+    for secret in REQUIRED_SECRETS:
+        if not str(secret) in os.environ:
+            raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
+    # collect secrets
+    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
+
+    api = TwitterAPI(**secrets)
     result = api.compare_users_list(users=args.users, compare=args.compare)
     # either print results if '--output' arg was provided
     if args.output is not None:
@@ -104,7 +104,7 @@ def compare_users_cli():
 
 
 def compare_tweets_cli():
-    """CLI function to the TwitterAPI.compare_tweets function."""
+    """CLI function to the TwitterAPI().compare_tweets function."""
 
     # define parser
     parser = argparse.Argumentparser(
@@ -118,19 +118,18 @@ def compare_tweets_cli():
         type=str,
         required=True,
         nargs=1,
-        help="The comparison attribute. Needs to be one of the following: 'num_views', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users', 'distinct_quoting_users', 'common_liking_users', 'distinct_liking_users', 'common_retweeters', 'distinct_retweeters'",
+        help=f"The comparison attribute. Needs to be one of the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_TWEETS))}.",
     )
     # add optional output argument
     parser.add_argument("-o", "--output", type=str, required=False, help="Output file path. Include file name.")
     # parse args
     args = parser.parse_args()
     # catch environmental variables
-    req_secrets = ["BEARER_TOKEN", "CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET"]
-    for secret in req_secrets:
-        if not f"TWITTER_{secret}" in os.environ:
-            raise KeyError(f"TWITTER_{secret} must be provided in the environment variables.")
+    for secret in REQUIRED_SECRETS:
+        if not str(secret) in os.environ:
+            raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
     # collect secrets
-    secrets = {f"{secret}".lower(): os.getenv(f"TWITTER_{secret}") for secret in req_secrets}
+    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
     # create API obj
     api = TwitterAPI(**secrets)
     result = api.compare_tweets(tweets=args.tweets, compare=args.compare)
@@ -141,7 +140,6 @@ def compare_tweets_cli():
     # or print them to the CLI
     else:
         print(result)
-
     pass
 
 
