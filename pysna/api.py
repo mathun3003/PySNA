@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import json
-import logging
+from collections import defaultdict
+from datetime import datetime
 from typing import Any, Dict, List, Literal, Set
 
+import numpy as np
 import requests
 import tweepy
 
 from pysna.utils import strf_datetime
-
-log = logging.getLogger(__name__)
 
 
 class TwitterAPI(tweepy.Client):
@@ -59,11 +58,6 @@ class TwitterAPI(tweepy.Client):
         # set header
         header = {"Authorization": f"Bearer {self._bearer_token}"}
         response = requests.get(url, headers=header)
-        # for debugging
-        log.debug("HTTP response status code: {}".format(response.status_code))
-        log.debug("HTTP response content: {}".format(response.content))
-        log.debug("HTTP response body: {}".format(response.json()))
-        # if something went wrong
         if response.status_code != 200:
             raise Exception(
                 "Request returned an error: {} {}".format(
@@ -261,7 +255,7 @@ class TwitterAPI(tweepy.Client):
         return composed_tweets
 
 
-    LITERALS_USER_INFO = Literal['id', 'id_str', 'name', 'screen_name', 'followers_info',
+    LITERALS_USER_INFO = Literal['id', 'id_str', 'name', 'screen_name', 'utc_timestamp', 'followers_info',
             'followees_info', 'location', 'profile_location', 'description', 'url', 'entities',
             'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at', 'liked_tweets', 'composed_tweets',
             'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
@@ -277,7 +271,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): 'id', 'id_str', 'name', 'screen_name', 'followers_info', 'liked_tweets',
+            attributes (List[str]): 'id', 'id_str', 'name', 'screen_name', 'utc_timestamp', 'followers_info', 'liked_tweets',
             'followees_info', 'location', 'profile_location', 'description', 'url', 'entities', 'composed_tweets',
             'protected', 'followers_count', 'friends_count', 'listed_count', 'created_at',
             'favourites_count', 'utc_offset', 'time_zone', 'geo_enabled', 'verified', 'statuses_count',
@@ -310,6 +304,10 @@ class TwitterAPI(tweepy.Client):
         for attr in attributes:
             if attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
+            # get current UTC timestamp
+            elif attr == "utc_timestamp":
+                # store unix timestampÖlker
+                user_info[attr] = strf_datetime(datetime.utc(), format="%Y-%m-%d %H:%M:%S.%f")
             # get follower information
             elif attr == "followers_info":
                 # define dict to store follower information
@@ -434,22 +432,20 @@ class TwitterAPI(tweepy.Client):
             case _:
                 raise ValueError("Invalid comparison attribute for {}".format(compare))
 
-    LITERALS_TWEET_INFO = Literal['created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source', 'author_info', 'retweeters'
-                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str',
-                                  'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status',
-                                  'view_count', 'retweet_count', 'favorite_count', 'quote_count', 'reply_count', 'quoting_users',
-                                  'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
+    LITERALS_TWEET_INFO = Literal['id', 'id_str', 'text', 'truncated', 'created_at', 'entities', 'source', 'utc_timestamp', 'author_info', 'retweeters', 'available',
+                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name', 
+                                  'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 
+                                  'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
 
     def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str) -> dict:
         """Receive requested Tweet information from Tweet Object.
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO]): 'created_at', 'id', 'id_str', 'text', 'truncated', 'entities', 'source',
-            'author_info', 'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str',
-            'in_reply_to_screen_name', 'user', 'geo', 'coordinates', 'place', 'contributors', 'retweeters',  'is_quote_status',
-            'view_count', 'retweet_count', 'favorite_count', 'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted',
-            'possibly_sensitive', 'possibly_sensitive_appealable', 'lang'
+            attributes (List[LITERALS_TWEET_INFO]): 'id', 'id_str', 'text', 'truncated', 'created_at', 'entities', 'source', 'utc_timestamp', 'author_info', 'retweeters', 'available',
+                                  'in_reply_to_status_id', 'in_reply_to_status_id_str', 'in_reply_to_user_id', 'in_reply_to_user_id_str', 'in_reply_to_screen_name', 
+                                  'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count', 
+                                  'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang'
 
         Raises:
             ValueError: If invalid attribute was provided.
@@ -472,6 +468,21 @@ class TwitterAPI(tweepy.Client):
             # get default attributes from tweepy Status model
             if attr in tweet_obj._json.keys():
                 tweet_info[attr] = tweet_obj._json[attr]
+            # get current UTC timestamp
+            elif attr == "utc_timestamp":
+                # store unix timestampÖlker
+                tweet_info[attr] = strf_datetime(datetime.utc(), format="%Y-%m-%d %H:%M:%S.%f")
+            # check if Tweet was deleted, i.e., if it is still available
+            elif attr =="available":
+                # request the Tweet via manual request
+                response = self._manual_request(f"https://api.twitter.com/2/tweets/{tweet_id}")
+                # if an error saying that no such Tweet was found
+                if any(error['title'] == "Not Found Error" for error in response.errors):
+                    # return False since Tweet is not available anymore
+                    tweet_info[attr] = False
+                else:
+                    # else return True
+                    tweet_info[attr] = True
             # get information about author
             elif attr == "author_info":
                 author_info = dict()
