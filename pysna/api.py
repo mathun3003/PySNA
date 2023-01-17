@@ -108,7 +108,6 @@ class TwitterAPI(tweepy.Client):
             user_obj = self._api.get_user(screen_name=user)
         return user_obj
 
-    # FIXME: get all followers by pagination: https://docs.tweepy.org/en/stable/api.html#tweepy.API.get_follower_ids
     def _get_user_followers(self, user: str | int) -> Set[int]:
         """Request Twitter follower IDs from user
 
@@ -118,16 +117,19 @@ class TwitterAPI(tweepy.Client):
         Returns:
             Set[int]: Array containing follower IDs
         """
+        # init empty list to store user followers
+        user_followers = list()
         # check if string for user1 is convertible to int in order to check for user ID or screen name
         if (user.isdigit()) or (isinstance(user, int)):
-            # get profile for user1 by user ID
-            user_followers = self._api.get_follower_ids(user_id=user)
+            # get all follower IDs by paginating using the user ID
+            for page in tweepy.Cursor(self._api.get_follower_ids, user_id=user).pages():
+                user_followers.extend(page)
         else:
-            # get profile for user1 by screen name
-            user_followers = self._api.get_follower_ids(screen_name=user)
+            # get all follower IDs by paginating using the screen name
+            for page in tweepy.Cursor(self._api.get_follower_ids, screen_name=user).pages():
+                user_followers.extend(page)
         return set(user_followers)
 
-    # FIXME: get all followees/friends by pagination: https://docs.tweepy.org/en/stable/api.html#tweepy.API.get_friend_ids
     def _get_user_followees(self, user: str | int) -> Set[int]:
         """Request Twitter follow IDs from user
 
@@ -137,10 +139,15 @@ class TwitterAPI(tweepy.Client):
         Returns:
             Set[int]: Array containing follow IDs
         """
+        user_followees = list()
         if (user.isdigit()) or (isinstance(user, int)):
-            user_followees = self._api.get_friend_ids(user_id=user)
+            # get all followee IDs by paginating using the user ID
+            for page in tweepy.Cursor(self._api.get_friend_ids, user_id=user).pages():
+                user_followees.extend(page)
         else:
-            user_followees = self._api.get_friend_ids(screen_name=user)
+            # get all followee IDs by paginating using the screen name
+            for page in tweepy.Cursor(self._api.get_friend_ids, screen_name=user).pages():
+                user_followees.extend(page)
         return set(user_followees)
 
     def _get_tweet_object(self, tweet: str | int) -> tweepy.models.Status:
