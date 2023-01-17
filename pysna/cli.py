@@ -41,10 +41,10 @@ def user_info_cli():
         load_dotenv(args.env)
     # catch environmental variables
     for secret in REQUIRED_SECRETS:
-        if not str(secret) in os.environ:
+        if not secret in os.environ:
             raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
     # collect secrets
-    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
+    secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS}
 
     # establish connection to the API
     api = TwitterAPI(**secrets)
@@ -86,13 +86,13 @@ def compare_users_cli():
         load_dotenv(args.env)
     # catch environmental variables
     for secret in REQUIRED_SECRETS:
-        if not str(secret) in os.environ:
+        if not secret in os.environ:
             raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
     # collect secrets
-    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
+    secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS}
 
     api = TwitterAPI(**secrets)
-    result = api.compare_users_list(users=args.users, compare=args.compare)
+    result = api.compare_users(users=args.users, compare=args.compare)
     # either print results if '--output' arg was provided
     if args.output is not None:
         with open(args.output, "w") as f:
@@ -126,10 +126,10 @@ def compare_tweets_cli():
     args = parser.parse_args()
     # catch environmental variables
     for secret in REQUIRED_SECRETS:
-        if not str(secret) in os.environ:
+        if not secret in os.environ:
             raise KeyError(f"{secret} must be provided in the environment variables or .env file.")
     # collect secrets
-    secrets = {str(secret).lower(): os.getenv(str(secret)) for secret in REQUIRED_SECRETS}
+    secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS}
     # create API obj
     api = TwitterAPI(**secrets)
     result = api.compare_tweets(tweets=args.tweets, compare=args.compare)
