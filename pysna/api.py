@@ -28,7 +28,7 @@ class TwitterAPI(tweepy.Client):
                                   'user', 'geo', 'coordinates', 'place', 'contributors', 'is_quote_status', 'view_count', 'retweet_count', 'favorite_count',
                                   'quote_count', 'reply_count', 'quoting_users', 'favorited', 'retweeted', 'possibly_sensitive', 'possibly_sensitive_appealable', 'lang']
 
-    LITERALS_COMPARE_USERS = Literal['followers_count', 'followees_count', 'tweets_count', 'favourites_count','common_followers',
+    LITERALS_COMPARE_USERS = Literal['relationship', 'followers_count', 'followees_count', 'tweets_count', 'favourites_count','common_followers',
                                      'distinct_followers', 'common_followees', 'distinct_followees', 'followers_similarity', 'followees_similarity', 'created_at', 'protected', 'verified']
 
     LITERALS_COMPARE_TWEETS = Literal['view_count', 'num_likes', 'num_retweets', 'num_quotes', 'common_quoting_users',
@@ -149,6 +149,21 @@ class TwitterAPI(tweepy.Client):
             for page in tweepy.Cursor(self._api.get_friend_ids, screen_name=user).pages():
                 user_followees.extend(page)
         return set(user_followees)
+
+    def _get_relationship(self, user1: str | int, user2: str | int) -> tweepy.models.Friendship:
+        # if both strings are digits or integers
+        if (((user1.isdigit()) and (user2.isdigit())) or ((isinstance(user1, int)) and (isinstance(user2, int)))):
+            relationship = self._api.get_friendship(source_id=user1, target_id=user2)
+        # if user1 string is a digit or an integer, and user2 is a screen name
+        elif (((user1.isdigit()) and (not user2.isdigit())) or ((isinstance(user1, int)) and (isinstance(user2, str)))):
+            relationship = self._api.get_friendship(source_id=user1, target_screen_name=user2)
+        # if user1 is a screen name, and user2 is a digit or an integer
+        elif (((not user1.isdigit()) and (user2.isdigit())) or ((isinstance(user1, str)) and (isinstance(user2, int)))):
+            relationship = self._api.get_friendship(source_screen_name=user1, target_id=user2)
+        # if both strings are screen names
+        else:
+            relationship = self._api.get_friendship(source_screen_name=user1, target_screen_name=user2)
+        return {"source": relationship[0]._json, "target": relationship[1]._json}
 
     def _get_tweet_object(self, tweet: str | int) -> tweepy.models.Status:
         """Request Twitter Tweet Object via tweepy
@@ -374,7 +389,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             users (List[str  |  int]): User IDs or screen names
-            compare (str): Comparison attribute. Must be one of followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, followers_similarity, followees_similarity, created_at, protected, verified.
+            compare (str): Comparison attribute. Must be one of relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, followers_similarity, followees_similarity, created_at, protected, verified.
 
         Raises:
             ValueError: If invalid comparison attribute was provided.
@@ -388,8 +403,16 @@ class TwitterAPI(tweepy.Client):
 
         # match comparison attributes
         match compare:
-            # TODO: probably interesting: https://docs.tweepy.org/en/stable/api.html#tweepy.API.get_friendship
-            #
+            # compare relationships between two users
+            case "relationship":
+                # init emtpy relationships dict
+                relationships = dict()
+                # iterate over every pair combination of provided users
+                for user in users:
+                    for other_user in users:
+                        if user != other_user:
+                            relationships[(user, other_user)] = self._get_relationship(user, other_user)
+                return relationships
             # compare number of follwoers
             case "followers_count":
                 followers = {user: self._get_user_object(user).followers_count for user in users}
