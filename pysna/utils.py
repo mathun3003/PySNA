@@ -1,23 +1,10 @@
 # -*- coding: utf-8 -*-
 import csv
 import json
-import logging
-import sys
 from datetime import datetime
 from typing import Any, Dict, Literal
 
 import pandas as pd
-
-# create logger instance
-log = logging.getLogger(__name__)
-# set logging level
-log.setLevel(logging.ERROR)
-# log to stdout
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-log.addHandler(handler)
 
 
 def export_to_file(data: dict, export_path: str, type: Literal["json", "csv", "xlsx"], encoding: str = "utf-8", *args):
@@ -41,7 +28,7 @@ def export_to_file(data: dict, export_path: str, type: Literal["json", "csv", "x
                     # dump to json
                     json.dump(data, jsonfile, indent=4, *args)
             except IOError as e:
-                log.error("I/O error: %s", e)
+                raise e
         # export to csv
         case "csv":
             try:
@@ -51,14 +38,14 @@ def export_to_file(data: dict, export_path: str, type: Literal["json", "csv", "x
                     for entry in data:
                         writer.writerow(entry)
             except IOError as e:
-                log.error("I/O error: %s" % e)
+                raise e
         # export to excel
         case "xlsx":
             try:
                 df = pd.DataFrame(data=data, index=[0])
                 df.to_excel(export_path, *args)
             except IOError as e:
-                log.error("I/O error: %s" % e)
+                raise e
     pass
 
 
@@ -96,7 +83,7 @@ def append_to_file(input_dict: Dict[str, Any], filepath: str, file_type: str = "
                     raise e
         case "csv":
             # read CSV file from path
-            f = pd.read_csv(filepath, encoding=encoding, **kwargs, parse_dates=timestamp_column)
+            f = pd.read_csv(filepath, encoding=encoding, parse_dates=timestamp_column, **kwargs)
             # raise an error, if the file header and the input dict has not the same columns or keys, respectively.
             if not set(list(input_dict.keys())) == set(f.columns):
                 raise ValueError("Unknown key(s) or column(s). Make sure that the input dictionary and the CSV file header have the same keys or columns, respectively.")
