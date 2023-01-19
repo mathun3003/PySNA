@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict
 
 
-def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", *args):
+def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure_ascii: bool = False, *args):
     """Export dictionary data to JSON file.
 
     Args:
@@ -18,7 +18,7 @@ def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", *args)
             # add 'data' key in order to append additional dicts to same file
             data = {"data": [data]}
             # dump to json
-            json.dump(data, jsonfile, indent=4, *args)
+            json.dump(data, jsonfile, indent=4, ensure_ascii=ensure_ascii, *args)
     except IOError as e:
         raise e
     pass
