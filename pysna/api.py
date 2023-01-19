@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+import logging
+import operator
+import sys
+from datetime import datetime, timezone
 from numbers import Number
 from typing import Any, Dict, List, Literal, Set
 
@@ -8,6 +11,15 @@ import requests
 import tweepy
 
 from pysna.utils import strf_datetime
+
+# create logger instance
+log = logging.getLogger(__name__)
+# log to stdout
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.ERROR)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+log.addHandler(handler)
 
 
 class TwitterAPI(tweepy.Client):
@@ -18,7 +30,6 @@ class TwitterAPI(tweepy.Client):
         "id_str",
         "name",
         "screen_name",
-        "utc_timestamp",
         "followers_info",
         "followees_info",
         "location",
@@ -74,10 +85,8 @@ class TwitterAPI(tweepy.Client):
         "created_at",
         "entities",
         "source",
-        "utc_timestamp",
         "author_info",
         "retweeters",
-        "available",
         "in_reply_to_status_id",
         "in_reply_to_status_id_str",
         "in_reply_to_user_id",
@@ -112,8 +121,7 @@ class TwitterAPI(tweepy.Client):
         "distinct_followers",
         "common_followees",
         "distinct_followees",
-        "followers_similarity",
-        "followees_similarity",
+        "similarity",
         "created_at",
         "protected",
         "verified",
@@ -225,7 +233,18 @@ class TwitterAPI(tweepy.Client):
                 user_followees.extend(page)
         return set(user_followees)
 
-    def _get_relationship(self, user1: str | int, user2: str | int) -> tweepy.models.Friendship:
+    def _get_relationship(self, user1: str | int, user2: str | int) -> dict:
+        """Get relationship between two users.
+
+        Args:
+            user1 (str | int): Source user ID or screen name.
+            user2 (str | int): Target user ID or screen name.
+
+        Returns:
+            dict: Unpacked tuple of JSON from tweepy Friendship model.
+
+        Reference: https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show#example-response
+        """
         # if both strings are digits or integers
         if ((user1.isdigit()) and (user2.isdigit())) or ((isinstance(user1, int)) and (isinstance(user2, int))):
             relationship = self._api.get_friendship(source_id=user1, target_id=user2)
@@ -263,19 +282,51 @@ class TwitterAPI(tweepy.Client):
 
         Returns:
             dict: Input data dictionary containing descriptive metrics.
+
+        Metrics:
+            - Max Value
+            - Min Value
+            - Mean Value
+            - Median
+            - Standard Deviation
+            - Sample Variance
+            - Range (Max - Min)
+            - Interquartiles Range
+            - Mean Absolute Deviation
         """
         # extract numeric values by iterating over data dict with iterable items
         numerics = [data[item] for item in iterable]
+        data["metrics"] = dict()
+        # calc max
+        data["metrics"]["max"] = max(numerics)
+        # calc min
+        data["metrics"]["min"] = min(numerics)
         # calc mean
-        data["mean"] = np.array(numerics).mean()
+        data["metrics"]["mean"] = np.array(numerics).mean()
         # calc median
-        data["median"] = np.median(numerics)
+        data["metrics"]["median"] = np.median(numerics)
         # calc standard deviation
-        data["std"] = np.std(numerics)
+        data["metrics"]["std"] = np.std(numerics)
+        # calc variance
+        data["metrics"]["var"] = np.var(numerics)
+        # calc range
+        data["metrics"]["range"] = max(numerics) - min(numerics)
+        # calc interquarile range
+        data["metrics"]["IQR"] = np.subtract(*np.percentile(numerics, [75, 25]))
+        # calc absolute mean deviation
+        data["metrics"]["mad"] = np.mean(np.absolute(numerics - np.mean(numerics)))
         return data
 
     # TODO OPTIONAL: write pagination as decorator
     def get_all_liking_users(self, tweet: str | int) -> Set[int]:
+        """Get all liking users of provided Tweet by pagination.
+
+        Args:
+            tweet (str | int): Tweet ID.
+
+        Returns:
+            Set[int]: User IDs as set.
+        """
         # init emtpy set to store all liking users
         liking_users = set()
         # set request params
@@ -301,6 +352,14 @@ class TwitterAPI(tweepy.Client):
         return liking_users
 
     def get_all_retweeters(self, tweet: str | int) -> Set[int]:
+        """Get all retweeting users of provided Tweet by pagination.
+
+        Args:
+            tweet (str | int): Tweet ID.
+
+        Returns:
+            Set[int]: IDs of retweeting users.
+        """
         # init empty set to store all retweeters
         retweeters = set()
         # set request params
@@ -326,6 +385,14 @@ class TwitterAPI(tweepy.Client):
         return retweeters
 
     def get_all_quoting_users(self, tweet: str | int) -> Set[int]:
+        """Get all quoting users of provided Tweet by pagination.
+
+        Args:
+            tweet (str | int): Tweet ID.
+
+        Returns:
+            Set[int]: IDs of quoting users.
+        """
         # init empty set to store all quoting users
         quoting_users = set()
         # set request params
@@ -350,6 +417,14 @@ class TwitterAPI(tweepy.Client):
         return quoting_users
 
     def get_all_liked_tweets(self, user: str | int) -> Set[int]:
+        """Get all liked Tweets of provided user.
+
+        Args:
+            user (str | int): User ID or screen name.
+
+        Returns:
+            Set[int]: Tweet IDs of liked Tweets.
+        """
         # init empty set to store all liked Tweets
         liked_tweets = set()
         # set request params
@@ -374,6 +449,14 @@ class TwitterAPI(tweepy.Client):
         return liked_tweets
 
     def get_all_composed_tweets(self, user: str | int, **kwargs) -> Set[int]:
+        """Get all composed Tweets of provided user by pagination.
+
+        Args:
+            user (str | int): User ID or screen name.
+
+        Returns:
+            Set[int]: IDs of composed Tweets.
+        """
         # init empty set to store all composed Tweets
         composed_tweets = set()
         # set request params
@@ -397,7 +480,7 @@ class TwitterAPI(tweepy.Client):
                 break
         return composed_tweets
 
-    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str) -> dict:
+    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested user information from Twitter User Object.
 
         Args:
@@ -410,9 +493,25 @@ class TwitterAPI(tweepy.Client):
         Returns:
             dict: Requested user information.
         """
-
-        # get user object via tweepy
-        user_obj = self._get_user_object(user)
+        try:
+            # get user object via tweepy
+            user_obj = self._get_user_object(user)
+        except tweepy.errors.Forbidden as e:
+            # log to stdout
+            log.error("403 Forbidden: access refused or access is not allowed.")
+            # if user ID was provided
+            if user.isdigit() or isinstance(user, int):
+                url = f"https://api.twitter.com/2/users/{user}"
+            else:
+                # if screen name was provided
+                url = f"https://api.twitter.com/2/users/by/username/{user}"
+            response = self._manual_request(url)
+            # if an error occured that says the user has been suspended
+            if any("User has been suspended" in error["detail"] for error in response["errors"]):
+                log.error("User has been suspended from Twitter.")
+                return {"suspended": True}
+            else:
+                raise e
 
         # initialize empty dict to store requested attributes
         user_info = dict()
@@ -426,10 +525,6 @@ class TwitterAPI(tweepy.Client):
         for attr in attributes:
             if attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
-            # get current UTC timestamp
-            elif attr == "utc_timestamp":
-                # store unix timestampÖlker
-                user_info[attr] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
             # get follower information
             elif attr == "followers_info":
                 # define dict to store follower information
@@ -476,15 +571,19 @@ class TwitterAPI(tweepy.Client):
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for {}".format(attr))
-
+        # if timestamp should be returned
+        if return_timestamp:
+            user_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
         return user_info
 
-    def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS]) -> dict | list:
+    def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -> dict | list:
         """Compare two or more users with the specified comparison attribute.
 
         Args:
             users (List[str  |  int]): User IDs or screen names
-            compare (str): Comparison attribute. Must be one of relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, followers_similarity, followees_similarity, created_at, protected, verified.
+            compare (str): Comparison attribute. Must be one of relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, similarity, created_at, protected, verified.
+            return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+            features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Defaults to None.
 
         Raises:
             ValueError: If invalid comparison attribute was provided.
@@ -493,6 +592,7 @@ class TwitterAPI(tweepy.Client):
             dict | list: Requested comparison attribute. Provide screen names
             to display them in the results.
         """
+
         # users list must contain at least two elements
         assert len(users) > 1, "users list must contain at least two elements, {} was provided".format(len(users))
 
@@ -505,7 +605,7 @@ class TwitterAPI(tweepy.Client):
         # iterate over comparison attributes
         for attr in compare:
             # match comparison attributes
-            match attr:
+            match attr.lower():
                 # compare relationships between two users
                 case "relationship":
                     # init emtpy relationships dict
@@ -577,91 +677,110 @@ class TwitterAPI(tweepy.Client):
                                 distinct_followees[user] = list(set(distinct_followees[user]) - set(other_followees))
                     results[attr] = distinct_followees
                 # compute similarity between two users basd on the followers
-                case "followers_similarity":
-                    followers_similarity = dict()
+                case "similarity":
+                    # feature list object must be defined
+                    if features is None:
+                        raise ValueError("features list must be provided.")
+                    # features needs at least two elements
+                    assert len(features) > 1, "features list must have at least two elements. {} was given".format(len(features))
+
+                    # init empty dict to store distances
+                    distances = dict()
+                    # iterate over every uniqe pair
                     for i in range(len(users)):
                         for j in range(i + 1, len(users)):
-                            # get pair of users
-                            user, other_user = users[i], user[j]
-                            # get followers for each user
-                            followers, other_followers = self._get_user_followers(user), self._get_user_followers(other_user)
-                            # compute intersection of followers
-                            followers_similarity[(user, other_user)] = len(followers.intersection(other_followers))
-                    # sort dict by values in descending order
-                    sorted_values = sorted({key: value for key, value in followers_similarity.items()}, reverse=True)
-                    results[attr] = {key: value for key, value in sorted_values}
-                # compute similarity between two users based on the followees
-                case "followees_similarity":
-                    followees_similarity = dict()
-                    for i in range(len(users)):
-                        for j in range(i + 1, len(users)):
-                            # get pair of users
-                            user, other_user = users[i], users[j]
-                            # get followees for each user
-                            followees, other_followees = self._get_user_followees(user), self._get_user_followees(other_user)
-                            # compute intersection of followees
-                            followees_similarity[(user, other_user)] = len(followees.intersection(other_followees))
-                    # sort dict by values in descending order
-                    sorted_values = sorted({key: value for key, value in followees_similarity.items()}, reverse=True)
-                    results[attr] = {key: value for key, value in sorted_values}
+                            # get user objects for each pair
+                            user_i = self._get_user_object(users[i])._json
+                            user_j = self._get_user_object(users[j])._json
+                            # build feature vector
+                            vec_i = np.array([user_i[feature] for feature in features])
+                            vec_j = np.array([user_j[feature] for feature in features])
+                            # feature vectors have to contain numeric values
+                            assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
+                            assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
+                            # calc euclidean distance
+                            distances[(users[i], users[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
+                    # sort dict in ascendin order
+                    sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
+                    results[attr] = sorted_values
                 # compare creation dates
                 case "created_at":
-                    # TODO: talk with supervisor first
+                    # TODO: debug
+                    # TODO: Sign off by the supervisor
                     # create dict of users and their respective creation dates
                     creation_dates = {user: self._get_user_object(user).created_at for user in users}
-                    # calculate time differences of every creation date
-                    creation_dates["time_diff"] = dict()
-                    for i in range(len(list(creation_dates.items())[:-1])):
-                        for j in range(i + 1, len(list(creation_dates.items())[:-1])):
-                            user = users[i]
-                            other_user = users[j]
-                            creation_date = creation_dates[user]
-                            other_creation_date = creation_dates[other_user]
+                    # use the datetime's timestamp to make them comparable
+                    timestamps = [dt.timestamp() for dt in creation_dates.values()]
+                    # calc mean of creation dates
+                    total_time = sum(timestamps)
+                    mean_timestamp = total_time / len(timestamps)
+                    # convert mean timestamp back to datetime object with timezone information
+                    mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
 
-                            creation_dates["time_diff"][(user, other_user)] = abs((creation_date - other_creation_date).total_seconds())
-                    # calc mean of time differences
-                    creation_dates["time_diff"]["mean"] = sum(creation_dates["time_diff"].values(), datetime.min) / len(list(creation_dates["time_diff"].values()))
-                    # calc deviation from time difference mean of every creation date
-                    creation_dates["time_diff"]["deviation_from_mean"] = {user: creation_dates[user] - creation_dates["time_diff"]["mean"] for user in users}
+                    # calculate time differences to mean datetime of every creation date
+                    time_diffs_mean = {user: creation_date - mean_datetime for user, creation_date in creation_dates.items()}
+
+                    # find the median of the timestamps
+                    median_timestamp = np.median(timestamps)
+                    # Convert median timestamp back to datetime object
+                    median_datetime = datetime.fromtimestamp(median_timestamp, tz=timezone.utc)
+
+                    # calculate time differences to median timestamp of every creation date
+                    time_diffs_median = {user: creation_date - median_datetime for user, creation_date in creation_dates.items()}
+
+                    # calc range of creation dates
+                    time_span = max(creation_dates.values()) - min(creation_dates.values())
+
+                    # convert creation dates to isoformat for readability
+                    creation_dates = {u: dt.isoformat() for u, dt in creation_dates.items()}
+
+                    # add metrics to output
+                    creation_dates["deviation_from_mean"] = time_diffs_mean
+                    creation_dates["deviation_from_median"] = time_diffs_median
+                    creation_dates["time_span"] = {"days": time_span.days, "seconds": time_span.seconds, "microseconds": time_span.microseconds}
+
+                    results[attr] = creation_dates
 
                     # * response from ChatGPT
                     """
-                    from datetime import datetime, timedelta
 
-                    # Create a list of datetime objects
-                    datetime_list = [datetime(2022, 1, 1, 12, 0, 0),
-                                    datetime(2022, 2, 1, 12, 0, 0),
-                                    datetime(2022, 3, 1, 12, 0, 0)]
+                    from datetime import datetime, timedelta, timezone
+
+                    # Create a list of datetime objects with timezone information
+                    datetime_list = [datetime(2022, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+                                    datetime(2022, 2, 1, 12, 0, 0, tzinfo=timezone.utc),
+                                    datetime(2022, 3, 1, 12, 0, 0, tzinfo=timezone.utc)]
+
+                    # Use the datetime's timestamp to make them comparable
+                    timestamps = [dt.timestamp() for dt in datetime_list]
 
                     # Calculate the mean of the datetime objects
-                    total_time = sum(datetime_list, datetime.min)
-                    mean_datetime = total_time / len(datetime_list)
+                    total_time = sum(timestamps)
+                    mean_timestamp = total_time / len(timestamps)
+
+                    # Convert mean timestamp back to datetime object with timezone information
+                    mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
 
                     # Compare target datetime object to the mean
-                    target_datetime = datetime(2022, 1, 15, 12, 0, 0)
+                    target_datetime = datetime(2022, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
                     time_diff = target_datetime - mean_datetime
-                    """
 
-                    # get max and min creation date
-                    max_date, min_date = max(creation_dates.values()), min(creation_dates.values())
-                    # calc span
-                    date_range = max_date - min_date
-                    # add span to dict
-                    creation_dates["date_range"] = {"days": date_range.days, "seconds": date_range.seconds, "microseconds": date_range.microseconds}
-                    # convert datetime obj to isoformat for readability
-                    creation_dates = {user: user_obj.isoformat() for user, user_obj in creation_dates.items()}
-                    results[attr] = creation_dates
+
+                    """
                 # if other comparison attribute was provided
                 case _:
                     raise ValueError("Invalid comparison attribute for {}".format(attr))
+        # if timestamp should be returned
+        if return_timestamp:
+            results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
         return results
 
-    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str) -> dict:
+    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested Tweet information from Tweet Object.
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from id, id_str, text, truncated, created_at, entities, source, utc_timestamp, author_info, retweeters, available, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, view_count, retweet_count, favorite_count, quote_count, reply_count, quoting_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang.
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from id, id_str, text, truncated, created_at, entities, source, utc_timestamp, author_info, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, view_count, retweet_count, favorite_count, quote_count, reply_count, quoting_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang.
 
         Raises:
             ValueError: If invalid attribute was provided.
@@ -669,8 +788,20 @@ class TwitterAPI(tweepy.Client):
         Returns:
             dict: Requested Tweet information.
         """
-        # get tweet object
-        tweet_obj = self._get_tweet_object(tweet_id)
+
+        try:
+            # get tweet object
+            tweet_obj = self._get_tweet_object(tweet_id)
+        except tweepy.errors.NotFound as e:
+            # log to stdout
+            log.error("No Tweet found with that ID.")
+            # request the Tweet via manual request
+            response = self._manual_request(f"https://api.twitter.com/2/tweets/{tweet_id}")
+            # if an error saying that no such Tweet was found
+            if any(error["title"] == "Not Found Error" for error in response["errors"]):
+                return {"available": False}
+            else:
+                raise e
 
         # initialize empty dict to store request information
         tweet_info = dict()
@@ -684,21 +815,6 @@ class TwitterAPI(tweepy.Client):
             # get default attributes from tweepy Status model
             if attr in tweet_obj._json.keys():
                 tweet_info[attr] = tweet_obj._json[attr]
-            # get current UTC timestamp
-            elif attr == "utc_timestamp":
-                # store unix timestampÖlker
-                tweet_info[attr] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
-            # check if Tweet was deleted, i.e., if it is still available
-            elif attr == "available":
-                # request the Tweet via manual request
-                response = self._manual_request(f"https://api.twitter.com/2/tweets/{tweet_id}")
-                # if an error saying that no such Tweet was found
-                if any(error["title"] == "Not Found Error" for error in response.errors):
-                    # return False since Tweet is not available anymore
-                    tweet_info[attr] = False
-                else:
-                    # else return True
-                    tweet_info[attr] = True
             # get information about author
             elif attr == "author_info":
                 author_info = dict()
@@ -737,15 +853,20 @@ class TwitterAPI(tweepy.Client):
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for {}".format(attr))
+        # if timestamp should be returned
+        if return_timestamp:
+            tweet_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
         return tweet_info
 
-    def compare_tweets(self, tweets: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False) -> dict:
+    def compare_tweets(self, tweets: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -> dict:
         """Compare two or more Tweets with the specified comparison attribute.
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
             compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be one of the following: view_count, like_count, retweet_count, quote_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweets.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+            features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Defaults to None.
+
 
         Raises:
             AssertionError: If a list of one Tweet ID was provided.
@@ -767,7 +888,7 @@ class TwitterAPI(tweepy.Client):
         # iterate over every given comparison atttribute
         for attr in compare:
             # match comparison attribute
-            match attr:
+            match attr.lower():
                 # compare numer of views / impressions
                 case "view_count":
                     view_count = dict()
@@ -895,6 +1016,32 @@ class TwitterAPI(tweepy.Client):
                             if tweet != other_tweet:
                                 distinct_retweeters[tweet] = list(set(distinct_retweeters[tweet]) - set(other_retweeters))
                     results[attr] = distinct_retweeters
+                case "similarity":
+                    # feature list object must be defined
+                    if features is None:
+                        raise ValueError("features list must be provided.")
+                    # features needs at least two elements
+                    assert len(features) > 1, "features list must have at least two elements. {} was given".format(len(features))
+
+                    # init empty dict to store distances
+                    distances = dict()
+                    # iterate over every uniqe pair
+                    for i in range(len(tweets)):
+                        for j in range(i + 1, len(tweets)):
+                            # get Tweet objects for each pair
+                            tweet_i = self._get_tweet_object(tweets[i])._json
+                            tweet_j = self._get_tweet_object(tweets[j])._json
+                            # build feature vector
+                            vec_i = np.array([tweet_i[feature] for feature in features])
+                            vec_j = np.array([tweet_j[feature] for feature in features])
+                            # feature vectors have to contain numeric values
+                            assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
+                            assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
+                            # calc euclidean distance
+                            distances[(tweets[i], tweets[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
+                    # sort dict in ascendin order
+                    sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
+                    results[attr] = sorted_values
                 # if invalid comparison attribute was provided
                 case _:
                     raise ValueError("Invalid comparison attribute for {}".format(attr))
