@@ -15,8 +15,8 @@ else:
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = "0.1.0"
-PACKAGE_NAME = "PySNA"
+VERSION = version
+PACKAGE_NAME = "pysna"
 AUTHOR = "Mathis Hunke"
 AUTHOR_EMAIL = "mhunke1@uni-muenster.de"
 URL = "https://github.com/mathun3003/PySNA"
@@ -26,7 +26,7 @@ DESCRIPTION = "Python Package for Social Network Analytics"
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ["tweepy>=4.12.1", "argparse>=1.4.0", "numpy>=1.24.0", "python-dotenv>=0.21.0"]
+INSTALL_REQUIRES = ["tweepy>=4.12.1", "argparse>=1.4.0", "numpy>=1.24.0", "python-dotenv>=0.21.0", "docopt>=0.6.2"]
 
 setup(
     name=PACKAGE_NAME,
@@ -41,11 +41,5 @@ setup(
     install_requires=INSTALL_REQUIRES,
     packages=find_packages(),
     python_requires=">=3.10",
-    entry_points={
-        "console_scripts": [
-            "pysna compare_users = pysna.cli:compare_users_cli",
-            "pysna user_info = pysna.cli.user_info_cli",
-            "pysna compare_tweets = pysna.cli.compare_tweets_cli",
-        ]
-    },
+    entry_points={"console_scripts": ["pysna = pysna.cli:main"]},
 )
