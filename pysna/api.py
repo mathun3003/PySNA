@@ -317,6 +317,44 @@ class TwitterAPI(tweepy.Client):
         data["metrics"]["mad"] = np.mean(np.absolute(numerics - np.mean(numerics)))
         return data
 
+    def _calc_datetime_metrics(self, data: Dict[str, datetime]) -> dict():
+        # use the datetime's timestamp to make them comparable
+        timestamps = [dt.timestamp() for dt in data.values()]
+        # calc mean of creation dates
+        total_time = sum(timestamps)
+        mean_timestamp = total_time / len(timestamps)
+        # convert mean timestamp back to datetime object with timezone information
+        mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
+
+        # calculate time differences to mean datetime of every creation date
+        time_diffs_mean = {user: {"days": (dt - mean_datetime).days, "seconds": (dt - mean_datetime).seconds} for user, dt in data.items()}
+
+        # find the median of the timestamps
+        median_timestamp = np.median(timestamps)
+        # Convert median timestamp back to datetime object
+        median_datetime = datetime.fromtimestamp(median_timestamp, tz=timezone.utc)
+
+        # calculate time differences to median timestamp of every creation date
+        time_diffs_median = {user: {"days": (dt - median_datetime).days, "seconds": (dt - median_datetime).seconds} for user, dt in data.items()}
+
+        # calc range of creation dates
+        max_date, min_date = max(data.values()), min(data.values())
+        time_span = max_date - min_date
+
+        # convert creation dates to isoformat for readability
+        data = {u: dt.isoformat() for u, dt in data.items()}
+
+        # add metrics to output
+        data["metrics"] = dict()
+        data["metrics"]["deviation_from_mean"] = time_diffs_mean
+        data["metrics"]["deviation_from_median"] = time_diffs_median
+        data["metrics"]["time_span"] = {"days": time_span.days, "seconds": time_span.seconds, "microseconds": time_span.microseconds}
+        data["metrics"]["mean"] = mean_datetime.isoformat()
+        data["metrics"]["median"] = median_datetime.isoformat()
+        data["metrics"]["max"] = max_date.isoformat()
+        data["metrics"]["min"] = min_date.isoformat()
+        return data
+
     # TODO OPTIONAL: write pagination as decorator
     def get_all_liking_users(self, tweet: str | int) -> Set[int]:
         """Get all liking users of provided Tweet by pagination.
@@ -570,7 +608,7 @@ class TwitterAPI(tweepy.Client):
                 user_info[attr] = composed_tweets
             # if invalid attribute was provided
             else:
-                raise ValueError("Invalid attribute for {}".format(attr))
+                raise ValueError("Invalid attribute for '{}'".format(attr))
         # if timestamp should be returned
         if return_timestamp:
             user_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -594,7 +632,7 @@ class TwitterAPI(tweepy.Client):
         """
 
         # users list must contain at least two elements
-        assert len(users) > 1, "users list must contain at least two elements, {} was provided".format(len(users))
+        assert len(users) > 1, "'users' list must contain at least two elements, {} was provided".format(len(users))
 
         # if single comparison attribute was provided as string
         if isinstance(compare, str):
@@ -680,9 +718,9 @@ class TwitterAPI(tweepy.Client):
                 case "similarity":
                     # feature list object must be defined
                     if features is None:
-                        raise ValueError("features list must be provided.")
+                        raise ValueError("'features' list must be provided.")
                     # features needs at least two elements
-                    assert len(features) > 1, "features list must have at least two elements. {} was given".format(len(features))
+                    assert len(features) > 1, "'features' list must have at least two elements. {} was given".format(len(features))
 
                     # init empty dict to store distances
                     distances = dict()
@@ -705,71 +743,15 @@ class TwitterAPI(tweepy.Client):
                     results[attr] = sorted_values
                 # compare creation dates
                 case "created_at":
-                    # TODO: debug
                     # TODO: Sign off by the supervisor
                     # create dict of users and their respective creation dates
                     creation_dates = {user: self._get_user_object(user).created_at for user in users}
-                    # use the datetime's timestamp to make them comparable
-                    timestamps = [dt.timestamp() for dt in creation_dates.values()]
-                    # calc mean of creation dates
-                    total_time = sum(timestamps)
-                    mean_timestamp = total_time / len(timestamps)
-                    # convert mean timestamp back to datetime object with timezone information
-                    mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
-
-                    # calculate time differences to mean datetime of every creation date
-                    time_diffs_mean = {user: creation_date - mean_datetime for user, creation_date in creation_dates.items()}
-
-                    # find the median of the timestamps
-                    median_timestamp = np.median(timestamps)
-                    # Convert median timestamp back to datetime object
-                    median_datetime = datetime.fromtimestamp(median_timestamp, tz=timezone.utc)
-
-                    # calculate time differences to median timestamp of every creation date
-                    time_diffs_median = {user: creation_date - median_datetime for user, creation_date in creation_dates.items()}
-
-                    # calc range of creation dates
-                    time_span = max(creation_dates.values()) - min(creation_dates.values())
-
-                    # convert creation dates to isoformat for readability
-                    creation_dates = {u: dt.isoformat() for u, dt in creation_dates.items()}
-
-                    # add metrics to output
-                    creation_dates["deviation_from_mean"] = time_diffs_mean
-                    creation_dates["deviation_from_median"] = time_diffs_median
-                    creation_dates["time_span"] = {"days": time_span.days, "seconds": time_span.seconds, "microseconds": time_span.microseconds}
-
+                    # calc datetime metrics
+                    creation_dates = self._calc_datetime_metrics(creation_dates)
                     results[attr] = creation_dates
-
-                    # * response from ChatGPT
-                    """
-
-                    from datetime import datetime, timedelta, timezone
-
-                    # Create a list of datetime objects with timezone information
-                    datetime_list = [datetime(2022, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-                                    datetime(2022, 2, 1, 12, 0, 0, tzinfo=timezone.utc),
-                                    datetime(2022, 3, 1, 12, 0, 0, tzinfo=timezone.utc)]
-
-                    # Use the datetime's timestamp to make them comparable
-                    timestamps = [dt.timestamp() for dt in datetime_list]
-
-                    # Calculate the mean of the datetime objects
-                    total_time = sum(timestamps)
-                    mean_timestamp = total_time / len(timestamps)
-
-                    # Convert mean timestamp back to datetime object with timezone information
-                    mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
-
-                    # Compare target datetime object to the mean
-                    target_datetime = datetime(2022, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
-                    time_diff = target_datetime - mean_datetime
-
-
-                    """
                 # if other comparison attribute was provided
                 case _:
-                    raise ValueError("Invalid comparison attribute for {}".format(attr))
+                    raise ValueError("Invalid comparison attribute for '{}'".format(attr))
         # if timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -852,7 +834,7 @@ class TwitterAPI(tweepy.Client):
                 tweet_info[attr] = public_metrics["reply_count"]
             # if invalid attribute was provided
             else:
-                raise ValueError("Invalid attribute for {}".format(attr))
+                raise ValueError("Invalid attribute for '{}'".format(attr))
         # if timestamp should be returned
         if return_timestamp:
             tweet_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -877,7 +859,7 @@ class TwitterAPI(tweepy.Client):
         """
 
         # tweets list must contain at least two IDs
-        assert len(tweets) > 1, "tweets list object needs at least two entries, not {}".format(len(tweets))
+        assert len(tweets) > 1, "'tweets' list object needs at least two entries, not {}".format(len(tweets))
 
         # if single comparison attribute was provided as string
         if isinstance(compare, str):
@@ -1016,12 +998,13 @@ class TwitterAPI(tweepy.Client):
                             if tweet != other_tweet:
                                 distinct_retweeters[tweet] = list(set(distinct_retweeters[tweet]) - set(other_retweeters))
                     results[attr] = distinct_retweeters
+                # compare Tweets based on feature vectors and their respecitve distances
                 case "similarity":
                     # feature list object must be defined
                     if features is None:
-                        raise ValueError("features list must be provided.")
+                        raise ValueError("'features' list must be provided.")
                     # features needs at least two elements
-                    assert len(features) > 1, "features list must have at least two elements. {} was given".format(len(features))
+                    assert len(features) > 1, "'features' list must have at least two elements. {} was given".format(len(features))
 
                     # init empty dict to store distances
                     distances = dict()
@@ -1042,9 +1025,14 @@ class TwitterAPI(tweepy.Client):
                     # sort dict in ascendin order
                     sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
                     results[attr] = sorted_values
+                case "created_at":
+                    creation_dates = {tweet: self._get_tweet_object(tweet).created_at for tweet in tweets}
+                    # calc datetime metrics
+                    creation_dates = self._calc_creation_dates(creation_dates)
+                    results[attr] = creation_dates
                 # if invalid comparison attribute was provided
                 case _:
-                    raise ValueError("Invalid comparison attribute for {}".format(attr))
+                    raise ValueError("Invalid comparison attribute for '{}'".format(attr))
         # if UTC timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
