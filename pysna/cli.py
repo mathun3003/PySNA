@@ -95,7 +95,6 @@ def subcommand(function_name: str, args=[], parent=subparsers):
     return decorator
 
 
-# TODO: rewrite (https://stackoverflow.com/questions/10551117/setting-options-from-environment-variables-when-using-argparse)
 @subcommand("load-secrets", args=[argument("env_path", help="Path to environment file.")])
 def load_secrets(args):
     """CLI helper function to load secrets from a given environment file to environment variables."""
