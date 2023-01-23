@@ -30,8 +30,8 @@ class TwitterAPI(tweepy.Client):
         "id_str",
         "name",
         "screen_name",
-        "followers_info",
-        "followees_info",
+        "followers",
+        "followees",
         "location",
         "profile_location",
         "description",
@@ -355,7 +355,6 @@ class TwitterAPI(tweepy.Client):
         data["metrics"]["min"] = min_date.isoformat()
         return data
 
-    # TODO OPTIONAL: write pagination as decorator
     def get_all_liking_users(self, tweet: str | int) -> Set[int]:
         """Get all liking users of provided Tweet by pagination.
 
@@ -523,7 +522,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): Attributes of the User object. These must be from id, id_str, name, screen_name, utc_timestamp, followers_info, followees_info, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries.
+            attributes (List[str]): Attributes of the User object. These must be from id, id_str, name, screen_name, utc_timestamp, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries.
 
         Raises:
             KeyError: If invalid attribute was provided.
@@ -547,7 +546,10 @@ class TwitterAPI(tweepy.Client):
             # if an error occured that says the user has been suspended
             if any("User has been suspended" in error["detail"] for error in response["errors"]):
                 log.error("User has been suspended from Twitter.")
-                return {"suspended": True}
+                if return_timestamp:
+                    return {"suspended": True, "utc_timestamp": strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")}
+                else:
+                    return {"suspended": True}
             else:
                 raise e
 
@@ -564,7 +566,7 @@ class TwitterAPI(tweepy.Client):
             if attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
             # get follower information
-            elif attr == "followers_info":
+            elif attr == "followers":
                 # define dict to store follower information
                 user_info[attr] = {"follower_ids": list(), "follower_names": list(), "follower_screen_names": list()}
                 # get follower IDs
@@ -574,9 +576,9 @@ class TwitterAPI(tweepy.Client):
                     user_info[attr]["follower_names"].append(follower.name)
                     user_info[attr]["follower_screen_names"].append(follower.screen_name)
             # get followees information
-            elif attr == "followees_info":
+            elif attr == "followees":
                 # define dict to store followees information
-                user_info[attr] = dict.fromkeys(["followees_ids", "followees_names", "followees_screen_names"], list())
+                user_info[attr] = {"followees_ids": list(), "followees_names": list(), "followees_screen_names": list()}
                 # get followees ID, names, and screen names
                 for friend in user_obj.friends():
                     user_info[attr]["followees_ids"].append(friend.id)
@@ -643,7 +645,7 @@ class TwitterAPI(tweepy.Client):
         # iterate over comparison attributes
         for attr in compare:
             # match comparison attributes
-            match attr.lower():
+            match attr:
                 # compare relationships between two users
                 case "relationship":
                     # init emtpy relationships dict
@@ -870,7 +872,7 @@ class TwitterAPI(tweepy.Client):
         # iterate over every given comparison atttribute
         for attr in compare:
             # match comparison attribute
-            match attr.lower():
+            match attr:
                 # compare numer of views / impressions
                 case "view_count":
                     view_count = dict()
