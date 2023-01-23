@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import argparse
-import json
 import os
 import pathlib
 import re
@@ -9,16 +8,16 @@ from typing import get_args
 from dotenv import load_dotenv
 
 from pysna.api import TwitterAPI
+from pysna.utils import append_to_json, export_to_json
 
 msg = """
 The command-line interface for the PySNA package
 
 Usage:
-  pysna user-info <user> <attributes> [--return-timestamp] [--output] [--encoding] [--env]
-  pysna compare-users <users> <compare> [--features] [--return-timestamp] [--output] [--encoding] [--env]
-  pysna tweet-info <tweet> <attributes> [--return-timestamp] [--output] [--encoding] [--env]
-  pysna compare-tweets <tweets> <attributes> [--features] [--return-timestamp] [--output] [--encoding] [--env]
-  pysna load-secrets <env-path>
+  pysna user-info <user> <attributes> [--return-timestamp] [--output] [--append] [--encoding] [--env]
+  pysna compare-users <users> <compare> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
+  pysna tweet-info <tweet> <attributes> [--return-timestamp] [--output] [--append] [--encoding] [--env]
+  pysna compare-tweets <tweets> <attributes> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
 
 Options:
   -h --help        Show this screen.
@@ -56,11 +55,13 @@ def read_secrets(env_path: str) -> dict:
     return secrets
 
 
-def output(data: dict, encoding: str, export_path: str | None = None):
+def output(data: dict, encoding: str, path: str | None = None, append: bool = False):
     # either print results if '--output' arg was provided
-    if export_path is not None:
-        with open(export_path, "w", encoding=encoding) as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
+    if (path is not None) and (append is False):
+        export_to_json(data, path, encoding)
+    # or append to existing file
+    elif (path is not None) and (append is True):
+        append_to_json(data, path, encoding)
     # or print them to the CLI
     else:
         print(data)
@@ -95,13 +96,6 @@ def subcommand(function_name: str, args=[], parent=subparsers):
     return decorator
 
 
-@subcommand("load-secrets", args=[argument("env_path", help="Path to environment file.")])
-def load_secrets(args):
-    """CLI helper function to load secrets from a given environment file to environment variables."""
-    load_dotenv(args.env_path)
-    print("secrets loaded from {}".format(args.env_path))
-
-
 @subcommand(
     "user-info",
     args=[
@@ -111,6 +105,7 @@ def load_secrets(args):
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
+        argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
 )
 def user_info_cli(args):
@@ -122,7 +117,7 @@ def user_info_cli(args):
     # get results
     result = api.user_info(user=args.user, attributes=args.attributes, return_timestamp=args.return_timestamp)
     # handle output
-    output(result, export_path=args.output, encoding=args.encoding)
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
     pass
 
 
@@ -135,6 +130,7 @@ def user_info_cli(args):
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
+        argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
 )
 def tweet_info_cli(args):
@@ -146,7 +142,7 @@ def tweet_info_cli(args):
     # get results
     result = api.tweet_info(tweet_id=args.tweet_id, attributes=args.attributes, return_timestamp=args.return_timestamp)
     # handle output
-    output(result, export_path=args.output, encoding=args.encoding)
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
     pass
 
 
@@ -160,6 +156,7 @@ def tweet_info_cli(args):
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
+        argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
 )
 def compare_users_cli(args):
@@ -171,7 +168,7 @@ def compare_users_cli(args):
     # get results
     result = api.compare_users(users=args.users, compare=args.compare, return_timestamp=args.return_timestamp, features=args.features)
     # handle output
-    output(result, export_path=args.output, encoding=args.encoding)
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
     pass
 
 
@@ -185,6 +182,7 @@ def compare_users_cli(args):
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
+        argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
 )
 def compare_tweets_cli(args):
@@ -196,7 +194,7 @@ def compare_tweets_cli(args):
     # get results
     result = api.compare_tweets(tweets=args.tweets, compare=args.compare, return_timestamp=args.return_timestamp, features=args.features)
     # handle output
-    output(result, export_path=args.output, encoding=args.encoding)
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
     pass
 
 

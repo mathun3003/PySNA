@@ -595,7 +595,7 @@ class TwitterAPI(tweepy.Client):
                     user_id = user
                 # request all liked Tweets
                 liked_tweets = self.get_all_liked_tweets(user_id)
-                user_info[attr] = liked_tweets
+                user_info[attr] = list(liked_tweets)
             # get all composed Tweets
             elif attr == "composed_tweets":
                 # user ID needs to be provided. Thus, check for ID
@@ -607,7 +607,7 @@ class TwitterAPI(tweepy.Client):
                     user_id = user
                 # request all composed Tweets
                 composed_tweets = self.get_all_composed_tweets(user_id)
-                user_info[attr] = composed_tweets
+                user_info[attr] = list(composed_tweets)
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for '{}'".format(attr))
