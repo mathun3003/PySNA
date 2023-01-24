@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import operator
+import re
 import sys
 from datetime import datetime, timezone
 from numbers import Number
@@ -9,6 +10,7 @@ from typing import Any, Dict, List, Literal, Set
 import numpy as np
 import requests
 import tweepy
+from textblob import TextBlob
 
 from pysna.utils import strf_datetime
 
@@ -42,6 +44,8 @@ class TwitterAPI(tweepy.Client):
         "friends_count",
         "listed_count",
         "created_at",
+        "latest_activity",
+        "last_active",
         "liked_tweets",
         "composed_tweets",
         "favourites_count",
@@ -84,6 +88,7 @@ class TwitterAPI(tweepy.Client):
         "truncated",
         "created_at",
         "entities",
+        "context_annotations",
         "source",
         "author_info",
         "retweeters",
@@ -109,6 +114,7 @@ class TwitterAPI(tweepy.Client):
         "possibly_sensitive",
         "possibly_sensitive_appealable",
         "lang",
+        "sentiment",
     ]
 
     LITERALS_COMPARE_USERS = Literal[
@@ -355,6 +361,17 @@ class TwitterAPI(tweepy.Client):
         data["metrics"]["min"] = min_date.isoformat()
         return data
 
+    def _clean_tweet(self, tweet: str) -> str:
+        """Utility function to clean tweet text by removing links, special characters using simple regex statements.
+
+        Args:
+            tweet (str): Raw text of the Tweet.
+
+        Returns:
+            str: Cleaned Tweet
+        """
+        return " ".join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
     def get_all_liking_users(self, tweet: str | int) -> Set[int]:
         """Get all liking users of provided Tweet by pagination.
 
@@ -517,6 +534,25 @@ class TwitterAPI(tweepy.Client):
                 break
         return composed_tweets
 
+    def get_tweet_sentiment(self, tweet: str) -> str:
+        """Utility function to classify sentiment of passed tweet using textblob's sentiment method.
+
+        Args:
+            tweet (str): The raw text of the Tweet.
+
+        Returns:
+            str: the sentiment of the Tweet. Either positive, neutral, or negative.
+        """
+        # create TextBlob object of passed tweet text
+        analysis = TextBlob(self._clean_tweet(tweet))
+        # set sentiment
+        if analysis.sentiment.polarity > 0:
+            return "positive"
+        elif analysis.sentiment.polarity == 0:
+            return "neutral"
+        else:
+            return "negative"
+
     def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested user information from Twitter User Object.
 
@@ -608,6 +644,28 @@ class TwitterAPI(tweepy.Client):
                 # request all composed Tweets
                 composed_tweets = self.get_all_composed_tweets(user_id)
                 user_info[attr] = list(composed_tweets)
+            # get latest activity via user timeline
+            elif attr == "latest_activity":
+                # if screen name was provided
+                if (user.isdigit() is False) and (isinstance(user, str)):
+                    url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true"
+                # else go with user ID
+                else:
+                    url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&include_rts=true&trim_user=true"
+                response_json = self._manual_request(url)
+                # get the first item since timeline is sorted descending
+                user_info[attr] = response_json[0]
+            # get last active date
+            elif attr == "last_active":
+                # if screen name was provided
+                if (user.isdigit() is False) and (isinstance(user, str)):
+                    url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true"
+                # else go with user ID
+                else:
+                    url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&include_rts=true&trim_user=true"
+                response_json = self._manual_request(url)
+                # get the first item since timeline is sorted descending
+                user_info[attr] = response_json[0]["created_at"]
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for '{}'".format(attr))
@@ -834,6 +892,14 @@ class TwitterAPI(tweepy.Client):
                 response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
                 public_metrics = response_json["data"]["public_metrics"]
                 tweet_info[attr] = public_metrics["reply_count"]
+            # get context annotations
+            elif attr == "context_annotations":
+                url = f"https://api.twitter.com/2/tweets/{tweet_id}"
+                response_json = self._manual_request(url, additional_fields={"tweet.fields": ["context_annotations"]})
+                tweet_info[attr] = response_json["data"]["context_annotations"]
+            # get sentiment of Tweet
+            elif attr == "sentiment":
+                tweet_info[attr] = self.get_tweet_sentiment(tweet_obj.text)
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for '{}'".format(attr))
