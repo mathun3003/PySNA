@@ -79,6 +79,7 @@ class TwitterAPI(tweepy.Client):
         "notifications",
         "translator_type",
         "withheld_in_countries",
+        "bot_scores",
     ]
 
     LITERALS_TWEET_INFO = Literal[
@@ -135,7 +136,17 @@ class TwitterAPI(tweepy.Client):
 
     LITERALS_COMPARE_TWEETS = Literal["view_count", "like_count", "retweet_count", "quote_count", "common_quoting_users", "distinct_quoting_users", "common_liking_users", "distinct_liking_users", "common_retweeters", "distinct_retweets"]
 
-    def __init__(self, bearer_token: Any | None = None, consumer_key: Any | None = None, consumer_secret: Any | None = None, access_token: Any | None = None, access_token_secret: Any | None = None, wait_on_rate_limit: bool = True):
+    def __init__(
+        self,
+        bearer_token: Any | None = None,
+        consumer_key: Any | None = None,
+        consumer_secret: Any | None = None,
+        access_token: Any | None = None,
+        access_token_secret: Any | None = None,
+        x_rapidapi_key: Any | None = None,
+        x_rapidapi_host: Any | None = None,
+        wait_on_rate_limit: bool = True,
+    ):
         # inherit from tweepy.Client __init__
         super(self.__class__, self).__init__(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret, wait_on_rate_limit=wait_on_rate_limit)
         # create a tweepy.AppAuthHandler instance
@@ -146,12 +157,19 @@ class TwitterAPI(tweepy.Client):
         self._client = super(self.__class__, self)
         # store bearer token for manual request
         self._bearer_token = bearer_token
+        # store RapidAPI key for Botometer API
+        self._rapidapi_key = x_rapidapi_key
+        # store RapidAPI host for Botometer API
+        self._rapidapi_host = x_rapidapi_host
 
-    def _manual_request(self, url: str, additional_fields: Dict[str, List[str]] | None = None) -> dict:
-        """Perform a manual GET request to the Twitter API.
+    def _manual_request(self, url: str, method: str = "GET", header=None, payload=None, additional_fields: Dict[str, List[str]] | None = None) -> dict:
+        """Perform a manual request to the Twitter API.
 
         Args:
             url (str): API URL (without specified fields)
+            method (str): Request method according to REST. Defaults to "GET".
+            header: Custom HTTP Header. Defaults to None.
+            payload: JSON data for HTTP requests. Defaults to None.
             additional_fields (Dict[str, List[str]] | None, optional): Fields can be specified (e.g., tweet.fields) according to the official API reference. Defaults to None.
 
         Raises:
@@ -172,9 +190,10 @@ class TwitterAPI(tweepy.Client):
                 fields += f"{field}={','.join(additional_fields[field])}&"
             # append fields to url
             url += fields[:-1]
-        # set header
-        header = {"Authorization": f"Bearer {self._bearer_token}"}
-        response = requests.get(url, headers=header)
+        if header is None:
+            # set header
+            header = {"Authorization": f"Bearer {self._bearer_token}"}
+        response = requests.request(method, url, headers=header, json=payload)
         if response.status_code != 200:
             raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
         return response.json()
@@ -188,13 +207,30 @@ class TwitterAPI(tweepy.Client):
         Returns:
             tweepy.User: Twitter User object from tweepy
         """
-        # check if string for user1 is convertible to int in order to check for user ID or screen name
-        if (user.isdigit()) or (isinstance(user, int)):
-            # get profile for user by user ID
-            user_obj = self._api.get_user(user_id=user)
-        else:
-            # get profile for user by screen name
-            user_obj = self._api.get_user(screen_name=user)
+        try:
+            # check if string for user1 is convertible to int in order to check for user ID or screen name
+            if (user.isdigit()) or (isinstance(user, int)):
+                # get profile for user by user ID
+                user_obj = self._api.get_user(user_id=user)
+            else:
+                # get profile for user by screen name
+                user_obj = self._api.get_user(screen_name=user)
+        except tweepy.errors.Forbidden as e:
+            # log to stdout
+            log.error("403 Forbidden: access refused or access is not allowed.")
+            # if user ID was provided
+            if user.isdigit() or isinstance(user, int):
+                url = f"https://api.twitter.com/2/users/{user}"
+            else:
+                # if screen name was provided
+                url = f"https://api.twitter.com/2/users/by/username/{user}"
+            response = self._manual_request(url)
+            # if an error occured that says the user has been suspended
+            if any("User has been suspended" in error["detail"] for error in response["errors"]):
+                log.error("User has been suspended from Twitter.")
+                return {"suspended": True}
+            else:
+                raise e
         return user_obj
 
     def _get_user_followers(self, user: str | int) -> Set[int]:
@@ -276,7 +312,14 @@ class TwitterAPI(tweepy.Client):
 
         Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
         """
-        tweet_obj = self._api.get_status(tweet, include_entities=True)
+        try:
+            tweet_obj = self._api.get_status(tweet, include_entities=True)
+        except tweepy.errors.NotFound as e:
+            log.error("404 Not Found: Resource not found.")
+            raise e
+        except tweepy.errors.Forbidden as e:
+            log.error("403 Forbidden: access refused or access is not allowed.")
+            raise e
         return tweet_obj
 
     def _calc_descriptive_metrics(self, data: Dict[str | int, Number], iterable: List[str | int]) -> dict:
@@ -502,19 +545,31 @@ class TwitterAPI(tweepy.Client):
                 break
         return liked_tweets
 
-    def get_all_composed_tweets(self, user: str | int, **kwargs) -> Set[int]:
+    def get_all_composed_tweets(self, user_id: str | int | None = None, screen_name: str | None = None, user_obj: tweepy.User | None = None, **kwargs) -> Set[int]:
         """Get all composed Tweets of provided user by pagination.
 
         Args:
-            user (str | int): User ID or screen name.
+            user_id (str | int | None): User ID. Defaults to None.
+            screen_name (str | None): User screen name. Defaults to None.
+            user_obj (tweepy.User): Tweepy User Object. Defaults to None.
 
         Returns:
             Set[int]: IDs of composed Tweets.
         """
+        if user_obj:
+            # get user ID
+            user_id = user_obj.id
+        elif screen_name:
+            # get user ID via screen name
+            user_id = self._get_user_object(screen_name).id
+        elif user_id:
+            user_id = user_id
+        else:
+            raise ValueError("'user_id', 'username', or 'user_obj' needs to be specified.")
         # init empty set to store all composed Tweets
         composed_tweets = set()
         # set request params
-        params = {"id": user, "max_results": 100, "pagination_token": None}
+        params = {"id": user_id, "max_results": 100, "pagination_token": None}
 
         while True:
             response = self._client.get_users_tweets(**params, **kwargs)
@@ -535,7 +590,7 @@ class TwitterAPI(tweepy.Client):
         return composed_tweets
 
     def get_tweet_sentiment(self, tweet: str) -> str:
-        """Utility function to classify sentiment of passed tweet using textblob's sentiment method.
+        """Utility function to classify sentiment of passed tweet using textblob's sentiment method. English Tweets only.
 
         Args:
             tweet (str): The raw text of the Tweet.
@@ -553,6 +608,42 @@ class TwitterAPI(tweepy.Client):
         else:
             return "negative"
 
+    def get_botometer_scores(self, user: str | int) -> dict:
+        """Returns bot scores from the Botometer API for the specified Twitter user.
+
+        Args:
+            user (str | int): User ID or screen name.
+
+        Returns:
+            dict: The raw Botometer scores for the specified user.
+
+        Reference: https://rapidapi.com/OSoMe/api/botometer-pro/details
+        """
+        if (self._rapidapi_key is None) or (self._rapidapi_host is None):
+            raise ValueError("'X_RAPIDAPI_KEY' and 'X_RAPIDAPI_HOST' secrets for Botometer API need to be provided.")
+        # get user object
+        user_obj = self._get_user_object(user)
+        # get user timeline
+        timeline = list(map(lambda x: x._json, self._api.user_timeline(user_id=user_obj.id, count=200)))
+        # get user data
+        if timeline:
+            user_data = timeline[0]["user"]
+        else:
+            user_data = user_obj._json
+        screen_name = "@" + user_data["screen_name"]
+        # get latest 100 Tweets
+        tweets = list(map(lambda x: x._json, self._api.search_tweets(screen_name, count=100)))
+        # set payload
+        payload = {"mentions": tweets, "timeline": timeline, "user": user_data}
+        # set header
+        headers = {"content-type": "application/json", "X-RapidAPI-Key": self._rapidapi_key, "X-RapidAPI-Host": self._rapidapi_host}
+        # set url
+        url = "https://botometer-pro.p.rapidapi.com/4/check_account"
+        # get results
+        response = self._manual_request(url, "POST", headers, payload)
+
+        return response
+
     def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested user information from Twitter User Object.
 
@@ -566,28 +657,8 @@ class TwitterAPI(tweepy.Client):
         Returns:
             dict: Requested user information.
         """
-        try:
-            # get user object via tweepy
-            user_obj = self._get_user_object(user)
-        except tweepy.errors.Forbidden as e:
-            # log to stdout
-            log.error("403 Forbidden: access refused or access is not allowed.")
-            # if user ID was provided
-            if user.isdigit() or isinstance(user, int):
-                url = f"https://api.twitter.com/2/users/{user}"
-            else:
-                # if screen name was provided
-                url = f"https://api.twitter.com/2/users/by/username/{user}"
-            response = self._manual_request(url)
-            # if an error occured that says the user has been suspended
-            if any("User has been suspended" in error["detail"] for error in response["errors"]):
-                log.error("User has been suspended from Twitter.")
-                if return_timestamp:
-                    return {"suspended": True, "utc_timestamp": strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")}
-                else:
-                    return {"suspended": True}
-            else:
-                raise e
+        # get user object via tweepy
+        user_obj = self._get_user_object(user)
 
         # initialize empty dict to store requested attributes
         user_info = dict()
@@ -634,15 +705,8 @@ class TwitterAPI(tweepy.Client):
                 user_info[attr] = list(liked_tweets)
             # get all composed Tweets
             elif attr == "composed_tweets":
-                # user ID needs to be provided. Thus, check for ID
-                if user.isdigit() is False:
-                    # if provided string was a screen name, get User ID first
-                    user_id = user_obj.id
-                # if user ID as int or str was provided, continue
-                else:
-                    user_id = user
                 # request all composed Tweets
-                composed_tweets = self.get_all_composed_tweets(user_id)
+                composed_tweets = self.get_all_composed_tweets(user_obj=user_obj)
                 user_info[attr] = list(composed_tweets)
             # get latest activity via user timeline
             elif attr == "latest_activity":
@@ -666,6 +730,9 @@ class TwitterAPI(tweepy.Client):
                 response_json = self._manual_request(url)
                 # get the first item since timeline is sorted descending
                 user_info[attr] = response_json[0]["created_at"]
+            # get bot scores from botometer
+            elif attr == "bot_scores":
+                user_info[attr] = self.get_botometer_scores(user)
             # if invalid attribute was provided
             else:
                 raise ValueError("Invalid attribute for '{}'".format(attr))

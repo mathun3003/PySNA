@@ -35,8 +35,9 @@ if match:
 else:
     raise RuntimeError(f"Unable to find version string in {VERSION_FILE}.")
 
-# set constant for required secrets
+# set constant for required and optional secrets
 REQUIRED_SECRETS = ["BEARER_TOKEN", "CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET"]
+OPTIONAL_SECRETS = ["X_RAPIDAPI_KEY", "X_RAPIDAPI_HOST"]
 
 # set main parser
 parser = argparse.ArgumentParser(prog="pysna", usage=msg)
@@ -51,7 +52,7 @@ def read_secrets(env_path: str) -> dict:
         if secret not in os.environ:
             raise KeyError(f"{secret} must be provided in the environment variables.")
     # collect secrets
-    secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS}
+    secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS + OPTIONAL_SECRETS}
     return secrets
 
 
