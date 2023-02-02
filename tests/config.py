@@ -36,5 +36,7 @@ class PySNATestCase(unittest.TestCase):
         self.consumer_secret = consumer_secret
         self.access_token = access_token
         self.access_token_secret = access_token_secret
+        self.rapidapi_key = rapidapi_key
+        self.rapidapi_host = rapidapi_host
 
         self.api = TwitterAPI(self.bearer_token, self.consumer_key, self.consumer_secret, self.access_token, self.access_token_secret, self.rapidapi_key, self.rapidapi_host)
