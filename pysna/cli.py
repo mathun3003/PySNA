@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import json
 import os
 import pathlib
 import re
@@ -63,9 +64,9 @@ def output(data: dict, encoding: str, path: str | None = None, append: bool = Fa
     # or append to existing file
     elif (path is not None) and (append is True):
         append_to_json(data, path, encoding)
-    # or print them to the CLI
+    # or print them to the CLI in JSON format
     else:
-        print(data)
+        print(json.dumps(data, ensure_ascii=False))
     pass
 
 
