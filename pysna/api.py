@@ -134,7 +134,9 @@ class TwitterAPI(tweepy.Client):
         "verified",
     ]
 
-    LITERALS_COMPARE_TWEETS = Literal["view_count", "like_count", "retweet_count", "quote_count", "common_quoting_users", "distinct_quoting_users", "common_liking_users", "distinct_liking_users", "common_retweeters", "distinct_retweets"]
+    LITERALS_COMPARE_TWEETS = Literal[
+        "view_count", "like_count", "retweet_count", "quote_count", "common_quoting_users", "distinct_quoting_users", "common_liking_users", "distinct_liking_users", "common_retweeters", "distinct_retweeters", "similarity", "created_at"
+    ]
 
     def __init__(
         self,
@@ -151,6 +153,7 @@ class TwitterAPI(tweepy.Client):
         super(self.__class__, self).__init__(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret, wait_on_rate_limit=wait_on_rate_limit)
         # create a tweepy.AppAuthHandler instance
         _auth = tweepy.AppAuthHandler(consumer_key=consumer_key, consumer_secret=consumer_secret)
+        # TODO: use information hiding
         # create a tweepy.API instance
         self._api = tweepy.API(_auth, wait_on_rate_limit=wait_on_rate_limit)
         # create a tweepy.Client instance from parent class
@@ -162,7 +165,7 @@ class TwitterAPI(tweepy.Client):
         # store RapidAPI host for Botometer API
         self._rapidapi_host = x_rapidapi_host
 
-    def _manual_request(self, url: str, method: str = "GET", header=None, payload=None, additional_fields: Dict[str, List[str]] | None = None) -> dict:
+    def _manual_request(self, url: str, method: str = "GET", header: dict | None = None, payload: dict | None = None, additional_fields: Dict[str, List[str]] | None = None) -> dict:
         """Perform a manual request to the Twitter API.
 
         Args:
@@ -193,7 +196,7 @@ class TwitterAPI(tweepy.Client):
         if header is None:
             # set header
             header = {"Authorization": f"Bearer {self._bearer_token}"}
-        response = requests.request(method, url, headers=header, json=payload)
+        response = requests.request(method=method, url=url, headers=header, json=payload)
         if response.status_code != 200:
             raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
         return response.json()
@@ -209,7 +212,7 @@ class TwitterAPI(tweepy.Client):
         """
         try:
             # check if string for user1 is convertible to int in order to check for user ID or screen name
-            if (user.isdigit()) or (isinstance(user, int)):
+            if (isinstance(user, int)) or (user.isdigit()):
                 # get profile for user by user ID
                 user_obj = self._api.get_user(user_id=user)
             else:
@@ -245,7 +248,7 @@ class TwitterAPI(tweepy.Client):
         # init empty list to store user followers
         user_followers = list()
         # check if string for user1 is convertible to int in order to check for user ID or screen name
-        if (user.isdigit()) or (isinstance(user, int)):
+        if (isinstance(user, int)) or (user.isdigit()):
             # get all follower IDs by paginating using the user ID
             for page in tweepy.Cursor(self._api.get_follower_ids, user_id=user).pages():
                 user_followers.extend(page)
@@ -265,7 +268,7 @@ class TwitterAPI(tweepy.Client):
             Set[int]: Array containing follow IDs
         """
         user_followees = list()
-        if (user.isdigit()) or (isinstance(user, int)):
+        if (isinstance(user, int)) or (user.isdigit()):
             # get all followee IDs by paginating using the user ID
             for page in tweepy.Cursor(self._api.get_friend_ids, user_id=user).pages():
                 user_followees.extend(page)
@@ -275,7 +278,7 @@ class TwitterAPI(tweepy.Client):
                 user_followees.extend(page)
         return set(user_followees)
 
-    def _get_relationship(self, user1: str | int, user2: str | int) -> dict:
+    def _get_relationship(self, source_user: str | int, target_user: str | int) -> dict:
         """Get relationship between two users.
 
         Args:
@@ -287,18 +290,27 @@ class TwitterAPI(tweepy.Client):
 
         Reference: https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show#example-response
         """
-        # if both strings are digits or integers
-        if ((user1.isdigit()) and (user2.isdigit())) or ((isinstance(user1, int)) and (isinstance(user2, int))):
-            relationship = self._api.get_friendship(source_id=user1, target_id=user2)
-        # if user1 string is a digit or an integer, and user2 is a screen name
-        elif ((user1.isdigit()) and (not user2.isdigit())) or ((isinstance(user1, int)) and (isinstance(user2, str))):
-            relationship = self._api.get_friendship(source_id=user1, target_screen_name=user2)
-        # if user1 is a screen name, and user2 is a digit or an integer
-        elif ((not user1.isdigit()) and (user2.isdigit())) or ((isinstance(user1, str)) and (isinstance(user2, int))):
-            relationship = self._api.get_friendship(source_screen_name=user1, target_id=user2)
-        # if both strings are screen names
+
+        params = {"source_id": None, "source_screen_name": None, "target_id": None, "target_screen_name": None}
+        # if source_user is int or a digit
+        if (isinstance(source_user, int)) or (isinstance(source_user, str) and (source_user.isdigit())):
+            params["source_id"] = source_user
+        # else if screen name was provided
+        elif (isinstance(source_user, str)) and (not source_user.isdigit()):
+            params["source_screen_name"] = source_user
         else:
-            relationship = self._api.get_friendship(source_screen_name=user1, target_screen_name=user2)
+            log.error("No ID or username provided for {}".format(source_user))
+
+        # if target_user is int or a digit
+        if (isinstance(target_user, int)) or (isinstance(target_user, str) and (target_user.isdigit())):
+            params["target_id"] = target_user
+        # else if screen name was provided
+        elif (isinstance(target_user, str)) and (not target_user.isdigit()):
+            params["target_screen_name"] = target_user
+        else:
+            log.error("No ID or username provided for {}".format(target_user))
+
+        relationship = self._api.get_friendship(**params)
         return {"source": relationship[0]._json, "target": relationship[1]._json}
 
     def _get_tweet_object(self, tweet: str | int) -> tweepy.models.Status:
@@ -415,6 +427,59 @@ class TwitterAPI(tweepy.Client):
         """
         return " ".join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
+    # TODO: test
+    def __paginate(func, params: Dict[str, str | int], max_results: int | None = None, response_attribute: str = "data") -> set:
+        """Pagination function
+
+        Args:
+            func: Function used for pagination
+            params (Dict[str, str  |  int]): Dict containing request parameters. Should be of the form {'id': ..., 'max_results': ..., 'pagination_token': ...}
+            max_results (int | None, optional): Maximum number of results. Defaults to None, thus, no limit.
+            response_attribute (str, optional): Attribute of the Response object. Defaults to "data". Options: ["data", "includes"]
+
+        Raises:
+            KeyError: 'id', 'max_results', and 'pagination_token' should be provided in the params dict.
+
+        Returns:
+            set: Results
+        """
+        if not all(key in params for key in ["id", "max_results", "pagination_token"]):
+            raise KeyError("Invalid parameter provided. params dict needs the following keys: id, max_results, pagination_token")
+
+        # if the max number of results is smaller than the default number of results per request
+        if (max_results is not None) and (max_results < params["max_results"]):
+            # reset max_resulst in params
+            params["max_results"] = max_results
+        # init counter
+        counter = 0
+        # init empty results set
+        results = set()
+        while True:
+            # make request
+            response = func(**params)
+            # if any data exists
+            if response.__dict__.get(response_attribute) is not None:
+                # iterate over response results
+                for item in response.__dict__.get(response_attribute):
+                    # add result
+                    results.add(item)
+                    # increment counter
+                    counter += 1
+                    # if max_results was reached, break
+                    if (max_results is not None) and (counter == max_results):
+                        break
+                # if last page or max number of results was reached
+                if not response.meta["next_token"]:
+                    break
+                # else, set new pagination token for next iteration
+                else:
+                    params["pagination_token"] = response.meta["next_token"]
+            # if not data exists, break
+            else:
+                break
+        return results
+
+    # TODO: write pagination method with 'max_results' param
     def get_all_liking_users(self, tweet: str | int) -> Set[int]:
         """Get all liking users of provided Tweet by pagination.
 
@@ -524,6 +589,11 @@ class TwitterAPI(tweepy.Client):
         """
         # init empty set to store all liked Tweets
         liked_tweets = set()
+
+        # user ID is required
+        if (isinstance(user, str)) and (not user.isdigit()):
+            user = self._get_user_object(user).id
+
         # set request params
         params = {"id": user, "max_results": 100, "pagination_token": None}
 
@@ -545,6 +615,7 @@ class TwitterAPI(tweepy.Client):
                 break
         return liked_tweets
 
+    # TODO: rewrite, unify 'get_all_...' functions
     def get_all_composed_tweets(self, user_id: str | int | None = None, screen_name: str | None = None, user_obj: tweepy.User | None = None, **kwargs) -> Set[int]:
         """Get all composed Tweets of provided user by pagination.
 
@@ -781,7 +852,7 @@ class TwitterAPI(tweepy.Client):
                             if user != other_user:
                                 relationships[(user, other_user)] = self._get_relationship(user, other_user)
                     results[attr] = relationships
-                # compare number of follwoers
+                # compare number of followers
                 case "followers_count":
                     followers = {user: self._get_user_object(user).followers_count for user in users}
                     # calc descriptive metrics
@@ -841,25 +912,25 @@ class TwitterAPI(tweepy.Client):
                             if user != other_user:
                                 distinct_followees[user] = list(set(distinct_followees[user]) - set(other_followees))
                     results[attr] = distinct_followees
-                # compute similarity between two users basd on the followers
+                # compute similarity between two users basd on the defined features
                 case "similarity":
                     # feature list object must be defined
                     if features is None:
                         raise ValueError("'features' list must be provided.")
                     # features needs at least two elements
-                    assert len(features) > 1, "'features' list must have at least two elements. {} was given".format(len(features))
-
+                    assert len(features) > 1, "'features' list must have at least two elements. {} was/were given".format(len(features))
+                    # TODO: get features from above out of results dict
                     # init empty dict to store distances
                     distances = dict()
                     # iterate over every uniqe pair
                     for i in range(len(users)):
                         for j in range(i + 1, len(users)):
                             # get user objects for each pair
-                            user_i = self._get_user_object(users[i])._json
-                            user_j = self._get_user_object(users[j])._json
+                            user_i = self.user_info(users[i], attributes=features)
+                            user_j = self.user_info(users[j], attributes=features)
                             # build feature vector
-                            vec_i = np.array([user_i[feature] for feature in features])
-                            vec_j = np.array([user_j[feature] for feature in features])
+                            vec_i = np.fromiter(user_i.values(), dtype=float)
+                            vec_j = np.fromiter(user_j.values(), dtype=float)
                             # feature vectors have to contain numeric values
                             assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
                             assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
@@ -870,7 +941,6 @@ class TwitterAPI(tweepy.Client):
                     results[attr] = sorted_values
                 # compare creation dates
                 case "created_at":
-                    # TODO: Sign off by the supervisor
                     # create dict of users and their respective creation dates
                     creation_dates = {user: self._get_user_object(user).created_at for user in users}
                     # calc datetime metrics
@@ -897,20 +967,8 @@ class TwitterAPI(tweepy.Client):
         Returns:
             dict: Requested Tweet information.
         """
-
-        try:
-            # get tweet object
-            tweet_obj = self._get_tweet_object(tweet_id)
-        except tweepy.errors.NotFound as e:
-            # log to stdout
-            log.error("No Tweet found with that ID.")
-            # request the Tweet via manual request
-            response = self._manual_request(f"https://api.twitter.com/2/tweets/{tweet_id}")
-            # if an error saying that no such Tweet was found
-            if any(error["title"] == "Not Found Error" for error in response["errors"]):
-                return {"available": False}
-            else:
-                raise e
+        # get tweet object
+        tweet_obj = self._get_tweet_object(tweet_id)
 
         # initialize empty dict to store request information
         tweet_info = dict()
@@ -942,28 +1000,32 @@ class TwitterAPI(tweepy.Client):
             elif attr == "view_count":
                 # go via manual request and public metrics
                 url = f"https://api.twitter.com/2/tweets/{tweet_id}"
-                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
                 public_metrics = response_json["data"]["public_metrics"]
                 tweet_info[attr] = public_metrics["impression_count"]
             # get the number of likes
             elif attr == "quote_count":
                 # go via manual request and public metrics
                 url = f"https://api.twitter.com/2/tweets/{tweet_id}"
-                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
                 public_metrics = response_json["data"]["public_metrics"]
                 tweet_info[attr] = public_metrics["quote_count"]
             # get the number of replies
             elif attr == "reply_count":
                 # go via manual request and public metrics
                 url = f"https://api.twitter.com/2/tweets/{tweet_id}"
-                response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
                 public_metrics = response_json["data"]["public_metrics"]
                 tweet_info[attr] = public_metrics["reply_count"]
             # get context annotations
             elif attr == "context_annotations":
                 url = f"https://api.twitter.com/2/tweets/{tweet_id}"
                 response_json = self._manual_request(url, additional_fields={"tweet.fields": ["context_annotations"]})
-                tweet_info[attr] = response_json["data"]["context_annotations"]
+                # if key is not awailable
+                if "context_annotations" in response_json["data"]:
+                    tweet_info[attr] = response_json["data"]["context_annotations"]
+                else:
+                    tweet_info[attr] = None
             # get sentiment of Tweet
             elif attr == "sentiment":
                 tweet_info[attr] = self.get_tweet_sentiment(tweet_obj.text)
@@ -1011,7 +1073,7 @@ class TwitterAPI(tweepy.Client):
                     view_count = dict()
                     for tweet in tweets:
                         url = f"https://api.twitter.com/2/tweets/{tweet}"
-                        response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                        response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
                         public_metrics = response_json["data"]["public_metrics"]
                         view_count[tweet] = public_metrics["impression_count"]
                     # calc descriptive metrics
@@ -1041,7 +1103,7 @@ class TwitterAPI(tweepy.Client):
                     quote_count = dict()
                     for tweet in tweets:
                         url = f"https://api.twitter.com/2/tweets/{tweet}"
-                        response_json = self._manual_request(url, {"tweet.fields": ["public_metrics"]})
+                        response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
                         public_metrics = response_json["data"]["public_metrics"]
                         quote_count[tweet] = public_metrics["quote_count"]
                     # calc descriptive metrics
@@ -1139,7 +1201,7 @@ class TwitterAPI(tweepy.Client):
                     if features is None:
                         raise ValueError("'features' list must be provided.")
                     # features needs at least two elements
-                    assert len(features) > 1, "'features' list must have at least two elements. {} was given".format(len(features))
+                    assert len(features) > 1, "'features' list must have at least two elements. {} was/were given.".format(len(features))
 
                     # init empty dict to store distances
                     distances = dict()
@@ -1147,15 +1209,15 @@ class TwitterAPI(tweepy.Client):
                     for i in range(len(tweets)):
                         for j in range(i + 1, len(tweets)):
                             # get Tweet objects for each pair
-                            tweet_i = self._get_tweet_object(tweets[i])._json
-                            tweet_j = self._get_tweet_object(tweets[j])._json
+                            tweet_i = self.tweet_info(tweets[i], attributes=features)
+                            tweet_j = self.tweet_info(tweets[j], attributes=features)
                             # build feature vector
-                            vec_i = np.array([tweet_i[feature] for feature in features])
-                            vec_j = np.array([tweet_j[feature] for feature in features])
+                            vec_i = np.fromiter(tweet_i.values(), dtype=float)
+                            vec_j = np.fromiter(tweet_j.values(), dtype=float)
                             # feature vectors have to contain numeric values
                             assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
                             assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
-                            # calc euclidean distance
+                            # calc euclidean
                             distances[(tweets[i], tweets[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
                     # sort dict in ascendin order
                     sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
@@ -1163,7 +1225,7 @@ class TwitterAPI(tweepy.Client):
                 case "created_at":
                     creation_dates = {tweet: self._get_tweet_object(tweet).created_at for tweet in tweets}
                     # calc datetime metrics
-                    creation_dates = self._calc_creation_dates(creation_dates)
+                    creation_dates = self._calc_datetime_metrics(creation_dates)
                     results[attr] = creation_dates
                 # if invalid comparison attribute was provided
                 case _:

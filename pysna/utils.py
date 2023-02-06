@@ -26,7 +26,7 @@ def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure
     # usually when tuple cannot be serialized
     except TypeError:
         # serialize tuples
-        data = serialize_tuples(data)
+        data = encode_json(data)
         # retry
         export_to_json(data=data, export_path=export_path, encoding=encoding, ensure_ascii=ensure_ascii)
     pass
@@ -63,7 +63,7 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
         # usually when tuple cannot be serialized
         except TypeError:
             # serialize tuples
-            input_dict = serialize_tuples(input_dict)
+            input_dict = encode_json(input_dict)
             # retry
             append_to_json(input_dict=input_dict, filepath=filepath, encoding=encoding, **kwargs)
     pass
@@ -84,7 +84,7 @@ def load_from_json(filepath: str, encoding: str = "utf-8") -> dict:
         f = json.load(jsonfile)
 
     # try to deserialize if any tuples were found in the file
-    f = deserialize_tuples(f)
+    f = decode_json(f)
     return f
 
 
@@ -101,7 +101,7 @@ def strf_datetime(date: datetime, format="%Y-%m-%d %H:%M:%S") -> str:
     return date.strftime(format)
 
 
-def serialize_tuples(data: dict):
+def encode_json(data: dict):
     # if "data" key exists
     if "data" in data:
         # iterate over every value
@@ -120,7 +120,7 @@ def serialize_tuples(data: dict):
     return data
 
 
-def deserialize_tuples(data: dict):
+def decode_json(data: dict):
     if "data" in data:
         # iterate over every value
         for entry_num, entry in enumerate(data["data"]):
@@ -135,16 +135,25 @@ def deserialize_tuples(data: dict):
                             # set to input dict
                             data["data"][entry_num][key] = sub_dict
     else:
-        # iterate over every value
-        for entry_num, entry in enumerate(data):
-            for key in entry.keys():
-                # if a serialized tuple was detected
-                if isinstance(entry[key], dict):
-                    sub_dict = entry[key]
-                    if all([re.match(r"^\([^)]+\)$", k) for k in sub_dict.keys()]):
-                        for sub_key in sub_dict.keys():
-                            # deserialize tuples in sub dict
-                            sub_dict[tuple(re.sub(r"[\(\)\']", "", sub_key).split(", "))] = sub_dict.pop(sub_key)
-                            # set to input dict
-                            data[entry_num][key] = sub_dict
+        for key in data.keys():
+            # if a serialized tuple was detected
+            if isinstance(data[key], dict):
+                sub_dict = data[key]
+                if all([re.match(r"^\([^)]+\)$", k) for k in sub_dict.keys()]):
+                    for sub_key in sub_dict.keys():
+                        # deserialize tuples in sub dict
+                        sub_dict[tuple(re.sub(r"[\(\)\']", "", sub_key).split(", "))] = sub_dict.pop(sub_key)
+                        # set to input dict
+                        data[key] = sub_dict
+                # if int was changed to str, cast to int
+                elif any([key.isdigit() for key in sub_dict.keys()]):
+                    for sub_key in [k for k in sub_dict.keys() if k.isdigit()]:
+                        sub_dict[int(sub_key)] = sub_dict.pop(sub_key)
+                    for sub_key in [k for k in sub_dict.keys() if isinstance(k, str)]:
+                        for k in sub_dict[sub_key].keys():
+                            if k.isdigit():
+                                sub_dict[sub_key][int(k)] = sub_dict.pop(sub_dict[sub_key][k])
+            # cast to int if key is a digit
+            if key.isdigit():
+                data[int(key)] = data.pop(key)
     return data
