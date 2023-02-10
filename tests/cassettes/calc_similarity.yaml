@@ -1,0 +1,587 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=24677217
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxW227jNhD9FUFPLeq1RfkqF33INshiA2RboJu43SgQKGlkMaFILUnFcYL8e4eW
+        5UukuH1Yv1iaOUMeUnMO+eKy1J37o8l06pNpD98ibZQ7d5uQ23MFLQAj14I9gtLMhJXnwcg4V/Yh
+        S4Q2oBCmEwUgoi16sbiOripoklwm1DApMPOmrFQyYxyiPUJUnPfcFHBAVm6L/sgy9syAc1DOWZLI
+        ShgnxecFaJPVhDjTSQ7CWTCeAy/0hxbhn5DUz0e0f3U+F6UCrati7uTGlHoeDsKB6ScyHGQfb/Tn
+        T0VQ8VCcU4NrSfLKPOdMrIDpNv58ppfmfHzDHnFZleJI20IOEPSGjpKn+8v7C0SAMMww0O78pUZv
+        /vD19uX/VD+VVKSQRm+gq9WqXwn2odjufT8FRKdMl5yut+B2nomUJZbKrdfz/bvXu9c3H6CTW/dm
+        nSAXM9Pn63BA2OR5cvWpRayd3xObjXvEmyGx9xgcbf97DJayv1pVuGh8nJn8e4tCB2DPgfhBj4w3
+        +/O66VwDiQEUUEa5hp6bSc7lCnsu2nQoCssjkyHGFQOR7qJkiotxsV+xtomNyKTnooKojVFjdSKF
+        c0WVQyYOIXMSzIee84uHP8f3vAB5ZfRRVooZ2E8XBKjhyiSRzDINptGSYQVEz1JAE1iCjEDQmB+Q
+        R62wjB0EtKGm0vvRCZlMAuRNxbIZp4bY9jiifqGYcwGxQzxLfezNveGOuj+0W4qzkIk/8og/I9Px
+        cDQNxtNpcOA/HVmsM/Bkx/8zX2v2gHyFQMFXInWayMYUTjqVw2mKRZfVEj8JZ2gZDkWmY+eS5goT
+        tHDItG/pqwp3/7lygAkonIVUDzqXZVjhGiYt8X/758v139/IAr5amqoSCd10Bj7CsdZzqnNDl7af
+        7nAH10Us+fYFd1tFhQVL0YROy+5o2o6m32JXzFitJ7IIBwxNAuJwUH87FFvnTh+r4vQA9ZYcKwXb
+        mQyD2kk0tmliDwX7GYYJdXCjs9/CA4KFjPEM6B9O4zoKOIKErFUV1tXwtcag88fOWVnWQ6I51tkN
+        iUhBydeRkVFNMbLtVjdsZ7JuuTZg8zm6a7ep9yqPzsKd5JrHREqVMoENopsQ7nUC+7wwisWVkWoH
+        YDr6XqHfRI3ktiJVYFYAptGoV9uCdYWdbPeh9G3ZQaSUWrMY6Ws8GLBZH2GXqhWPB4L7ekyu5SHI
+        0igqNKeY7opiY7eKmhtATJOHpULS1hS5rXc/kt/PPM/txLCCLuGtv9NY2y4qlttWtRhsUZNDsfsn
+        eBAt+yWu6fS40aY/j4T0A4Y3+N5aeudayuPJjrBWdiQYEavaGRn54yAgkyAc/LUc3j+Y1WUkpCoo
+        79+XhzROLe3HzxZTtGfVMqN3JqrROFNz88Q5h8HMH49Hvn94T2TiYdcfeBCen5ODrGYpxFRFMSoM
+        525wF5tfBw5f+Psoe9wczGV/B1n0gFbf7L4sunyE1bDx423FLplCRitu/iv+ZsjaB9n+9K0D6Drf
+        K7wGW+HuTnwhDR7m9Y165yF7aUZmXVpDFvZO0HPRUnO8M+MaRO0aanNW3d69/gsAAP//AwA67rlz
+        IAwAAA==
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1201'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      set-cookie:
+      - guest_id=v1%3A167604875804888858; Max-Age=34214400; Expires=Tue, 12 Mar 2024
+        17:05:58 GMT; Path=/; Domain=.twitter.com; Secure; SameSite=None
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 9b59c6d3581763839578a9ca9f20958fe90f6f3a5e6a2e0cf8bd5f41c6e7a89b
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '297'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '145'
+      x-transaction:
+      - 17199d3d26b0cf31
+      x-transaction-id:
+      - 17199d3d26b0cf31
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604875804888858
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=38180826
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxXa2/bNhT9K5z2caqtlx8yMGD5MLfBUBRdu7VrFAiUdGVzlkiVpOq6Rf77LiXr
+        4UeSfaiBxNHlueTh1T2HzHeLZdbKX7pLZ+nNbXyKlZbWyupClm1xWgJGXgrQW3jxF2dfQCqmo9px
+        INAIUKkE4PERt2lwNWc4UoiUaia4SQdZUn6wyVpSvstrqQktyWvKOOIqKXJWQDzgeV0UtpUBzs2q
+        4xSvGEii90xrwOyMAXnDC8bhxZ+Q0Z0BkQwRA9EJ+cAkUYxnhNbpFn/lZKt1pVbRNJrqSSqiabn4
+        w2NFvXHXpEbcLVeabiRSOwe6B334VN28en+DQGSwh436CbnXskBuBj0C62/y0+b1S2cuEQFcM81A
+        WavvLbr5wse77/8n+2tFeQZZfAbd7/cTrPKLvKvnJAOEZ0xVBT0c0VcAWA2WGjJ3ju159w/3D2d1
+        vsruesmeoJfTFBIhdphRRtNxU5wyfBw3EJ2HdohM7ccIDa/mmXqx7u2erdaX6ILekxlR7TmNRAaq
+        rrOwXd8xZX1o+lpDqgE1ltNCgW3loijEHgUUpwLbyFp5QThzMS4Z8GyIeg6qhylM7UKBs7QtVBo1
+        MYoB6wNkKKADcebE9VdBuPJd8ouDH+I5Toi0cvpF1JJp6Od1/SVOXOs0FnmuQHdC06yE+Jvg0AU2
+        IGLgNCkMdy1rpI6yZzkbnrEwulbD3AsvmCFpyjfdJC3CdNQJ77VkZA0JcR3D259jDXrenm/KiWu4
+        cy9w/HC29EJvsQx83wtH9nRlFPM0fDXz/3xr9PmFwT7ivzNOONRoC+9oWUKRYG+gSyjy223+brAi
+        kDtUP2ib7EXjA3sq65IgDnedQbrTwNFM0F5wTzjMjNWUYifRrlS6Bd62woVp1N8+pm/Ex7cL05lY
+        Np5SPVRwbAxbqrbYaa3ujhvp93EmW9f0F5b3UCaiUSo+4JuQcWlmFLyd5NSWx9sdTB2jZBw2lV8s
+        5663CGZOGMzdADtxOSr85eAJN39uB2FD7hkPOSnMFckesa3Zt9pjqGFIomnbVaj6qz1wKt+nJ7im
+        Xxf1GzitLSpUT2rKZM46P6VkKyH/NRoRLEWC59ZkvIxFJBQI4qLVetRmw/sWQz5g599UVTtlNKXt
+        aEMillAVh1iLuKUYm9fRSunqYPtOLgFNL1zPPQ49lnnSM70TdH+mQsiMcWxh1YWw1ikM41xLltRa
+        yB7AVPy5RheMOzM4GqEEvQfQnXk4rVsZs+o9cAhl52mjSCWUYgnSV8DxWoK3k36o9SI83ayHU3KD
+        tR2RyFKjDFRBcfhaFFV1kdTdWhKa7jYSSRuvLky+tW4+1lUMK+kGzk8nmijTReXm2KoGgy2Kh03Z
+        f7vRNNlMKtzT0/PGTX+eCOkHTK/x+WLrV/dSnS52gsXFwtl8EXqeGwYL/HbxJ5re/F2s1+8+/hNz
+        gdfEYvJvNWbx1M5++GJ4QnDUyLkVPbJOi8aFugsz2spsMVsuAy/0xzdbxnd9dzjO3F3OR6MKT5aE
+        yjhBfeHaj3ZRh8OH4nGUOT36Ub/5jEbRAS66pjuQ8BCKMRkaMz4m9O88g5zWhX4u3s14cuFhw6Wg
+        DaDlfK5BaaPa/hbChcYbRvsvQG8ggy5jfaiMG3NzT7Et9NPtFgrcAm8tQzZH6d39w38AAAD//wMA
+        ml4BxtYMAAA=
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1262'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 1a74ecc62ef98dd11d0d2920bbc7f3970e250e9bba7fdd09af9420384831b724
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '296'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '136'
+      x-transaction:
+      - 434783807abf42a1
+      x-transaction-id:
+      - 434783807abf42a1
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604875804888858
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=24677217
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxW227jNhD9FUFPLeq1RfkqF33INshiA2RboJu43SgQKGlkMaFILUnFcYL8e4eW
+        5UukuH1Yv1iaOUMeUnMO+eKy1J37o8l06pNpD98ibZQ7d5uQ23MFLQAj14I9gtLMhJXnwcg4V/Yh
+        S4Q2oBCmEwUgoi16sbiOripoklwm1DApMPOmrFQyYxyiPUJUnPfcFHBAVm6L/sgy9syAc1DOWZLI
+        ShgnxecFaJPVhDjTSQ7CWTCeAy/0hxbhn5DUz0e0f3U+F6UCrati7uTGlHoeDsKB6ScyHGQfb/Tn
+        T0VQ8VCcU4NrSfLKPOdMrIDpNv58ppfmfHzDHnFZleJI20IOEPSGjpKn+8v7C0SAMMww0O78pUZv
+        /vD19uX/VD+VVKSQRm+gq9WqXwn2odjufT8FRKdMl5yut+B2nomUJZbKrdfz/bvXu9c3H6CTW/dm
+        nSAXM9Pn63BA2OR5cvWpRayd3xObjXvEmyGx9xgcbf97DJayv1pVuGh8nJn8e4tCB2DPgfhBj4w3
+        +/O66VwDiQEUUEa5hp6bSc7lCnsu2nQoCssjkyHGFQOR7qJkiotxsV+xtomNyKTnooKojVFjdSKF
+        c0WVQyYOIXMSzIee84uHP8f3vAB5ZfRRVooZ2E8XBKjhyiSRzDINptGSYQVEz1JAE1iCjEDQmB+Q
+        R62wjB0EtKGm0vvRCZlMAuRNxbIZp4bY9jiifqGYcwGxQzxLfezNveGOuj+0W4qzkIk/8og/I9Px
+        cDQNxtNpcOA/HVmsM/Bkx/8zX2v2gHyFQMFXInWayMYUTjqVw2mKRZfVEj8JZ2gZDkWmY+eS5goT
+        tHDItG/pqwp3/7lygAkonIVUDzqXZVjhGiYt8X/758v139/IAr5amqoSCd10Bj7CsdZzqnNDl7af
+        7nAH10Us+fYFd1tFhQVL0YROy+5o2o6m32JXzFitJ7IIBwxNAuJwUH87FFvnTh+r4vQA9ZYcKwXb
+        mQyD2kk0tmliDwX7GYYJdXCjs9/CA4KFjPEM6B9O4zoKOIKErFUV1tXwtcag88fOWVnWQ6I51tkN
+        iUhBydeRkVFNMbLtVjdsZ7JuuTZg8zm6a7ep9yqPzsKd5JrHREqVMoENopsQ7nUC+7wwisWVkWoH
+        YDr6XqHfRI3ktiJVYFYAptGoV9uCdYWdbPeh9G3ZQaSUWrMY6Ws8GLBZH2GXqhWPB4L7ekyu5SHI
+        0igqNKeY7opiY7eKmhtATJOHpULS1hS5rXc/kt/PPM/txLCCLuGtv9NY2y4qlttWtRhsUZNDsfsn
+        eBAt+yWu6fS40aY/j4T0A4Y3+N5aeudayuPJjrBWdiQYEavaGRn54yAgkyAc/LUc3j+Y1WUkpCoo
+        79+XhzROLe3HzxZTtGfVMqN3JqrROFNz88Q5h8HMH49Hvn94T2TiYdcfeBCen5ODrGYpxFRFMSoM
+        525wF5tfBw5f+Psoe9wczGV/B1n0gFbf7L4sunyE1bDx423FLplCRitu/iv+ZsjaB9n+9K0D6Drf
+        K7wGW+HuTnwhDR7m9Y165yF7aUZmXVpDFvZO0HPRUnO8M+MaRO0aanNW3d69/gsAAP//AwA67rlz
+        IAwAAA==
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1201'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 3828fee83a8f41a7f0526ece6e26bc26edb94dcf7ea1378713dafad95e1f288e
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '295'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '140'
+      x-transaction:
+      - bfd149f3379bd3ae
+      x-transaction-id:
+      - bfd149f3379bd3ae
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604875804888858
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=160286320
+  response:
+    body:
+      string: !!binary |
+        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
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1404'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:05:58 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 1e9a258d4cb3077ff48015e001cd5fbe3dc07cfe0a597d2c49fbc1b19eb865e4
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '294'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '146'
+      x-transaction:
+      - a347715bedeea4d6
+      x-transaction-id:
+      - a347715bedeea4d6
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604875804888858
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=38180826
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxXa2/bNhT9K5z2caqtlx8yMGD5MLfBUBRdu7VrFAiUdGVzlkiVpOq6Rf77LiXr
+        4UeSfaiBxNHlueTh1T2HzHeLZdbKX7pLZ+nNbXyKlZbWyupClm1xWgJGXgrQW3jxF2dfQCqmo9px
+        INAIUKkE4PERt2lwNWc4UoiUaia4SQdZUn6wyVpSvstrqQktyWvKOOIqKXJWQDzgeV0UtpUBzs2q
+        4xSvGEii90xrwOyMAXnDC8bhxZ+Q0Z0BkQwRA9EJ+cAkUYxnhNbpFn/lZKt1pVbRNJrqSSqiabn4
+        w2NFvXHXpEbcLVeabiRSOwe6B334VN28en+DQGSwh436CbnXskBuBj0C62/y0+b1S2cuEQFcM81A
+        WavvLbr5wse77/8n+2tFeQZZfAbd7/cTrPKLvKvnJAOEZ0xVBT0c0VcAWA2WGjJ3ju159w/3D2d1
+        vsruesmeoJfTFBIhdphRRtNxU5wyfBw3EJ2HdohM7ccIDa/mmXqx7u2erdaX6ILekxlR7TmNRAaq
+        rrOwXd8xZX1o+lpDqgE1ltNCgW3loijEHgUUpwLbyFp5QThzMS4Z8GyIeg6qhylM7UKBs7QtVBo1
+        MYoB6wNkKKADcebE9VdBuPJd8ouDH+I5Toi0cvpF1JJp6Od1/SVOXOs0FnmuQHdC06yE+Jvg0AU2
+        IGLgNCkMdy1rpI6yZzkbnrEwulbD3AsvmCFpyjfdJC3CdNQJ77VkZA0JcR3D259jDXrenm/KiWu4
+        cy9w/HC29EJvsQx83wtH9nRlFPM0fDXz/3xr9PmFwT7ivzNOONRoC+9oWUKRYG+gSyjy223+brAi
+        kDtUP2ib7EXjA3sq65IgDnedQbrTwNFM0F5wTzjMjNWUYifRrlS6Bd62woVp1N8+pm/Ex7cL05lY
+        Np5SPVRwbAxbqrbYaa3ujhvp93EmW9f0F5b3UCaiUSo+4JuQcWlmFLyd5NSWx9sdTB2jZBw2lV8s
+        5663CGZOGMzdADtxOSr85eAJN39uB2FD7hkPOSnMFckesa3Zt9pjqGFIomnbVaj6qz1wKt+nJ7im
+        Xxf1GzitLSpUT2rKZM46P6VkKyH/NRoRLEWC59ZkvIxFJBQI4qLVetRmw/sWQz5g599UVTtlNKXt
+        aEMillAVh1iLuKUYm9fRSunqYPtOLgFNL1zPPQ49lnnSM70TdH+mQsiMcWxh1YWw1ikM41xLltRa
+        yB7AVPy5RheMOzM4GqEEvQfQnXk4rVsZs+o9cAhl52mjSCWUYgnSV8DxWoK3k36o9SI83ayHU3KD
+        tR2RyFKjDFRBcfhaFFV1kdTdWhKa7jYSSRuvLky+tW4+1lUMK+kGzk8nmijTReXm2KoGgy2Kh03Z
+        f7vRNNlMKtzT0/PGTX+eCOkHTK/x+WLrV/dSnS52gsXFwtl8EXqeGwYL/HbxJ5re/F2s1+8+/hNz
+        gdfEYvJvNWbx1M5++GJ4QnDUyLkVPbJOi8aFugsz2spsMVsuAy/0xzdbxnd9dzjO3F3OR6MKT5aE
+        yjhBfeHaj3ZRh8OH4nGUOT36Ub/5jEbRAS66pjuQ8BCKMRkaMz4m9O88g5zWhX4u3s14cuFhw6Wg
+        DaDlfK5BaaPa/hbChcYbRvsvQG8ggy5jfaiMG3NzT7Et9NPtFgrcAm8tQzZH6d39w38AAAD//wMA
+        ml4BxtYMAAA=
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1262'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:06:02 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:06:02 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 37e0a297161c3b492c9838640c6953dd1760211e6809abdec4a3db54697a8524
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '293'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '149'
+      x-transaction:
+      - 9cde70e9efa7b03f
+      x-transaction-id:
+      - 9cde70e9efa7b03f
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604875804888858
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/users/show.json?user_id=160286320
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAOxX247bNhD9FUJPBerYulqygQLZJrtpmqRtulnsQxQIlETb7FKkQlLxOsH+e4eS
+        dfNlG7R5yEMN2JZmDskhOecM+cWiubV05rYbzT3XnsBrorS0llZnsyYWxwUB0w2nn4hUVMeVbRNf
+        o1eCK435Z4CoTBLCkx458DGRYU0FB8fAWkqxoowkvZdXjE2snEBftNw3uK6yjCi1qhiiHOkNQS+I
+        LDBHl/cZYYzwjKCXnGoKfXwiCPN86LnWEmuy3qG4cm3HR4oaq2vb4RT9ztEbrLTIBV+ijdalWsaz
+        eKanmYhnc3Lx9np38/bZs+mRz6+224p9filupjCNSjII8xBD17/drkpxE14DhHANARJlLb808PoP
+        Xt9/+arm9yVMi+RJj62h2+12WnE6veMAyqkqGd7tMZ2Z8pxmZuT39sT1Pjx8eDhY4H8MpV+J06E0
+        2Hv+5EmKt0/+EniqREYxi2dPIYq7fr/HEQLYZNEqOwfvI19EE8d1IPJzIfYb8shqNUsCS1uUEhKq
+        Ks4s2hjRR+G43sTx52YJH+rk1STTBMizwkyRibUSjIkt0CPJRMU1kMp1fR/skhKed1bXnUfACKqg
+        bWez3YkF/MHGhnWd9Rz9Cl83RM5i6dgAQT/a8IHcdQwjV/iTqCTVpOs4XNgeZKPOErFaKaJbOmla
+        kOSz4KQ1rIlICMcpGwQPtKYrOjDALuhK9b0voiCEsDFft900CJNAo8ivJEVXJEWOjRx/GQTLIOwi
+        dz2zorXeuL4dLOa257rBwgm8hTtSniMvtNPk3vT/5zv09JqkQFyK+RVszxL9KlJ0wYjUwPI88nL4
+        JTg6+8xjfsH0RlTrDdqCYkiCGMTfykuB5R3RKNtljExawIZKytegLuhCKWpSVKM/QL8gTYQ0LV/j
+        FB4uM8FFQTOFfpijHcHSyI47N9HLimd4mC9DUdhgtdF4bdLsA6zsrkgF27/AJsikMGCgRk3TsdKO
+        1qKX6s6MjJ1QRXi79l7gB0Hg+ZEXup7tRWEwXPtj74gFwIEQKDBpVcPoiYJMzMyghtBehtFGktVP
+        8YCmhUhB6ad6S7UmEjhbxBaShAGIi4Y4cdOavGsw6BZy6KIsmy7jGW68dSyJJCXbJVokTQ4mZlpN
+        Up50NlM7BtRLe7rt3nWu5WgLOla1j5kQMqccdlu1JlCZjPR+riVNKy1kB5BEbwkxLDrDq3ebquaV
+        vTCK4NlLJzjJKy+cA30C14Gd9OwoGvPq0Nvz6vskUcOfowocbN/IW+f1xyIdUwse/z2z+qQ+V2dG
+        w54thcMsn1Eo0ySNZ82uxrPTezCuQ4930EnKoDQ5IZQmu6nu/7Pxv7ORquRjBQW+I2OTWLUtH84T
+        ttNd+EHkhAsozKELJesY1tPvEGt1xO8ODYumtpvS3tp8p7f19aNTjM5SCqBVCmsCYg+HdDgOd66m
+        cAMzrIfvbXb2101uNIPhnh2dZWB6cOrnCvRIyFNW4PtRo/YykuLsbi0hMnM4Y6a99cx+fnn53DqJ
+        oQVek8OTJk6VIVex3jPYYIC5oItF9+/Es3Q9LWFOj/eb1LQd6cs36F7D+9HUT86lHA82who1cmGj
+        fT/yQzgvzOHr+PHs1YvbS51HvyRcwE2NHYTx2NS+/Wgp5hzE41CjzwzUoGuZ3l9+4THw4cy+sKP5
+        8M5K+V2XILYd+T/7A6+iORy/ZALVLIfBW9xV/TmBgxfWoZ5Dtl0NxzIFuvN69WfgBW08SpyW0VD8
+        EmhM6jK1b9D6crLCFdO9eZ8NB/a2w9Elh/a3gMYAWvyxIkob5ekuHlxouFM0d/tOWXtmJnpXmjLF
+        zdVkYkGh2WwIgxnwRhlkXcHhgPk3AAAA//8DAKECGmmjEAAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '1404'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 17:06:02 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 17:06:02 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 6d2b1f296c3467814e61cfddd10507aaea473f345bbac814961cc0154f619eec
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '292'
+      x-rate-limit-reset:
+      - '1676048897'
+      x-response-time:
+      - '169'
+      x-transaction:
+      - cf38b217d5d14edc
+      x-transaction-id:
+      - cf38b217d5d14edc
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

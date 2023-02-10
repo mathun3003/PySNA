@@ -2,10 +2,11 @@
 import os
 import unittest
 
-import vcr
 from dotenv import load_dotenv
 
 from pysna.api import TwitterAPI
+from pysna.fetch import TwitterDataFetcher
+from pysna.process import TwitterDataProcessor
 
 load_dotenv("local.env")
 
@@ -18,15 +19,6 @@ access_token = os.environ.get("ACCESS_KEY", "")
 access_token_secret = os.environ.get("ACCESS_SECRET", "")
 rapidapi_key = os.environ.get("X_RAPIDAPI_KEY")
 rapidapi_host = os.environ.get("X_RAPIDAPI_HOST")
-use_replay = os.environ.get("USE_REPLAY", True)
-
-
-tape = vcr.VCR(
-    cassette_library_dir="tests/cassettes",
-    filter_headers=["Authorization"],
-    # Either use existing cassettes, or never use recordings:
-    record_mode="none" if use_replay else "all",
-)
 
 
 class PySNATestCase(unittest.TestCase):
@@ -40,3 +32,7 @@ class PySNATestCase(unittest.TestCase):
         self.rapidapi_host = rapidapi_host
 
         self.api = TwitterAPI(self.bearer_token, self.consumer_key, self.consumer_secret, self.access_token, self.access_token_secret, self.rapidapi_key, self.rapidapi_host)
+
+        self.fetcher = TwitterDataFetcher(self.bearer_token, self.consumer_key, self.consumer_secret, self.access_token, self.access_token_secret, self.rapidapi_key, self.rapidapi_host)
+
+        self.data_processor = TwitterDataProcessor()

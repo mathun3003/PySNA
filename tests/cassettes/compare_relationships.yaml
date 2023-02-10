@@ -1,0 +1,477 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=24677217&target_id=38180826
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJSQzW6DMBCE32XPHBpaBcQ79FjlaBmzEKvLmtrroCri3euEn4J66s37zdoznjt4
+        JC3WcbjaAao7BBe9wcfJNlDlb+eiyE9FliYVxEMFK4IMgvGIrFj36QJcLh/qPSIHQZ/E1hG50XIH
+        lfiIK8BG1d9QtZpCYmRvqHabC96I8mgw7aQoHImOylfE5LVJ7MS21sy/Uci6pl/RaFZNvxnU5Mzn
+        03GWn/MSbSZ9lJ0+apbkKCOihBVqosQGsrihXvvHM2HQ/YymDET7DmVt9LU8lS9lft41uqI/jXYO
+        5YqR7bHOQ0lL6H3F/+ptmqYfAAAA//8DAHJis6gFAgAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '261'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      set-cookie:
+      - guest_id=v1%3A167604834205894476; Max-Age=34214400; Expires=Tue, 12 Mar 2024
+        16:59:02 GMT; Path=/; Domain=.twitter.com; Secure; SameSite=None
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 9ad84eef9d337ee459f8c47f9dbf6ac8e1a91d5bc6cf772b457c036adac7b07f
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '14'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '133'
+      x-transaction:
+      - aaa08c192a9493b3
+      x-transaction-id:
+      - aaa08c192a9493b3
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604834205894476
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=24677217&target_id=160286320
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJyQwU7DMAyG38XnHraC2qmvgDhOO0Zp6o4I1ymJQwVT333ZSkoRF8Qt/n47v/1f
+        wCNpsY7Dix2huUBw0Ru8vWwHTflY1XW5r4tUqSAeGsgICgjGI7JiPaQBOJ2O6jkiB0GfxN4Rucny
+        GRrxETPATrUfGZF9R7Vp7DUF3IwqjwZTT9qEI9FP5S1isloldmJ7a5ZjFLJu6Vs0mlU3ZNuWnHm9
+        Gy7qvf5abCFDlI0+aZZkKBOihAw1UWIjWVzRoP3tmzDqYUFzAaL9GSXnua925aF6KHebQFf2K9Ej
+        26d0jGj+/GOg/0hunucrAAAA//8DAG6DEtIGAgAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '258'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 2da80c113247b8bb8d6cfe7b7d6ed2268c6a92436b408f41e3b531ec5f467470
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '13'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '155'
+      x-transaction:
+      - cb9bbafa4f264305
+      x-transaction-id:
+      - cb9bbafa4f264305
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604834205894476
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=38180826&target_id=24677217
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJyQwW6DMAyG38VnDiubCuIddpx6jEIwNJpxWOIUTRXvvrQ0bdG0y27x99v57f8M
+        HkmLdRyOdoLmDMFFb/Dysh00r/WufqnLfZEqFcRDAxlBAcF4RFasxzQAg0M5YmSblN4RudnyAE2v
+        KWAm2Kn2GxrxMSGyJ1R/dSaiPBpMPWkPjkRb5StikIfETmxvzXqKQtYtPUSjWXVjtm3Jmc+r4ape
+        69tiKxmjPOmzZkmGMiNKyFATJTaRxTsatb98EyY9rmgpQLQfUHKa5du+qspd9ZRmRr/SPBw+1HtE
+        Tkf6baDrFZs8/5/csiw/AAAA//8DAK8MWPwEAgAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '258'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:02 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 4a4916d4f5b7bc903b22c57989caba6fa8095649054699ae9138ebe9b1211380
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '12'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '133'
+      x-transaction:
+      - 8f02369d336ebfb1
+      x-transaction-id:
+      - 8f02369d336ebfb1
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604834205894476
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=38180826&target_id=160286320
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJyQwW6DMAyG38VnDi2VEOIVdt45MsHQaMZhiTO0Vbz70jLaommX3eLvt/Pb/wUC
+        MarzEs9uguYC0adg6fpyHTSn+lgf6rIqcmWiBmhgQ1BAtIFIjOCYB2DwpGdK4rLSe2Y/Oxmg6ZEj
+        bYQ6035CoyFlxO6DzF+dmZhAlnJP3kMS8155TxT1IYlX1zu7nmJIsOWHaFFMN262LXv7djNc1Vv9
+        s9hKxqRP+oyi2VBnIo0bRObMJnZ0RyOG6zdxwnFFSwGKYSDd0jxWh7KuTuXhKc47+5Xnq7iXfIyi
+        fO0TXc/YBfr/6JZl+QYAAP//AwB1/Iv4BQIAAA==
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '256'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 78a931834d45b2b4688f21a8ad737b57ef705f69c865a5e6ab01718d157497f8
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '11'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '125'
+      x-transaction:
+      - 83d7d2f9e2d7221c
+      x-transaction-id:
+      - 83d7d2f9e2d7221c
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604834205894476
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=160286320&target_id=24677217
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJyQwU7DMAyG38XnHraCWtRXQBynHaM0dUeE63SJQ8WmvvuylWxFXBC3+Ptt/85/
+        Bo+kxToO73aE5gzBRW/w+rIdNNtqU75UT+WmSKUK4qGBO4MCgvGIrFgPaQR2bF/TJtF8SlrviNxk
+        +QCN+IgZYKfar4zIfqJaNfaaAq5GlUeDqSedwpHop3KMGOQhsRPbW7P8RiHrlh6i0ay6Idu25MzH
+        zXBRb/X3YQsZoqz0SbMkQ5kQJWSoiRIbyeIdDdpf14RRDwuaCxDtDyg50PK5qutyW6/yzOhXnPv9
+        Tr1FTIGi/2Oe/whunucLAAAA//8DAIbIrSMGAgAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '258'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 9bf175fa5bcbf0f91475a00b83b60e113d70f6de1a14f5dfaff2f78ced5a7fc1
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '10'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '130'
+      x-transaction:
+      - b744cd3c9054358e
+      x-transaction-id:
+      - b744cd3c9054358e
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      Cookie:
+      - guest_id=v1%3A167604834205894476
+      User-Agent:
+      - Python/3.10.0 Requests/2.28.1 Tweepy/4.12.1
+    method: GET
+    uri: https://api.twitter.com/1.1/friendships/show.json?source_id=160286320&target_id=38180826
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJSQTW6EMAxG7+I1C4aREOIKXXcdhWCYqMahiVPUjrh7M8PPgLrqLn6fEzvvDh5J
+        i3UcbnaE+g7BRW/wcbIt1JcyL6ryWuRZKlUQDzXsDDIIxiOyYj2kK/DO9i29JJp/UtY5IjdZ7qEW
+        H3ED2KrmG+pOU0iM7BeqQ+eKd6I8Gkw9aReOROfkM2KQV8RObGfN8h2FrBt6hUazaod9QEPOfDwn
+        LvGzXldbyBDlkE+aJU2UCVHCBjVRYiNZ3NGg/eOZMOphQXMGon2Psim9Vpcqr4ryYHRDf4T2DuWG
+        ke1Z50nSuvRR8b+8zfP8CwAA//8DANsjcNAGAgAA
+    headers:
+      cache-control:
+      - no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '258'
+      content-type:
+      - application/json;charset=utf-8
+      date:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      expires:
+      - Tue, 31 Mar 1981 05:00:00 GMT
+      last-modified:
+      - Fri, 10 Feb 2023 16:59:03 GMT
+      perf:
+      - '7626143928'
+      pragma:
+      - no-cache
+      server:
+      - tsa_o
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 12680290f742eaf4ae5907bd80b81397ba5b1af97d78c2184f307f8136b366e8
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '15'
+      x-rate-limit-remaining:
+      - '9'
+      x-rate-limit-reset:
+      - '1676049242'
+      x-response-time:
+      - '135'
+      x-transaction:
+      - 44ea877e53e88b14
+      x-transaction-id:
+      - 44ea877e53e88b14
+      x-twitter-response-tags:
+      - BouncerCompliant
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
