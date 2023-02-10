@@ -4,6 +4,70 @@ import re
 from datetime import datetime
 from typing import Any, Dict
 
+import pandas as pd
+
+
+def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: str = ",", **kwargs):
+    """Export dictionary data to CSV file.
+
+    Args:
+        data (dict): Data dictionary
+        export_path (str): Export path including file name and extension.
+        encoding (str, optional): Encoding of CSV file. Defaults to 'utf-8'.
+        sep (str, optional): Value separator for CSV file. Defaults to ",".
+        kwargs: Keyword arguments for pd.DataFrame.to_csv. See references below for further details.
+
+    Raises:
+        ValueError: If nested dictionary was provided.
+        IOError: If export fails due to bad input.
+
+    References: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
+    """
+    # catch nested dict
+    if any(isinstance(data[key], dict) for key in data.keys()):
+        raise ValueError("'data' dictionary must not contain nested dictionaries. Use JSON export instead.")
+    try:
+        # convert to pandas dataframe from dict
+        f = pd.DataFrame(data)
+        # export data frame
+        f.to_csv(export_path, encoding=encoding, sep=sep, **kwargs)
+    except IOError as e:
+        raise e
+
+
+def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str = ",", *args):
+    """Append a dictionary to an existing CSV file.
+
+    Args:
+        data (dict): Dictionary containing new data that should be added to file.
+        filepath (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
+        encoding (str, optional): _description_. Defaults to 'utf-8'.
+        sep (str, optional): Encoding of CSV file. Defaults to ",".
+        args: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.
+
+    Raises:
+        ValueError: If nested dictionary was provided.
+        ValueError: If 'args' does not contain a dictionaries for read and write.
+        IOError: If export fails due to bad input.
+
+    References:
+        - https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
+        - https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
+    """
+    # catch nested dict
+    if any(isinstance(data[key], dict) for key in data.keys()):
+        raise ValueError("'data' dictionary must not contain nested dictionaries. Use JSON export instead.")
+    if args:
+        if any(not isinstance(kwargs, dict) for kwargs in args):
+            raise ValueError("'args' must be of type list containing dictionaries.")
+    try:
+        f = pd.read_csv(filepath, sep=sep, encoding=encoding)
+        input_df = pd.DataFrame(data)
+        f = pd.concat([f, input_df], axis=0)
+        f.to_csv(filepath, sep=sep, encoding=encoding)
+    except IOError as e:
+        raise e
+
 
 def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure_ascii: bool = False, *args):
     """Export dictionary data to JSON file.
@@ -26,7 +90,7 @@ def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure
     # usually when tuple cannot be serialized
     except TypeError:
         # serialize tuples
-        data = encode_json(data)
+        data = _encode_json(data)
         # retry
         export_to_json(data=data, export_path=export_path, encoding=encoding, ensure_ascii=ensure_ascii)
     pass
@@ -63,7 +127,7 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
         # usually when tuple cannot be serialized
         except TypeError:
             # serialize tuples
-            input_dict = encode_json(input_dict)
+            input_dict = _encode_json(input_dict)
             # retry
             append_to_json(input_dict=input_dict, filepath=filepath, encoding=encoding, **kwargs)
     pass
@@ -84,7 +148,7 @@ def load_from_json(filepath: str, encoding: str = "utf-8") -> dict:
         f = json.load(jsonfile)
 
     # try to deserialize if any tuples were found in the file
-    f = decode_json(f)
+    f = _decode_json(f)
     return f
 
 
@@ -101,7 +165,7 @@ def strf_datetime(date: datetime, format="%Y-%m-%d %H:%M:%S") -> str:
     return date.strftime(format)
 
 
-def encode_json(data: dict):
+def _encode_json(data: dict):
     # if "data" key exists
     if "data" in data:
         # iterate over every value
@@ -120,7 +184,7 @@ def encode_json(data: dict):
     return data
 
 
-def decode_json(data: dict):
+def _decode_json(data: dict):
     if "data" in data:
         # iterate over every value
         for entry_num, entry in enumerate(data["data"]):

@@ -30,7 +30,7 @@ DESCRIPTION = "Python Package for Social Network Analytics"
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ["tweepy>=4.12.1", "argparse>=1.4.0", "numpy>=1.24.0", "python-dotenv>=0.21.0", "textblob>=0.17.1"]
+INSTALL_REQUIRES = ["tweepy>=4.12.1", "argparse>=1.4.0", "numpy>=1.24.0", "python-dotenv>=0.21.0", "textblob>=0.17.1", "pandas>=1.5.3"]
 
 
 def _post_install(dir):
