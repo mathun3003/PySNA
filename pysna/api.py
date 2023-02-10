@@ -157,7 +157,6 @@ class TwitterAPI(tweepy.Client):
         wait_on_rate_limit: bool = True,
     ):
         super(self.__class__, self).__init__(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret, wait_on_rate_limit=wait_on_rate_limit)
-        # tweepy.Client.__init__(self, api_key, api_secret_key, access_token, access_token_secret)
 
         self._bearer_token = bearer_token
         self._consumer_key = consumer_key
@@ -179,7 +178,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): Attributes of the User object. These must be from id, id_str, name, screen_name, utc_timestamp, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries.
+            attributes (List[str]): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries, bot_scores
 
         Raises:
             KeyError: If invalid attribute was provided.
@@ -209,23 +208,19 @@ class TwitterAPI(tweepy.Client):
             # get all liked tweets of user
             elif attr == "liked_tweets":
                 # get page results first
-                page_results = self.fetcher.get_liked_tweets(user)
-                # extract Tweet IDs
-                all_liked_tweets = self.data_processor.extract_ids_from_page_results(page_results)
-                user_info[attr] = all_liked_tweets
+                liked_tweets = self.fetcher.get_liked_tweets(user)
+                user_info[attr] = liked_tweets
             # get all composed tweets
             elif attr == "composed_tweets":
                 # get page results first
-                page_results = self.fetcher.get_composed_tweets(user)
-                # extract Tweet IDs
-                all_composed_tweets = self.data_processor.extract_ids_from_page_results(page_results)
-                user_info[attr] = all_composed_tweets
+                composed_tweets = self.fetcher.get_composed_tweets_ids(user)
+                user_info[attr] = composed_tweets
             # get user's latest activity
-            elif attr == "latest_activiity":
-                user_info[attr] = self.fetcher.get_latest_activitiy(user)
+            elif attr == "latest_activity":
+                user_info[attr] = self.fetcher.get_latest_activity(user)
             # get user's latest activity date
             elif attr == "last_active":
-                user_info[attr] = self.fetcher.get_latetest_activity_date(user)
+                user_info[attr] = self.fetcher.get_latest_activity_date(user)
             # get user's botometer scores
             elif attr == "bot_scores":
                 user_info[attr] = self.fetcher.get_botometer_scores(user)
@@ -242,7 +237,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             users (List[str  |  int]): User IDs or screen names
-            compare (str): Comparison attribute. Must be one of relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, similarity, created_at, protected, verified.
+            compare (str): Comparison attribute. Must be from: relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, commonly_liked_tweets, distinctly_liked_tweets, similarity, created_at, protected, verified.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
             features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: followers_count, friends_count, listed_count, favourites_count, statuses_count. Defaults to None.
 
@@ -298,7 +293,7 @@ class TwitterAPI(tweepy.Client):
                     tweets = self.data_processor.calc_descriptive_metrics(tweets)
                     results[attr] = tweets
                 # compare number of likes issued by each user
-                case "likes_count":
+                case "favourites_count":
                     # get individual likes
                     likes = {user: self.fetcher.get_user_object(user).favourites_count for user in users}
                     # add descriptive metrics
@@ -327,14 +322,14 @@ class TwitterAPI(tweepy.Client):
                 # get common followees
                 case "common_followees":
                     # get individual followees first
-                    individual_followees = [self.fetcher.get_user_followees(user) for user in users]
+                    individual_followees = [self.fetcher.get_user_followee_ids(user) for user in users]
                     # get common followees by calculating the intersection
                     common_followees = self.data_processor.intersection(individual_followees)
                     results[attr] = common_followees
                 # get distinct followees
                 case "distinct_followees":
                     # get individual followees first
-                    individual_followees = {user: self.fetcher.get_user_followees(user) for user in users}
+                    individual_followees = {user: self.fetcher.get_user_followee_ids(user) for user in users}
                     # get distinct followees by calculating the difference of each set
                     distinct_followees = self.data_processor.difference(individual_followees)
                     results[attr] = distinct_followees
@@ -378,7 +373,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from id, id_str, text, truncated, created_at, entities, source, utc_timestamp, author_info, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, view_count, retweet_count, favorite_count, quote_count, reply_count, quoting_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang.
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, context_annotations, source, author_info, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang, sentiment.
 
         Raises:
             ValueError: If invalid attribute was provided.
@@ -409,21 +404,15 @@ class TwitterAPI(tweepy.Client):
                 tweet_info[attr] = author_info
             # get all quoting users
             elif attr == "quoting_users":
-                page_results = self.fetcher.get_quoting_users(tweet_id)
-                # extract User IDs from page results
-                quoting_users = self.data_processor.extract_ids_from_page_results(page_results)
+                quoting_users = self.fetcher.get_quoting_users_ids(tweet_id)
                 tweet_info[attr] = quoting_users
             # get all liking users
             elif attr == "liking_users":
-                page_results = self.fetcher.get_liking_users(tweet_id)
-                # extract User IDs from page results
-                liking_users = self.data_processor.extract_ids_from_page_results(page_results)
+                liking_users = self.fetcher.get_liking_users_ids(tweet_id)
                 tweet_info[attr] = liking_users
             # get all retweeters
             elif attr == "retweeters":
-                page_results = self.fetcher.get_retweeters(tweet_id)
-                # extract User IDs from page results
-                retweeters = self.data_processor.extract_ids_from_page_results(page_results)
+                retweeters = self.fetcher.get_retweeters_ids(tweet_id)
                 tweet_info[attr] = retweeters
             # get public metrics
             elif attr == "public_metrics":
@@ -447,7 +436,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
-            compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be one of the following: view_count, like_count, retweet_count, quote_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweets.
+            compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be from the following: view_count, like_count, retweet_count, quote_count, reply_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweeters, similarity, created_at.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
             features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: retweet_count, favorite_count. Defaults to None.
 
@@ -517,7 +506,7 @@ class TwitterAPI(tweepy.Client):
                 # get all quoting users all Tweets have in common
                 case "common_quoting_users":
                     # get individual quoting users first
-                    quoting_users = [self.data_processor.extract_ids_from_page_results(self.fetcher.get_quoting_users(tweet_id)) for tweet_id in tweet_ids]
+                    quoting_users = [self.fetcher.get_quoting_users_ids(tweet_id) for tweet_id in tweet_ids]
                     # get common quoting users by calculating the intersection
                     common_quoting_users = self.data_processor.intersection(quoting_users)
                     # return quoting users
@@ -525,14 +514,14 @@ class TwitterAPI(tweepy.Client):
                 # get distinct quoting users for each tweet
                 case "distinct_quoting_users":
                     # get individual quoting users first
-                    quoting_users = {tweet_id: self.data_processor.extract_ids_from_page_results(self.fetcher.get_quoting_users(tweet_id)) for tweet_id in tweet_ids}
+                    quoting_users = {tweet_id: self.fetcher.get_quoting_users_ids(tweet_id) for tweet_id in tweet_ids}
                     # get distinct quoting users for each tweet by calculating the difference for each set
                     distinct_quoting_users = self.data_processor.difference(quoting_users)
                     results[attr] = distinct_quoting_users
                 # get all liking users that all tweets have in common
                 case "common_liking_users":
                     # get individual liking users first
-                    liking_users = [self.data_processor.extract_ids_from_page_results(self.fetcher.get_liking_users(tweet_id)) for tweet_id in tweet_ids]
+                    liking_users = [self.fetcher.get_liking_users_ids(tweet_id) for tweet_id in tweet_ids]
                     # get common liking users by calculating the intersection
                     common_liking_users = self.data_processor.intersection(liking_users)
                     # return common liking users
@@ -540,14 +529,14 @@ class TwitterAPI(tweepy.Client):
                 # get distinct liking users of all tweets
                 case "distinct_liking_users":
                     # get individual liking users first
-                    liking_users = {tweet_id: self.data_processor.extract_ids_from_page_results(self.fetcher.get_liking_users(tweet_id)) for tweet_id in tweet_ids}
+                    liking_users = {tweet_id: self.fetcher.get_liking_users_ids(tweet_id) for tweet_id in tweet_ids}
                     # get distinct liking users for each tweet by calculating the difference for each set
                     distinct_liking_users = self.data_processor.difference(liking_users)
                     results[attr] = distinct_liking_users
                 # get all retweeters all tweets have in common
                 case "common_retweeters":
                     # get individual retweeters first
-                    retweeters = [self.data_processor.extract_ids_from_page_results(self.fetcher.get_retweeters(tweet_id)) for tweet_id in tweet_ids]
+                    retweeters = [self.fetcher.get_retweeters_ids(tweet_id) for tweet_id in tweet_ids]
                     # get common retweeters by calculating the intersection
                     common_retweeters = self.data_processor.intersection(retweeters)
                     # return common retweeters
@@ -555,7 +544,7 @@ class TwitterAPI(tweepy.Client):
                 # get distinct retweeters of all tweets
                 case "distinct_retweeters":
                     # get individual retweeters first
-                    retweeters = {tweet_id: self.data_processor.extract_ids_from_page_results(self.fetcher.get_retweeters(tweet_id)) for tweet_id in tweet_ids}
+                    retweeters = {tweet_id: self.fetcher.get_retweeters_ids(tweet_id) for tweet_id in tweet_ids}
                     # get distinct retweeters by calculating the difference for each set
                     distinct_retweeters = self.data_processor.difference(retweeters)
                     results[attr] = distinct_retweeters

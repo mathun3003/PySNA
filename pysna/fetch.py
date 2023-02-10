@@ -79,7 +79,7 @@ class TwitterDataFetcher:
             raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
         return response.json()
 
-    def _paginate(self, func, params: Dict[str, str | int], max_results: int | None = None, response_attribute: str = "data") -> list:
+    def _paginate(self, func, params: Dict[str, str | int], limit: int | None = None, response_attribute: str = "data", page_attribute: str | None = None) -> list:
         """Pagination function
 
         Args:
@@ -94,15 +94,13 @@ class TwitterDataFetcher:
         Returns:
             set: Results
         """
-        # if the max number of results is smaller than the default number of results per request
-        if (max_results is not None) and (max_results < params["max_results"]):
-            # reset max_resulst in params
-            params["max_results"] = max_results
         # init counter
         counter = 0
         # init empty results set
         results = list()
-        while True:
+        # set break out var
+        break_out = False
+        while not break_out:
             # make request
             response = func(**params)
             # if any data exists
@@ -110,11 +108,16 @@ class TwitterDataFetcher:
                 # iterate over response results
                 for item in response.__getattribute__(response_attribute):
                     # add result
-                    results.append(item)
+                    if page_attribute is None:
+                        results.append(item)
+                    else:
+                        results.append(item.__getattribute__(page_attribute))
                     # increment counter
                     counter += 1
                     # if max_results was reached, break
-                    if (max_results is not None) and (counter == max_results):
+                    if (limit is not None) and (counter == limit):
+                        # set break_out var to true
+                        break_out = True
                         break
                 # if last page was reached
                 if "next_token" not in response.meta:
@@ -176,32 +179,36 @@ class TwitterDataFetcher:
         """
         # check if string for user1 is convertible to int in order to check for user ID or screen name
         if (isinstance(user, int)) or (user.isdigit()):
-            params = {"user_id": user, "max_results": 100, "pagination_token": None}
+            params = {"user_id": user}
         else:
-            params = {"screen_name": user, "max_results": 100, "pagination_token": None}
+            params = {"screen_name": user}
 
-        follower_ids = self._paginate(self.api.get_follower_ids, params)
+        follower_ids = list()
+        for page in tweepy.Cursor(self.api.get_follower_ids, **params).pages():
+            follower_ids.extend(page)
         return set(follower_ids)
 
-    def get_user_followee_ids(self, user: str | int, max_results: int = 100) -> Set[int]:
+    def get_user_followee_ids(self, user: str | int) -> Set[int]:
         """Request Twitter follow IDs from user
 
         Args:
             user (str): Either User ID or screen name.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
 
         Returns:
             Set[int]: Array containing follow IDs
         """
         # check if string for user1 is convertible to int in order to check for user ID or screen name
         if (isinstance(user, int)) or (user.isdigit()):
-            params = {"user_id": user, "max_results": max_results, "pagination_token": None}
+            params = {"user_id": user}
         else:
-            params = {"screen_name": user, "max_results": max_results, "pagination_token": None}
-        followee_ids = self._paginate(self.api.get_friend_ids, params)
+            params = {"screen_name": user}
+
+        followee_ids = list()
+        for page in tweepy.Cursor(self.api.get_friend_ids, **params).pages():
+            followee_ids.extend(page)
         return set(followee_ids)
 
-    def get_latest_activitiy(self, user: str | int) -> dict:
+    def get_latest_activity(self, user: str | int) -> dict:
         """Returns latest user's activity by fetching the top element from its timeline.
 
         Args:
@@ -211,7 +218,7 @@ class TwitterDataFetcher:
             dict: Latest activity.
         """
         # if screen name was provided
-        if (user.isdigit() is False) and (isinstance(user, str)):
+        if (isinstance(user, str)) and (user.isdigit() is False):
             url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true"
         # else go with user ID
         else:
@@ -220,7 +227,7 @@ class TwitterDataFetcher:
         # return the first item since timeline is sorted descending
         return response_json[0]
 
-    def get_latetest_activity_date(self, user: str | int) -> str:
+    def get_latest_activity_date(self, user: str | int) -> str:
         """Get latest activity date from specified user by fetching the top element from its timeline.
 
         Args:
@@ -230,7 +237,7 @@ class TwitterDataFetcher:
             str: Activity date of latest activity.
         """
         # if screen name was provided
-        if (user.isdigit() is False) and (isinstance(user, str)):
+        if (isinstance(user, str)) and (user.isdigit() is False):
             url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true"
         # else go with user ID
         else:
@@ -274,33 +281,32 @@ class TwitterDataFetcher:
         relationship = self.api.get_friendship(**params)
         return {"source": relationship[0]._json, "target": relationship[1]._json}
 
-    def get_liked_tweets(self, user: str | int, max_results: int = 100) -> list():
+    def get_liked_tweets_ids(self, user: str | int, limit: int | None = None) -> list():
         """Get (all) liked Tweets of provided user.
 
         Args:
             user (str | int): User ID or screen name.
-            limit (int | None): Maximum number of requests to make to the API. Defaults to inf.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
             Set[int]: Tweet Objects of liked Tweets.
         """
         # if user ID was provided
         if (isinstance(user, int)) or (user.isdigit()):
-            params = {"id": user, "max_results": max_results, "pagination_token": None}
+            params = {"id": user, "max_results": 100, "pagination_token": None}
         else:
             user_obj = self.get_user_object(user)
             params = {"id": user_obj.id, "max_results": 100, "pagination_token": None}
 
-        page_results = self._paginate(self.client.get_liked_tweets, params)
+        page_results = self._paginate(self.client.get_liked_tweets, params, limit=limit, page_attribute="id")
         return page_results
 
-    def get_composed_tweets(self, user: str | int, max_results: int = 100) -> list:
+    def get_composed_tweets_ids(self, user: str | int, limit: int | None = None) -> list:
         """Get (all) composed Tweets of provided user by pagination.
 
         Args:
             user (str | int): User ID or screen name.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
             list: Tweet Objects of composed Tweets.
@@ -310,9 +316,9 @@ class TwitterDataFetcher:
         if (isinstance(user, str)) and (not user.isdigit()):
             user = self.get_user_object(user).id
         # set params
-        params = {"id": user, "max_results": max_results, "pagination_token": None}
+        params = {"id": user, "max_results": 100, "pagination_token": None}
         # get page results
-        page_results = self._paginate(self.client.get_users_tweets, params)
+        page_results = self._paginate(self.client.get_users_tweets, params, limit=limit, page_attribute="id")
         return page_results
 
     def get_botometer_scores(self, user: str | int) -> dict:
@@ -348,7 +354,6 @@ class TwitterDataFetcher:
         url = "https://botometer-pro.p.rapidapi.com/4/check_account"
         # get results
         response = self._manual_request(url, "POST", headers, payload)
-
         return response
 
     """ Tweet Object data methods """
@@ -374,50 +379,50 @@ class TwitterDataFetcher:
             raise e
         return tweet_obj
 
-    def get_liking_users(self, tweet_id: str | int, max_results: int = 100) -> list:
+    def get_liking_users_ids(self, tweet_id: str | int, limit: int | None = None) -> list:
         """Get (all) liking users of provided Tweet by pagination.
 
         Args:
             tweet (str | int): Tweet ID.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
             Set[int]: User Objects as list.
         """
         # set params
-        params = {"id": tweet_id, "max_results": max_results, "pagination_token": None}
+        params = {"id": tweet_id, "max_results": 100, "pagination_token": None}
         # get page results
-        page_results = self._paginate(self.client.get_liking_users, params)
+        page_results = self._paginate(self.client.get_liking_users, params, limit=limit, page_attribute="id")
         return page_results
 
-    def get_retweeters(self, tweet_id: str | int, max_results: int = 100) -> list:
+    def get_retweeters_ids(self, tweet_id: str | int, limit: int | None = None) -> list:
         """Get (all) retweeting users of provided Tweet by pagination.
 
         Args:
             tweet (str | int): Tweet ID.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
             Set[int]: User Objects of retweeting users.
         """
-        params = {"id": tweet_id, "max_results": max_results, "pagination_token": None}
+        params = {"id": tweet_id, "max_results": 100, "pagination_token": None}
         # get page results
-        page_results = self._paginate(self.client.get_retweeters, params)
+        page_results = self._paginate(self.client.get_retweeters, params, limit=limit, page_attribute="id")
         return page_results
 
-    def get_quoting_users(self, tweet_id: str | int, max_results: int = 100) -> list:
+    def get_quoting_users_ids(self, tweet_id: str | int, limit: int | None = None) -> list:
         """Get (all) quoting users of provided Tweet by pagination.
 
         Args:
             tweet_id (str | int): Tweet ID.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
             list: User Objects of quoting users.
         """
-        params = {"id": tweet_id, "max_results": max_results, "pagination_token": None}
+        params = {"id": tweet_id, "max_results": 100, "pagination_token": None}
         # get page results
-        page_results = self._paginate(self.client.get_quote_tweets, params, response_attribute="includes")
+        page_results = self._paginate(self.client.get_quote_tweets, params, limit=limit, response_attribute="includes", page_attribute="id")
         return page_results
 
     def get_context_annotations_and_entities(self, tweet_id: str | int) -> dict | None:
