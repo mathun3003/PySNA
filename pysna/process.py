@@ -12,9 +12,8 @@ from textblob import TextBlob
 from pysna.fetch import TwitterDataFetcher
 
 
-# TODO: write base class "BaseDataProcessor" and inherit from it. Write all Twitter specific processing methods to TwitterDataProcessor
-class TwitterDataProcessor:
-    """Composition class in order to process Twitter data."""
+class BaseDataProcessor:
+    """Base component class in order to process social data."""
 
     def calc_descriptive_metrics(self, data: Dict[str | int, Number]) -> dict:
         """Calculates descriptive metrics of a given data set.
@@ -44,25 +43,25 @@ class TwitterDataProcessor:
         # extract numeric values by iterating over data dict with iterable items
         numerics = list(data.values())
         # init empty dict to store descriptive metrics
-        metrics = {"metrics": dict()}
+        metrics = dict()
         # calc max
-        metrics["metrics"]["max"] = max(numerics)
+        metrics["max"] = max(numerics)
         # calc min
-        metrics["metrics"]["min"] = min(numerics)
+        metrics["min"] = min(numerics)
         # calc mean
-        metrics["metrics"]["mean"] = np.array(numerics).mean()
+        metrics["mean"] = np.array(numerics).mean()
         # calc median
-        metrics["metrics"]["median"] = np.median(numerics)
+        metrics["median"] = np.median(numerics)
         # calc standard deviation
-        metrics["metrics"]["std"] = np.std(numerics)
+        metrics["std"] = np.std(numerics)
         # calc variance
-        metrics["metrics"]["var"] = np.var(numerics)
+        metrics["var"] = np.var(numerics)
         # calc range
-        metrics["metrics"]["range"] = max(numerics) - min(numerics)
+        metrics["range"] = max(numerics) - min(numerics)
         # calc interquarile range
-        metrics["metrics"]["IQR"] = np.subtract(*np.percentile(numerics, [75, 25]))
+        metrics["IQR"] = np.subtract(*np.percentile(numerics, [75, 25]))
         # calc absolute mean deviation
-        metrics["metrics"]["mad"] = np.mean(np.absolute(numerics - np.mean(numerics)))
+        metrics["mad"] = np.mean(np.absolute(numerics - np.mean(numerics)))
         # add metrics
         data["metrics"] = metrics
         return data
@@ -94,7 +93,7 @@ class TwitterDataProcessor:
         mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
 
         # calculate time differences to mean datetime of every creation date
-        time_diffs_mean = {user: {"days": (dt - mean_datetime).days, "seconds": (dt - mean_datetime).seconds} for user, dt in dates.items()}
+        time_diffs_mean = {key: {"days": (dt - mean_datetime).days, "seconds": (dt - mean_datetime).seconds} for key, dt in dates.items()}
 
         # find the median of the timestamps
         median_timestamp = np.median(timestamps)
@@ -102,14 +101,14 @@ class TwitterDataProcessor:
         median_datetime = datetime.fromtimestamp(median_timestamp, tz=timezone.utc)
 
         # calculate time differences to median timestamp of every creation date
-        time_diffs_median = {user: {"days": (dt - median_datetime).days, "seconds": (dt - median_datetime).seconds} for user, dt in dates.items()}
+        time_diffs_median = {key: {"days": (dt - median_datetime).days, "seconds": (dt - median_datetime).seconds} for key, dt in dates.items()}
 
         # calc range of creation dates
         max_date, min_date = max(dates.values()), min(dates.values())
         time_span = max_date - min_date
 
         # convert creation dates to isoformat for readability
-        dates = {u: dt.isoformat() for u, dt in dates.items()}
+        dates = {key: dt.isoformat() for key, dt in dates.items()}
 
         # add metrics to output
         dates["metrics"] = dict()
@@ -121,6 +120,40 @@ class TwitterDataProcessor:
         dates["metrics"]["max"] = max_date.isoformat()
         dates["metrics"]["min"] = min_date.isoformat()
         return dates
+
+    def intersection(self, iterable: List[set]) -> list:
+        """Calculates the intersection of multiple sets.
+
+        Args:
+            iterable (List[set]): List containing sets.
+
+        Returns:
+            list: intersection set casted to list.
+        """
+        intersection = set.intersection(*map(set, iterable))
+        return list(intersection)
+
+    def difference(self, sets: Dict[int | str, set]) -> dict:
+        """Calculates the difference of multiple sets.
+
+        Args:
+            sets (Dict[set]): Dictionary containing sets where keys are identifiers.
+
+        Returns:
+            dict: Individual difference of each set that was provided.
+        """
+        # init empty dict to store individual differences for each set
+        differences = dict()
+        for key, values in sets.items():
+            differences[key] = list(set(values))
+            for other_key, other_values in sets.items():
+                if key != other_key:
+                    differences[key] = list(set(differences[key]) - set(other_values))
+        return differences
+
+
+class TwitterDataProcessor(BaseDataProcessor):
+    """Component class in order to process Twitter data."""
 
     def extract_followers(self, user_object: tweepy.User) -> Dict[str, str | int]:
         """Extract IDs, names, and screen names from a user's followers.
@@ -156,17 +189,6 @@ class TwitterDataProcessor:
             info["followees_names"].append(followee.name)
             info["followees_screen_names"].append(followee.screen_name)
         return info
-
-    def extract_ids_from_page_results(self, iterable: list) -> list():
-        """Extracts IDs from pagination results.
-
-        Args:
-            iterable (list): Page results.
-
-        Returns:
-            list: IDs from page results.
-        """
-        return [item.id for item in iterable]
 
     def clean_tweet(self, tweet: str) -> str:
         """Utility function to clean tweet text by removing links, special characters using simple regex statements.
@@ -216,36 +238,6 @@ class TwitterDataProcessor:
                 if user != other_user:
                     relationships[(user, other_user)] = fetcher.get_relationship(source_user=user, target_user=other_user)
         return relationships
-
-    def intersection(self, iterable: List[set]) -> list:
-        """Calculates the intersection of multiple sets.
-
-        Args:
-            iterable (List[set]): List containing sets.
-
-        Returns:
-            list: intersection set casted to list.
-        """
-        intersection = set.intersection(*map(set, iterable))
-        return list(intersection)
-
-    def difference(self, sets: Dict[int | str, set]) -> dict:
-        """Calculates the difference of multiple sets.
-
-        Args:
-            sets (Dict[set]): Dictionary containing sets where keys are identifiers.
-
-        Returns:
-            dict: Individual difference of each set that was provided.
-        """
-        # init empty dict to store individual differences for each set
-        differences = dict()
-        for key, values in sets.items():
-            differences[key] = list(set(values))
-            for other_key, other_values in sets.items():
-                if key != other_key:
-                    differences[key] = list(set(differences[key]) - set(other_values))
-        return differences
 
     def calc_similarity(self, users: List[int | str] | None = None, tweet_ids: List[str | int] | None = None, *, features: List[str], fetcher: TwitterDataFetcher) -> dict:
         """Calculates the euclidean distance of users/tweets based on a feature vector. Either users or Tweets must be specified, not both.
