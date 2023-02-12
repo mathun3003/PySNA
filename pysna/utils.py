@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
 import re
+import warnings
 from datetime import datetime
 from typing import Any, Dict
 
 import pandas as pd
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
 def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: str = ",", **kwargs):
@@ -28,9 +31,9 @@ def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: st
         raise ValueError("'data' dictionary must not contain nested dictionaries. Use JSON export instead.")
     try:
         # convert to pandas dataframe from dict
-        f = pd.DataFrame(data)
+        f = pd.DataFrame(data, index=[0])
         # export data frame
-        f.to_csv(export_path, encoding=encoding, sep=sep, **kwargs)
+        f.to_csv(export_path, encoding=encoding, sep=sep, index=False, **kwargs)
     except IOError as e:
         raise e
 
@@ -61,10 +64,14 @@ def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str =
         if any(not isinstance(kwargs, dict) for kwargs in args):
             raise ValueError("'args' must be of type list containing dictionaries.")
     try:
+        # read existing file
         f = pd.read_csv(filepath, sep=sep, encoding=encoding)
-        input_df = pd.DataFrame(data)
+        # convert data dict to df
+        input_df = pd.DataFrame(data, index=[0])
+        # concat dfs
         f = pd.concat([f, input_df], axis=0)
-        f.to_csv(filepath, sep=sep, encoding=encoding)
+        # export to CSV
+        f.to_csv(filepath, sep=sep, encoding=encoding, index=False)
     except IOError as e:
         raise e
 

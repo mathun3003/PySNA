@@ -9,8 +9,9 @@ from typing import get_args
 from dotenv import load_dotenv
 
 from pysna.api import TwitterAPI
-from pysna.utils import append_to_json, export_to_json
+from pysna.utils import append_to_csv, append_to_json, export_to_csv, export_to_json
 
+# TODO: add link for documentation in usage message
 msg = """
 The command-line interface for the PySNA package
 
@@ -60,10 +61,16 @@ def read_secrets(env_path: str) -> dict:
 def output(data: dict, encoding: str, path: str | None = None, append: bool = False):
     # either print results if '--output' arg was provided
     if (path is not None) and (append is False):
-        export_to_json(data, path, encoding)
+        if path.endswith(".json"):
+            export_to_json(data, path, encoding)
+        elif path.endswith(".csv"):
+            export_to_csv(data, path, encoding)
     # or append to existing file
     elif (path is not None) and (append is True):
-        append_to_json(data, path, encoding)
+        if path.endswith(".json"):
+            append_to_json(data, path, encoding)
+        elif path.endswith(".csv"):
+            append_to_csv(data, path, encoding)
     # or print them to the CLI in JSON format
     else:
         print(json.dumps(data, ensure_ascii=False))
@@ -105,7 +112,14 @@ def subcommand(function_name: str, args=[], parent=subparsers):
         argument("attributes", nargs="+", default=[], help=f"List or string of desired User attributes. Must be from {', '.join(get_args(TwitterAPI.LITERALS_USER_INFO))}"),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
-        argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
+        argument(
+            "--output",
+            "-o",
+            type=str,
+            default=None,
+            required=False,
+            help="Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)",
+        ),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
         argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
@@ -130,7 +144,14 @@ def user_info_cli(args):
         argument("attributes", nargs="+", default=[], help=f"List or string of desired Tweet attribute. Must be from {', '.join(get_args(TwitterAPI.LITERALS_TWEET_INFO))}"),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
-        argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
+        argument(
+            "--output",
+            "-o",
+            type=str,
+            default=None,
+            required=False,
+            help="Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)",
+        ),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
         argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
@@ -156,7 +177,14 @@ def tweet_info_cli(args):
         argument("--features", "-f", nargs="+", default=[], required=False, help="Features that should be contained in the feature vector for similarity comparison."),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
-        argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
+        argument(
+            "--output",
+            "-o",
+            type=str,
+            default=None,
+            required=False,
+            help="Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)",
+        ),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
         argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
@@ -182,7 +210,14 @@ def compare_users_cli(args):
         argument("--features", "-f", nargs="+", default=[], required=False, help="Features that should be contained in the feature vector for similarity comparison."),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
-        argument("--output", "-o", type=str, default=None, required=False, help="Store results in a JSON file. Specify output file path (including file name)."),
+        argument(
+            "--output",
+            "-o",
+            type=str,
+            default=None,
+            required=False,
+            help="Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)",
+        ),
         argument("--encoding", type=str, default="utf-8", required=False, help="Encoding of the output file. Defaults to UTF-8."),
         argument("--append", "-a", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Add results to an existing JSON file. File needs to be specified in the --output flag."),
     ],
