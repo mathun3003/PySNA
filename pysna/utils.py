@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import json
 import re
 import warnings
@@ -44,8 +45,8 @@ def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str =
     Args:
         data (dict): Dictionary containing new data that should be added to file.
         filepath (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
-        encoding (str, optional): _description_. Defaults to 'utf-8'.
-        sep (str, optional): Encoding of CSV file. Defaults to ",".
+        encoding (str, optional): Encoding of CSV file.. Defaults to 'utf-8'.
+        sep (str, optional): Value separator for CSV file. Defaults to ",".
         args: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.
 
     Raises:
@@ -119,7 +120,7 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
 
     # load file from path
     with open(filepath, "r", encoding=encoding) as input_file:
-        f = json.load(input_file)
+        f = json.load(input_file, **kwargs)
     # existing file should have a "data"-key and a list to append to
     if "data" not in f.keys():
         raise KeyError("The file to be extended must contain the key 'data'.")
@@ -128,7 +129,7 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
             # append new dict to file
             f["data"].append(input_dict)
             with open(filepath, "w", encoding=encoding) as jsonfile:
-                json.dump(f, jsonfile, indent=4)
+                json.dump(f, jsonfile, indent=4, **kwargs)
         except IOError as e:
             raise e
         # usually when tuple cannot be serialized
@@ -140,7 +141,7 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
     pass
 
 
-def load_from_json(filepath: str, encoding: str = "utf-8") -> dict:
+def load_from_json(filepath: str, encoding: str = "utf-8", **kwargs) -> dict:
     """Load Python Dictionary from JSON file. Tuples are recovered.
 
     Args:
@@ -152,7 +153,7 @@ def load_from_json(filepath: str, encoding: str = "utf-8") -> dict:
     """
     # read from filepath
     with open(filepath, "r", encoding=encoding) as jsonfile:
-        f = json.load(jsonfile)
+        f = json.load(jsonfile, **kwargs)
 
     # try to deserialize if any tuples were found in the file
     f = _decode_json(f)
@@ -181,6 +182,10 @@ def _encode_json(data: dict):
             if (isinstance(value, dict)) and all(isinstance(k, tuple) for k in list(value.keys())):
                 # serialize tuples
                 data["data"][0][key] = {str(k).replace("'", ""): v for k, v in value.items()}
+        # if any top-level tuple was detected
+        if any(isinstance(key, tuple) for key in data["data"][0].keys()):
+            # serialize tuples
+            data["data"][0] = {(str(key).replace("'", "") if isinstance(key, tuple) else key): dct for key, dct in data["data"][0].items()}
     else:
         # iterate over every value
         for key, value in data.items():
@@ -188,6 +193,11 @@ def _encode_json(data: dict):
             if (isinstance(value, dict)) and all(isinstance(k, tuple) for k in list(value.keys())):
                 # serialize tuples
                 data[key] = {str(k).replace("'", ""): v for k, v in data.items()}
+        # if any top-level tuple was detected
+        if any(isinstance(key, tuple) for key in data.keys()):
+            # serialize tuples
+            data = {(str(key).replace("'", "") if isinstance(key, tuple) else key): dct for key, dct in data.items()}
+
     return data
 
 
@@ -205,6 +215,11 @@ def _decode_json(data: dict):
                             sub_dict[tuple(re.sub(r"[\(\)\']", "", sub_key).split(", "))] = sub_dict.pop(sub_key)
                             # set to input dict
                             data["data"][entry_num][key] = sub_dict
+        # if any serialized top-level tuple was detected
+        for key in copy.deepcopy(data["data"][0]).keys():
+            if re.match(r"^\([^)]+\)$", key):
+                # deserialize tuples
+                data["data"][0][tuple(re.sub(r"[\(\)\']", "", key).split(", "))] = data["data"][0].pop(key)
     else:
         for key in data.keys():
             # if a serialized tuple was detected
@@ -227,4 +242,9 @@ def _decode_json(data: dict):
             # cast to int if key is a digit
             if key.isdigit():
                 data[int(key)] = data.pop(key)
+        # if any serialized top-level tuple was detected
+        for key in copy.deepcopy(data).keys():
+            if isinstance(key, tuple):
+                # deserialize tuples
+                data[tuple(re.sub(r"[\(\)\']", "", key).split(", "))] = data.pop(key)
     return data
