@@ -153,6 +153,19 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_4, expected_response)
         self.assertDictEqual(cassette_response_5, expected_response)
 
+    @vcr.use_cassette("tests/cassettes/get_relationship_pairs.yaml")
+    def test_get_relationship_pairs(self):
+        # generate results
+        results = self.fetcher.get_relationship_pairs([test_user_id_1, test_user_id_2, test_user_id_3])
+        # assert instances
+        self.assertIsInstance(results, dict)
+        assert all(isinstance(key, tuple) for key in results.keys())
+        assert all(isinstance(value, dict) for value in results.values())
+        # compare with fixture
+        with open("tests/fixtures/get_relationship_pairs.pickle", "rb") as handle:
+            test_results = pickle.load(handle)
+        self.assertDictEqual(results, test_results)
+
     @vcr.use_cassette("tests/cassettes/get_tweet_object.yaml")
     def test_get_tweet_object(self):
         # by int

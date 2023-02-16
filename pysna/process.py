@@ -9,8 +9,6 @@ import numpy as np
 import tweepy
 from textblob import TextBlob
 
-from pysna.fetch import TwitterDataFetcher
-
 
 class BaseDataProcessor:
     """Base component class in order to process social data."""
@@ -219,26 +217,6 @@ class TwitterDataProcessor(BaseDataProcessor):
             return "neutral"
         else:
             return "negative"
-
-    # TODO: put to TwitterDataFetcher? Or rewrite?
-    def compare_relationships(self, users: List[str | int], fetcher: TwitterDataFetcher) -> dict:
-        """Creates pairs for each unique combination of provided users based on their relationship.
-
-        Args:
-            users (List[str  |  int]): List of user IDs or screen names.
-            fetcher (TwitterDataFetcher): Fetcher instance in order to receive necessary data from Twitter.
-
-        Returns:
-            dict: Pairs of users containing their relationship to each other.
-        """
-        # init emtpy relationships dict
-        relationships = dict()
-        # iterate over every pair combination of provided users
-        for user in users:
-            for other_user in users:
-                if user != other_user:
-                    relationships[(user, other_user)] = fetcher.get_relationship(source_user=user, target_user=other_user)
-        return relationships
 
     def calc_similarity(self, user_objs: List[dict] | None = None, tweet_objs: List[dict] | None = None, *, features: List[str]) -> dict:
         """Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.

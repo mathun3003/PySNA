@@ -161,8 +161,8 @@ class TwitterDataFetcher:
             response = self._manual_request(url)
             # if an error occured that says the user has been suspended
             if any("User has been suspended" in error["detail"] for error in response["errors"]):
-                log.error("User has been suspended from Twitter.")
-                return {"suspended": True}
+                log.error("User has been suspended from Twitter. Requested user: {}".format(user))
+                raise e
             else:
                 raise e
         return user_obj
@@ -280,6 +280,24 @@ class TwitterDataFetcher:
 
         relationship = self.api.get_friendship(**params)
         return {"source": relationship[0]._json, "target": relationship[1]._json}
+
+    def get_relationship_pairs(self, users: List[str | int]) -> dict:
+        """Creates pairs for each unique combination of provided users based on their relationship.
+
+        Args:
+            users (List[str  |  int]): List of user IDs or screen names.
+
+        Returns:
+            dict: Pairs of users containing their relationship to each other.
+        """
+        # init emtpy relationships dict
+        relationships = dict()
+        # iterate over every pair combination of provided users
+        for user in users:
+            for other_user in users:
+                if user != other_user:
+                    relationships[(user, other_user)] = self.get_relationship(source_user=user, target_user=other_user)
+        return relationships
 
     def get_liked_tweets_ids(self, user: str | int, limit: int | None = None) -> list():
         """Get (all) liked Tweets of provided user.

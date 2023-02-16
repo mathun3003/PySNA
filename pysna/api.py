@@ -23,6 +23,7 @@ log.addHandler(handler)
 class TwitterAPI(tweepy.Client):
     """Twitter API interface in order to interact with the Twitter Search API v2."""
 
+    # TODO: filter depricated attributes
     LITERALS_USER_INFO = Literal[
         "id",
         "id_str",
@@ -290,7 +291,7 @@ class TwitterAPI(tweepy.Client):
             match attr:
                 # compare relationships between two users
                 case "relationship":
-                    results[attr] = self.data_processor.compare_relationships(users, fetcher=self.fetcher)
+                    results[attr] = self.fetcher.get_relationship_pairs(users)
                 # compare number of followers
                 case "followers_count":
                     # get individual followers

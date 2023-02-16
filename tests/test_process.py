@@ -148,19 +148,6 @@ class TestTwitterDataProcessor(PySNATestCase):
         self.assertIsInstance(function_response, str)
         self.assertEqual(function_response, "positive")
 
-    @vcr.use_cassette("tests/cassettes/compare_relationships.yaml")
-    def test_compare_relationships(self):
-        # generate results
-        results = self.data_processor.compare_relationships([test_user_id_1, test_user_id_2, test_user_id_3], self.fetcher)
-        # assert instances
-        self.assertIsInstance(results, dict)
-        assert all(isinstance(key, tuple) for key in results.keys())
-        assert all(isinstance(value, dict) for value in results.values())
-        # compare with fixture
-        with open("tests/fixtures/compare_relationships.pickle", "rb") as handle:
-            test_results = pickle.load(handle)
-        self.assertDictEqual(results, test_results)
-
     @vcr.use_cassette("tests/cassettes/calc_similarity.yaml")
     def test_calc_similarity(self):
         # get serialized user objects first
