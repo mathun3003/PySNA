@@ -163,8 +163,10 @@ class TestTwitterDataProcessor(PySNATestCase):
 
     @vcr.use_cassette("tests/cassettes/calc_similarity.yaml")
     def test_calc_similarity(self):
+        # get serialized user objects first
+        user_objs = [self.fetcher.get_user_object(user)._json for user in [test_user_id_1, test_user_id_2, test_user_id_3]]
         # generate results
-        results = self.data_processor.calc_similarity(users=[test_user_id_1, test_user_id_2, test_user_id_3], features=["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"], fetcher=self.fetcher)
+        results = self.data_processor.calc_similarity(user_objs=user_objs, features=["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"])
         # assert instances
         self.assertIsInstance(results, dict)
         assert all(isinstance(key, tuple) for key in results.keys())

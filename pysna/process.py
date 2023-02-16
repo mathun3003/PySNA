@@ -220,6 +220,7 @@ class TwitterDataProcessor(BaseDataProcessor):
         else:
             return "negative"
 
+    # TODO: put to TwitterDataFetcher? Or rewrite?
     def compare_relationships(self, users: List[str | int], fetcher: TwitterDataFetcher) -> dict:
         """Creates pairs for each unique combination of provided users based on their relationship.
 
@@ -239,17 +240,16 @@ class TwitterDataProcessor(BaseDataProcessor):
                     relationships[(user, other_user)] = fetcher.get_relationship(source_user=user, target_user=other_user)
         return relationships
 
-    def calc_similarity(self, users: List[int | str] | None = None, tweet_ids: List[str | int] | None = None, *, features: List[str], fetcher: TwitterDataFetcher) -> dict:
-        """Calculates the euclidean distance of users/tweets based on a feature vector. Either users or Tweets must be specified, not both.
+    def calc_similarity(self, user_objs: List[dict] | None = None, tweet_objs: List[dict] | None = None, *, features: List[str]) -> dict:
+        """Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.
 
         Args:
+            user_objs (List[dict] | None, optional): List of serialized Twitter user objects. Defaults to None.
+            tweet_objs (List[dict] | None, optional): List of serialized Tweet objects. Defaults to None.
             features (List[str]): Features that should be contained in the feature vector. Features have to be numeric and must belong to the respective object (i.e., user or tweet.)
-            users (List[int  |  str] | None, optional): List of user IDs or screen names. Defaults to None.
-            tweet_ids (List[str  |  int] | None, optional): Tweet IDs. Defaults to None.
-            fetcher (TwitterDataFetcher): Fetcher instance in order to receive necessary data from Twitter.
 
         Raises:
-            ValueError: If either 'users' and 'tweet_ids' or none of them were provided.
+            ValueError: If either 'user_objs' and 'tweet_objs' or none of them were provided.
             AssertionError: If non-numeric feature was provided in the 'features' list.
 
         Returns:
@@ -258,16 +258,16 @@ class TwitterDataProcessor(BaseDataProcessor):
         # init empty dict to store distances
         distances = dict()
         # if users and tweets were provided
-        if users and tweet_ids:
-            raise ValueError("Either 'users' or 'tweet_ids' must be specified, not both.")
-        # if only users were provided
-        elif users:
+        if user_objs and tweet_objs:
+            raise ValueError("Either 'user_objs' or 'tweet_objs' must be specified, not both.")
+        # if only user_objs were provided
+        elif user_objs:
             # iterate over every uniqe pair
-            for i in range(len(users)):
-                for j in range(i + 1, len(users)):
+            for i in range(len(user_objs)):
+                for j in range(i + 1, len(user_objs)):
                     # get user objects for each pair
-                    user_i = fetcher.get_user_object(users[i])._json
-                    user_j = fetcher.get_user_object(users[j])._json
+                    user_i = user_objs[i]
+                    user_j = user_objs[j]
                     # build feature vector
                     vec_i = np.array([user_i[feature] for feature in features])
                     vec_j = np.array([user_j[feature] for feature in features])
@@ -275,14 +275,14 @@ class TwitterDataProcessor(BaseDataProcessor):
                     assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
                     assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
                     # calc euclidean distance
-                    distances[(users[i], users[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
-        elif tweet_ids:
+                    distances[(user_i["id"], user_j["id"])] = np.linalg.norm(vec_i - vec_j, ord=2)
+        elif tweet_objs:
             # iterate over every uniqe pair
-            for i in range(len(tweet_ids)):
-                for j in range(i + 1, len(tweet_ids)):
+            for i in range(len(tweet_objs)):
+                for j in range(i + 1, len(tweet_objs)):
                     # get Tweet objects for each pair
-                    tweet_i = fetcher.get_tweet_object(tweet_ids[i])._json
-                    tweet_j = fetcher.get_tweet_object(tweet_ids[j])._json
+                    tweet_i = tweet_objs[i]
+                    tweet_j = tweet_objs[j]
                     # build feature vector
                     vec_i = np.array([tweet_i[feature] for feature in features])
                     vec_j = np.array([tweet_j[feature] for feature in features])
@@ -290,10 +290,10 @@ class TwitterDataProcessor(BaseDataProcessor):
                     assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
                     assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
                     # calc euclidean distance
-                    distances[(tweet_ids[i], tweet_ids[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
+                    distances[(tweet_i["id"], tweet_j["id"])] = np.linalg.norm(vec_i - vec_j, ord=2)
         # if none was provided
         else:
-            raise ValueError("'users' or 'tweet_ids' must be provided.")
+            raise ValueError("Either 'user_objs' or 'tweet_objs' must be provided.")
         # sort dict in ascendin order
         sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
         return sorted_values

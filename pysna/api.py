@@ -173,12 +173,30 @@ class TwitterAPI(tweepy.Client):
         # init DataProcessor
         self.data_processor = TwitterDataProcessor()
 
+    def _handle_output(self, output: dict) -> Any:
+        """Returns either the single value from one-key dictionary or the dictionary itself.
+
+        Args:
+            output (dict): Input dictionary, usually the output of a function.
+
+        Returns:
+            Any: Either the single value from one-key dictionary or the dictionary itself.
+        """
+        # if output has only one key
+        if len(output) == 1:
+            # return single value
+            return next(iter(output.values()))
+        else:
+            # else return original output
+            return output
+
     def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested user information from Twitter User Object.
 
         Args:
-            user (str): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str]): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries, bot_scores
+            user (str | int): Twitter User either specified by corresponding ID or screen name.
+            attributes (List[str] | str): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries, bot_scores
+            return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
 
         Raises:
             KeyError: If invalid attribute was provided.
@@ -192,6 +210,7 @@ class TwitterAPI(tweepy.Client):
         if isinstance(attributes, str):
             # convert to list for iteration
             attributes = [attributes]
+        # TODO: catch Botometer API secrets before iteration over attributes.
         # get user object
         user_obj = self.fetcher.get_user_object(user)
         # loop through the list of attributes and add them to the dictionary
@@ -208,7 +227,7 @@ class TwitterAPI(tweepy.Client):
             # get all liked tweets of user
             elif attr == "liked_tweets":
                 # get page results first
-                liked_tweets = self.fetcher.get_liked_tweets(user)
+                liked_tweets = self.fetcher.get_liked_tweets_ids(user)
                 user_info[attr] = liked_tweets
             # get all composed tweets
             elif attr == "composed_tweets":
@@ -230,7 +249,8 @@ class TwitterAPI(tweepy.Client):
             # if timestamp should be returned
         if return_timestamp:
             user_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
-        return user_info
+
+        return self._handle_output(user_info)
 
     def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -> dict | list:
         """Compare two or more users with the specified comparison attribute.
@@ -336,14 +356,14 @@ class TwitterAPI(tweepy.Client):
                 # get common liked tweets
                 case "commonly_liked_tweets":
                     # get individual liked tweets first
-                    individual_likes = [self.fetcher.get_liked_tweets(user) for user in users]
+                    individual_likes = [self.fetcher.get_liked_tweets_ids(user) for user in users]
                     # get common liked tweets by calculating the intersection
                     common_likes = self.data_processor.intersection(individual_likes)
                     results[attr] = common_likes
                 # get distinct liked tweets
                 case "distinctly_liked_tweets":
                     # get individual liked tweets first
-                    individual_likes = {user: self.fetcher.get_liked_tweets(user) for user in users}
+                    individual_likes = {user: self.fetcher.get_liked_tweets_ids(user) for user in users}
                     # get distinct liked tweets by calculating the difference for each set
                     distinct_likes = self.data_processor.difference(individual_likes)
                     results[attr] = distinct_likes
@@ -352,7 +372,10 @@ class TwitterAPI(tweepy.Client):
                     # feature list object must be defined
                     if features is None:
                         raise ValueError("'features' list must be provided.")
-                    results[attr] = self.data_processor.calc_similarity(users=users, features=features, fetcher=self.fetcher)
+                    # get serialized user objects first
+                    user_objs = [self.fetcher.get_user_object(user)._json for user in users]
+                    # calculate similarity based on defined feature vector
+                    results[attr] = self.data_processor.calc_similarity(user_objs=user_objs, features=features)
                 # compare creaation dates
                 case "created_at":
                     # get individual creation dates first
@@ -366,7 +389,8 @@ class TwitterAPI(tweepy.Client):
         # if timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
-        return results
+
+        return self._handle_output(results)
 
     def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -> dict:
         """Receive requested Tweet information from Tweet Object.
@@ -374,6 +398,7 @@ class TwitterAPI(tweepy.Client):
         Args:
             tweet_id (str | int): Tweet ID
             attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, context_annotations, source, author_info, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang, sentiment.
+            return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
 
         Raises:
             ValueError: If invalid attribute was provided.
@@ -429,7 +454,8 @@ class TwitterAPI(tweepy.Client):
         # if timestamp should be returned
         if return_timestamp:
             tweet_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
-        return tweet_info
+
+        return self._handle_output(tweet_info)
 
     def compare_tweets(self, tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -> dict:
         """Compare two or more Tweets with the specified comparison attribute.
@@ -439,7 +465,6 @@ class TwitterAPI(tweepy.Client):
             compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be from the following: view_count, like_count, retweet_count, quote_count, reply_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweeters, similarity, created_at.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
             features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: retweet_count, favorite_count. Defaults to None.
-
 
         Raises:
             AssertionError: If a list of one Tweet ID was provided.
@@ -553,7 +578,10 @@ class TwitterAPI(tweepy.Client):
                     # feature list object must be defined
                     if features is None:
                         raise ValueError("'features' list must be provided.")
-                    results[attr] = self.data_processor.calc_similarity(tweet_ids=tweet_ids, features=features, fetcher=self.fetcher)
+                    # get serialized tweet objects first
+                    tweet_objs = [self.fetcher.get_tweet_object(tweet_id)._json for tweet_id in tweet_ids]
+                    # calculate similarity based on defined feature vector
+                    results[attr] = self.data_processor.calc_similarity(tweet_objs=tweet_objs, features=features)
                 # compare creation dates of tweets
                 case "created_at":
                     # get individual creation dates first
@@ -567,4 +595,5 @@ class TwitterAPI(tweepy.Client):
         # if UTC timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
-        return results
+
+        return self._handle_output(results)
