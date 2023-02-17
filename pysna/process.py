@@ -218,12 +218,12 @@ class TwitterDataProcessor(BaseDataProcessor):
         else:
             return "negative"
 
-    def calc_similarity(self, user_objs: List[dict] | None = None, tweet_objs: List[dict] | None = None, *, features: List[str]) -> dict:
+    def calc_similarity(self, user_objs: List[dict] | None = None, tweet_metrics: List[Dict[int, dict]] | None = None, *, features: List[str]) -> dict:
         """Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.
 
         Args:
             user_objs (List[dict] | None, optional): List of serialized Twitter user objects. Defaults to None.
-            tweet_objs (List[dict] | None, optional): List of serialized Tweet objects. Defaults to None.
+            tweet_metrics (List[Dict[int | dict]] | None, optional): List of public Tweet metrics as dictionaries with Tweet IDs as keys. Defaults to None.
             features (List[str]): Features that should be contained in the feature vector. Features have to be numeric and must belong to the respective object (i.e., user or tweet.)
 
         Raises:
@@ -236,8 +236,8 @@ class TwitterDataProcessor(BaseDataProcessor):
         # init empty dict to store distances
         distances = dict()
         # if users and tweets were provided
-        if user_objs and tweet_objs:
-            raise ValueError("Either 'user_objs' or 'tweet_objs' must be specified, not both.")
+        if user_objs and tweet_metrics:
+            raise ValueError("Either 'user_objs' or 'tweet_metrics' must be specified, not both.")
         # if only user_objs were provided
         elif user_objs:
             # iterate over every uniqe pair
@@ -254,13 +254,13 @@ class TwitterDataProcessor(BaseDataProcessor):
                     assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
                     # calc euclidean distance
                     distances[(user_i["id"], user_j["id"])] = np.linalg.norm(vec_i - vec_j, ord=2)
-        elif tweet_objs:
+        elif tweet_metrics:
             # iterate over every uniqe pair
-            for i in range(len(tweet_objs)):
-                for j in range(i + 1, len(tweet_objs)):
+            for i in range(len(tweet_metrics)):
+                for j in range(i + 1, len(tweet_metrics)):
                     # get Tweet objects for each pair
-                    tweet_i = tweet_objs[i]
-                    tweet_j = tweet_objs[j]
+                    tweet_i = list(tweet_metrics.values())[i]
+                    tweet_j = list(tweet_metrics.values())[j]
                     # build feature vector
                     vec_i = np.array([tweet_i[feature] for feature in features])
                     vec_j = np.array([tweet_j[feature] for feature in features])
@@ -268,10 +268,10 @@ class TwitterDataProcessor(BaseDataProcessor):
                     assert all(isinstance(feat, Number) for feat in vec_i), "only numeric features are allowed"
                     assert all(isinstance(feat, Number) for feat in vec_j), "only numeric features are allowed"
                     # calc euclidean distance
-                    distances[(tweet_i["id"], tweet_j["id"])] = np.linalg.norm(vec_i - vec_j, ord=2)
+                    distances[(list(tweet_metrics.keys())[i], list(tweet_metrics.keys())[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
         # if none was provided
         else:
-            raise ValueError("Either 'user_objs' or 'tweet_objs' must be provided.")
+            raise ValueError("Either 'user_objs' or 'tweet_metrics' must be provided.")
         # sort dict in ascendin order
         sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
         return sorted_values

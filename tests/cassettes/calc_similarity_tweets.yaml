@@ -1,0 +1,218 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.twitter.com/2/tweets/1612443577447026689?tweet.fields=public_metrics
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAGyPSU4DMRBFr1LyuknIQAK9QmISggCKWIFQ5HQXuGgPTblMElBuw024GA6DYMHG
+        qv9den5+VbUWrcpXhTXJzFCUwKuZLBBlRnVU5a3qjXr94XCwMx4Ph+Pt/mi0u6fuCkW1Kv+9K1Sb
+        5paqmUNhquKGzviFrELyosrtIjetXf3Jlhr8ib1BoZ5SkN8iP+daxhgp+J9yMBj314USXOagDrkD
+        B0azDSII1xgrgxzBaAFyMNXGoQcyjAyHocm/1DxHEsgHXHG478CGMF1pDydkXUgM2sElP2hPmbV1
+        YNBthkw59VFIkgCSR/CYECYoJtQI6GVBVYNWCkgOmuBai0ss4N6mwISc3W5SXmDIei8pClqLvgOn
+        Dk4wtvz+Vhn4bAUiIdQ6bvQesRF4Dtlw/9vuXM/BiLSx7HalU4XuOdqz44vrI5mo9foDAAD//wMA
+        WORHFtgBAAA=
+    headers:
+      api-version:
+      - '2.61'
+      cache-control:
+      - no-cache, no-store, max-age=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '350'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 17 Feb 2023 14:53:58 UTC
+      perf:
+      - '7626143928'
+      server:
+      - tsa_o
+      set-cookie:
+      - guest_id=v1%3A167664563817708230; Max-Age=34214400; Expires=Tue, 19 Mar 2024
+        14:53:58 GMT; Path=/; Domain=.twitter.com; Secure; SameSite=None
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 46820aaba74b4a043bcc2ccb0c3800d6192c5f8ab611b35212e67dee49e3f69c
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '287'
+      x-rate-limit-reset:
+      - '1676645861'
+      x-response-time:
+      - '224'
+      x-transaction-id:
+      - a2c93f91cdedf128
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.twitter.com/2/tweets/1611301422364082180?tweet.fields=public_metrics
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAGyOQWobQRBFr1L0Wox6RkLY2iUEE4EXJrEx2BjRM12aKTTdPamuti0bge/gK+gM
+        XmU3N8lJ0koweOHl/7/qv/+srBGjls9qSHVPzdqhMDXx6DDKA6Ksm5C8qKWeZGfodx90T1t8l6cT
+        9SsFwQ8xuYExRgr+3Sz1fLafKLQk646iBN6t/0PIZuatKhdlOdPlvKpmi7k+qcoTre5yk1XLT7OJ
+        EnzMxWrl4GdwDhkqXVXwhBxlfGNBD2eYsk0+thiNE1gsdKG1hu+4FcOAicMwHig2XT6+Nr2FPy+v
+        gORB2CSmNn//wG1gW8A3QvjCNZLEltMwINwHDxccNgWcG45wnjm55j44WPkoJElgM/7mrDaBnRHa
+        QmcEIjUdOBKw6OCyQ2egxjxhPGyEWoHkLdgjLMWaMy759h/quK/m8eBtphhv+l0kZCmgExnicjqV
+        oglTHG7aq9XF01dW+/1fAAAA//8DAJs8MgzkAQAA
+    headers:
+      api-version:
+      - '2.61'
+      cache-control:
+      - no-cache, no-store, max-age=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '372'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 17 Feb 2023 14:53:58 UTC
+      perf:
+      - '7626143928'
+      server:
+      - tsa_o
+      set-cookie:
+      - guest_id=v1%3A167664563855654433; Max-Age=34214400; Expires=Tue, 19 Mar 2024
+        14:53:58 GMT; Path=/; Domain=.twitter.com; Secure; SameSite=None
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - 2a801ca21708864ad14fa2b0862f5c578a993cb12c22cc34ce8efb31054a7e12
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '286'
+      x-rate-limit-reset:
+      - '1676645861'
+      x-response-time:
+      - '208'
+      x-transaction-id:
+      - 88214b5648311c26
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer AAAAAAAAAAAAAAAAAAAAAOl%2BkAEAAAAAerb28trbXbsTTae4FqhpZVEWqKI%3DSZq9j6FRlmnoJp06V1VDYuO873bKyT1WPZQ6RjVJrJrvYnJ8QZ
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.twitter.com/2/tweets/1612823288723476480?tweet.fields=public_metrics
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAGyQ0UoDMRBFf2WI4NNqu+tq1/qiFQXFFtRKFZGSZqcmNJvEZNq6lv6Zb/6YqdpC
+        wbe55zL3MrNgJSfO2gvmpiOtxLBC8kqEFfFIc0QaCjs1xNpZEonT9VqnCdNqgmt5nLC3qaWNbiZM
+        Vc5jCMqazU6aZ8uEYaloKFUg6+vhb4kqY+czS4/SrMgOsqJoZQd56ygvmuwlJpWs/a+XMML3GMzO
+        gJBXMPa2gu7FRR92OpwIfQ13GJB7IeEcTQTACbpfnyas5gejZuiDohpKnKG2DksgrrT1cXDSBif5
+        BxrcG/EQCWoU5K2uCYGX8Yq4HoAsoJHcCASSCA792PrqR9sxBBX/as1fws1VBwRqHfbh9Kyc3QvV
+        w3mA04HyFITkY+rdDUASudBuNGhf2MYTitc0/ei0DmGXV+5k272myUzm/cu82ObYD4f6UY5ua7Zc
+        fgMAAP//AwBrgQlu5wEAAA==
+    headers:
+      api-version:
+      - '2.61'
+      cache-control:
+      - no-cache, no-store, max-age=0
+      content-disposition:
+      - attachment; filename=json.json
+      content-encoding:
+      - gzip
+      content-length:
+      - '358'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Fri, 17 Feb 2023 14:53:59 UTC
+      perf:
+      - '7626143928'
+      server:
+      - tsa_o
+      set-cookie:
+      - guest_id=v1%3A167664563897475444; Max-Age=34214400; Expires=Tue, 19 Mar 2024
+        14:53:59 GMT; Path=/; Domain=.twitter.com; Secure; SameSite=None
+      strict-transport-security:
+      - max-age=631138519
+      x-access-level:
+      - read
+      x-connection-hash:
+      - fd72f8a92fe6bb63361e3b58e27c1a8a5e3672f6c639f013dc3cc18689511fb6
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-rate-limit-limit:
+      - '300'
+      x-rate-limit-remaining:
+      - '285'
+      x-rate-limit-reset:
+      - '1676645861'
+      x-response-time:
+      - '238'
+      x-transaction-id:
+      - 7954128f4f68cc12
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

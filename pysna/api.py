@@ -2,7 +2,7 @@
 import logging
 import sys
 from datetime import datetime
-from typing import Any, List, Literal
+from typing import Any, List, Literal, get_args
 
 import tweepy
 
@@ -23,7 +23,6 @@ log.addHandler(handler)
 class TwitterAPI(tweepy.Client):
     """Twitter API interface in order to interact with the Twitter Search API v2."""
 
-    # TODO: filter depricated attributes
     LITERALS_USER_INFO = Literal[
         "id",
         "id_str",
@@ -32,7 +31,6 @@ class TwitterAPI(tweepy.Client):
         "followers",
         "followees",
         "location",
-        "profile_location",
         "description",
         "url",
         "entities",
@@ -46,35 +44,14 @@ class TwitterAPI(tweepy.Client):
         "liked_tweets",
         "composed_tweets",
         "favourites_count",
-        "utc_offset",
-        "time_zone",
-        "geo_enabled",
         "verified",
         "statuses_count",
-        "lang",
         "status",
         "contributors_enabled",
-        "is_translator",
-        "is_translation_enabled",
-        "profile_background_color",
-        "profile_background_image_url",
-        "profile_background_image_url_https",
-        "profile_background_tile",
-        "profile_image_url",
         "profile_image_url_https",
         "profile_banner_url",
-        "profile_link_color",
-        "profile_sidebar_border_color",
-        "profile_sidebar_fill_color",
-        "profile_text_color",
-        "profile_use_background_image",
-        "has_extended_profile",
         "default_profile",
         "default_profile_image",
-        "following",
-        "follow_request_sent",
-        "notifications",
-        "translator_type",
         "withheld_in_countries",
         "bot_scores",
     ]
@@ -86,9 +63,8 @@ class TwitterAPI(tweepy.Client):
         "truncated",
         "created_at",
         "entities",
-        "context_annotations",
+        "tweet_annotations",
         "source",
-        "author_info",
         "retweeters",
         "in_reply_to_status_id",
         "in_reply_to_status_id_str",
@@ -96,10 +72,8 @@ class TwitterAPI(tweepy.Client):
         "in_reply_to_user_id_str",
         "in_reply_to_screen_name",
         "user",
-        "geo",
         "coordinates",
         "place",
-        "contributors",
         "is_quote_status",
         "public_metrics",
         "quoting_users",
@@ -107,7 +81,6 @@ class TwitterAPI(tweepy.Client):
         "favorited",
         "retweeted",
         "possibly_sensitive",
-        "possibly_sensitive_appealable",
         "lang",
         "sentiment",
     ]
@@ -130,6 +103,8 @@ class TwitterAPI(tweepy.Client):
         "verified",
     ]
 
+    SIMILARITY_FEATURES_COMPARE_USERS = Literal["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"]
+
     LITERALS_COMPARE_TWEETS = Literal[
         "view_count",
         "like_count",
@@ -145,6 +120,8 @@ class TwitterAPI(tweepy.Client):
         "similarity",
         "created_at",
     ]
+
+    SIMILARITY_FEATURES_COMPARE_TWEETS = Literal["retweet_count", "reply_count", "like_count", "quote_count", "impression_count"]
 
     def __init__(
         self,
@@ -191,12 +168,12 @@ class TwitterAPI(tweepy.Client):
             # else return original output
             return output
 
-    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> dict:
+    def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> Any:
         """Receive requested user information from Twitter User Object.
 
         Args:
             user (str | int): Twitter User either specified by corresponding ID or screen name.
-            attributes (List[str] | str): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, profile_location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, utc_offset, time_zone, geo_enabled, verified, statuses_count, lang, status, contributors_enabled, is_translator, is_translation_enabled, profile_background_color, profile_background_image_url, profile_background_image_url_https, profile_background_tile, profile_image_url, profile_image_url_https, profile_banner_url, profile_link_color, profile_sidebar_border_color, profile_sidebar_fill_color, profile_text_color, profile_use_background_image, has_extended_profile, default_profile, default_profile_image, following, follow_request_sent, notifications, translator_type, withheld_in_countries, bot_scores
+            attributes (List[str] | str): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, verified, statuses_count, status, contributors_enabled, profile_image_url_https, profile_banner_url, default_profile, default_profile_image, withheld_in_countries, bot_scores
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
 
         Raises:
@@ -253,8 +230,8 @@ class TwitterAPI(tweepy.Client):
 
         return self._handle_output(user_info)
 
-    def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -> dict | list:
-        """Compare two or more users with the specified comparison attribute.
+    def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -> Any:
+        """Compare two or more users with the specified comparison attribute(s).
 
         Args:
             users (List[str  |  int]): User IDs or screen names
@@ -266,18 +243,17 @@ class TwitterAPI(tweepy.Client):
             ValueError: If invalid comparison attribute was provided.
 
         Returns:
-            dict | list: Requested comparison attribute. Provide screen names
-            to display them in the results.
+            dict | list: Results of requested comparison attribute(s).
         """
         # users list must contain at least two elements
-        assert len(users) > 1, "'users' list must contain at least two elements, {} was provided".format(len(users))
+        assert len(users) > 1, "'users' list must contain at least two elements, {} was/were provided".format(len(users))
 
         # catch if feature vector contains only numeric values, and contains at least two elements
         if features:
             assert len(features) > 1, "'features' list must have at least two elements. {} was/were given".format(len(features))
             for feat in features:
-                if feat not in ["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"]:
-                    raise ValueError("Only numeric features are supported. Must be from: followers_count, friends_count, listed_count, favourites_count, statuses_count. You passed in {}".format(feat))
+                if feat not in get_args(self.SIMILARITY_FEATURES_COMPARE_USERS):
+                    raise ValueError(f"Only numeric features are supported. Must be from: {', '.join(get_args(self.SIMILARITY_FEATURES_COMPARE_USERS))}. You passed in {feat}")
 
         # if single comparison attribute was provided as string
         if isinstance(compare, str):
@@ -393,12 +369,12 @@ class TwitterAPI(tweepy.Client):
 
         return self._handle_output(results)
 
-    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -> dict:
+    def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -> Any:
         """Receive requested Tweet information from Tweet Object.
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, context_annotations, source, author_info, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, geo, coordinates, place, contributors, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, possibly_sensitive_appealable, lang, sentiment.
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, tweet_annotations, source, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, coordinates, place, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, lang, sentiment.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
 
         Raises:
@@ -417,17 +393,10 @@ class TwitterAPI(tweepy.Client):
         if isinstance(attributes, str):
             # convert to list for iteration
             attributes = [attributes]
-        # TODO: get_commenting_users -> "contributors" -> tweet_obj["contributors"]??
         for attr in attributes:
             # get default attributes from tweepy Status model
             if attr in tweet_obj._json.keys():
                 tweet_info[attr] = tweet_obj._json[attr]
-            # get information about author
-            elif attr == "author_info":
-                author_info = dict()
-                for field in tweet_obj.user._json.keys():
-                    author_info[field] = tweet_obj.user._json[field]
-                tweet_info[attr] = author_info
             # get all quoting users
             elif attr == "quoting_users":
                 quoting_users = self.fetcher.get_quoting_users_ids(tweet_id)
@@ -444,7 +413,7 @@ class TwitterAPI(tweepy.Client):
             elif attr == "public_metrics":
                 tweet_info[attr] = self.fetcher.get_public_metrics(tweet_id)
             # get context annotations
-            elif attr == "context_annotations":
+            elif attr == "tweet_annotations":
                 tweet_info[attr] = self.fetcher.get_context_annotations_and_entities(tweet_id)
             # get tweet sentiment
             elif attr == "sentiment":
@@ -458,14 +427,14 @@ class TwitterAPI(tweepy.Client):
 
         return self._handle_output(tweet_info)
 
-    def compare_tweets(self, tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -> dict:
+    def compare_tweets(self, tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -> Any:
         """Compare two or more Tweets with the specified comparison attribute.
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
             compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be from the following: view_count, like_count, retweet_count, quote_count, reply_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweeters, similarity, created_at.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
-            features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: retweet_count, favorite_count. Defaults to None.
+            features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: retweet_count, reply_count, like_count, quote_count, impression_count. Defaults to None.
 
         Raises:
             AssertionError: If a list of one Tweet ID was provided.
@@ -481,8 +450,8 @@ class TwitterAPI(tweepy.Client):
         if features:
             assert len(features) > 1, "'features' list must have at least two elements. {} was/were given".format(len(features))
             for feat in features:
-                if feat not in ["retweet_count", "favorite_count"]:
-                    raise ValueError("Only numeric features are supported. Must be from: retweet_count, favorite_count. You passed in {}".format(feat))
+                if feat not in get_args(self.SIMILARITY_FEATURES_COMPARE_TWEETS):
+                    raise ValueError(f"Only numeric features are supported. Must be from: {', '.join(get_args(self.SIMILARITY_FEATURES_COMPARE_TWEETS))}. You passed in {feat}.")
 
         # if single comparison attribute was provided as string
         if isinstance(compare, str):
@@ -579,10 +548,10 @@ class TwitterAPI(tweepy.Client):
                     # feature list object must be defined
                     if features is None:
                         raise ValueError("'features' list must be provided.")
-                    # get serialized tweet objects first
-                    tweet_objs = [self.fetcher.get_tweet_object(tweet_id)._json for tweet_id in tweet_ids]
+                    # get public metrics for Tweet objects first
+                    public_metrics = {tweet_id: self.fetcher.get_public_metrics(tweet_id) for tweet_id in tweet_ids}
                     # calculate similarity based on defined feature vector
-                    results[attr] = self.data_processor.calc_similarity(tweet_objs=tweet_objs, features=features)
+                    results[attr] = self.data_processor.calc_similarity(tweet_metrics=public_metrics, features=features)
                 # compare creation dates of tweets
                 case "created_at":
                     # get individual creation dates first

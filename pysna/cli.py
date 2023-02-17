@@ -11,22 +11,21 @@ from dotenv import load_dotenv
 from pysna.api import TwitterAPI
 from pysna.utils import append_to_csv, append_to_json, export_to_csv, export_to_json
 
-# TODO: add link for documentation in usage message
 msg = """
 The command-line interface for the PySNA package
 
 Usage:
   pysna user-info <user> <attributes> [--return-timestamp] [--output] [--append] [--encoding] [--env]
-  pysna compare-users <users> <compare> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
+  pysna compare-users <users> -c <compare> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
   pysna tweet-info <tweet> <attributes> [--return-timestamp] [--output] [--append] [--encoding] [--env]
-  pysna compare-tweets <tweets> <attributes> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
+  pysna compare-tweets <tweets> -c <compare> [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]
 
 Options:
   -h --help        Show this screen.
   --version        Show version.
 """
 
-
+# get version from __init__.py
 HERE = pathlib.Path(__file__).parent
 VERSION_FILE = f"{HERE}/__init__.py"
 with open(VERSION_FILE) as version_file:
@@ -45,6 +44,8 @@ OPTIONAL_SECRETS = ["X_RAPIDAPI_KEY", "X_RAPIDAPI_HOST"]
 parser = argparse.ArgumentParser(prog="pysna", usage=msg)
 # set subparser
 subparsers = parser.add_subparsers(dest="subcommand")
+# add version argument
+parser.add_argument("--version", action="version", version="%(prog)s {version}".format(version=version))
 
 
 def read_secrets(env_path: str) -> dict:
@@ -173,8 +174,15 @@ def tweet_info_cli(args):
     "compare-users",
     args=[
         argument("users", nargs="+", default=[], help="The IDs or screen names of the users."),
-        argument("--compare", "-c", nargs="+", default=[], required=True, help=f"The comparison attribute(s). Must be one of the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_USERS))}."),
-        argument("--features", "-f", nargs="+", default=[], required=False, help="Features that should be contained in the feature vector for similarity comparison."),
+        argument("--compare", "-c", nargs="+", default=[], required=True, help=f"The comparison attribute(s). Must be from following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_USERS))}."),
+        argument(
+            "--features",
+            "-f",
+            nargs="+",
+            default=[],
+            required=False,
+            help=f"Features that should be contained in the feature vector for similarity comparison. Must be from: {', '.join(get_args(TwitterAPI.SIMILARITY_FEATURES_COMPARE_USERS))}",
+        ),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument(
@@ -206,8 +214,10 @@ def compare_users_cli(args):
     "compare-tweets",
     args=[
         argument("tweets", nargs="+", default=[], help="The IDs of the Tweets."),
-        argument("--compare", "-c", nargs="+", default=[], required=True, help=f"The comparison attribute(s). Needs to be one of the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_TWEETS))}."),
-        argument("--features", "-f", nargs="+", default=[], required=False, help="Features that should be contained in the feature vector for similarity comparison."),
+        argument("--compare", "-c", nargs="+", default=[], required=True, help=f"The comparison attribute(s). Must be the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_TWEETS))}."),
+        argument(
+            "--features", "-f", nargs="+", default=[], required=False, help=f"Features that should be contained in the feature vector for similarity comparison. Must be from: {', '.join(get_args(TwitterAPI.SIMILARITY_FEATURES_COMPARE_TWEETS))}"
+        ),
         argument("--env", "-e", type=str, default=".env", required=False, help="Path to .env file. Defaults to './.env'."),
         argument("--return-timestamp", type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help="Returns the UTC timestamp of the request."),
         argument(

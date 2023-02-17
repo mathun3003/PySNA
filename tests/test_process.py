@@ -148,8 +148,8 @@ class TestTwitterDataProcessor(PySNATestCase):
         self.assertIsInstance(function_response, str)
         self.assertEqual(function_response, "positive")
 
-    @vcr.use_cassette("tests/cassettes/calc_similarity.yaml")
-    def test_calc_similarity(self):
+    @vcr.use_cassette("tests/cassettes/calc_similarity_users.yaml")
+    def test_calc_similarity_users(self):
         # get serialized user objects first
         user_objs = [self.fetcher.get_user_object(user)._json for user in [test_user_id_1, test_user_id_2, test_user_id_3]]
         # generate results
@@ -159,6 +159,21 @@ class TestTwitterDataProcessor(PySNATestCase):
         assert all(isinstance(key, tuple) for key in results.keys())
         assert all(isinstance(value, Number) for value in results.values())
         # compare with fixture
-        with open("tests/fixtures/calc_similarity.pickle", "rb") as handle:
+        with open("tests/fixtures/calc_similarity_users.pickle", "rb") as handle:
+            test_results = pickle.load(handle)
+        self.assertDictEqual(results, test_results)
+
+    @vcr.use_cassette("tests/cassettes/calc_similarity_tweets.yaml")
+    def test_calc_similarity_tweet(self):
+        # get public metrics from Tweet objects first
+        public_metrics = {tweet_id: self.fetcher.get_public_metrics(tweet_id) for tweet_id in [test_tweet_id_1, test_tweet_id_2, test_tweet_id_3]}
+        # generate results
+        results = self.data_processor.calc_similarity(tweet_metrics=public_metrics, features=["retweet_count", "reply_count", "like_count"])
+        # assert instances
+        self.assertIsInstance(results, dict)
+        assert all(isinstance(key, tuple) for key in results.keys())
+        assert all(isinstance(value, Number) for value in results.values())
+        # compare with fixture
+        with open("tests/fixtures/calc_similarity_tweets.pickle", "rb") as handle:
             test_results = pickle.load(handle)
         self.assertDictEqual(results, test_results)
