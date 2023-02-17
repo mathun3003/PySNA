@@ -26,7 +26,7 @@ Quick Start
 Import the API class for the Twitter API by writing:
 
 ```python
-from pysna.api import TwitterAPI
+from pysna import TwitterAPI
 ```
 
 or import utility functions, too, by writing:
@@ -38,7 +38,7 @@ from pysna import *
 Then, create an API instance by running:
 
 ```python
-api = TwitterAPI("BEARER_TOKEN", "CONSUMER_KEY","CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET")
+api = TwitterAPI("BEARER_TOKEN", "CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET")
 ```
 
 and invoke a function:
@@ -74,15 +74,17 @@ To see the usage instructions and help, run:
 
     pysna -h
 
-If you wish to see the usage instructions for a functions, run:
+If you wish to see the usage instructions for a function, run:
 
     pysna <function> --help
 
 For example, if you want to request a comparison of two users, you can run:
 
-    pysna compare-users "WWU_Muenster" "goetheuni" -c tweets_count common_followers -o results.json --return-timestamp
+```bash
+pysna compare-users "WWU_Muenster" "goetheuni" -c "tweets_count" "common_followers" -o "results.json" --return-timestamp
+```
 
-This will perform a comparison on the ``"WWU_Muenster"`` and ``"goetheuni"`` Twitter Accounts based their number of composed Tweets and their common followers. The results are exported to the ``results.json`` file. Also, the timestamp of the request will be returned.
+This will perform a comparison on the ``"WWU_Muenster"`` and ``"goetheuni"`` Twitter Accounts based on their number of composed Tweets and common followers. The results are exported to the ``results.json`` file. Also, the timestamp of the request will be returned.
 
 NOTE: every request needs valid credentials for the official Twitter API. If you run this command from a different directory than from your project root, pass in the path to an ``.env`` file containing your secrets. Also, if you have a differend named environment file in your project root (e.g., ``local.env``), you have to pass the filename, too, using the ``--env`` flag:
 

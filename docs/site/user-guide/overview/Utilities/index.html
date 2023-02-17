@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Utility Functions - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Utility Functions";
+        var mkdocs_page_input_path = "user-guide\\overview\\Utilities.md";
+        var mkdocs_page_url = null;
+      </script>
+
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Utility Functions</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#export-to-json">Export to JSON</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#append-to-json">Append to JSON</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#load-from-json">Load from JSON</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#export-to-csv">Export to CSV</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#append-to-csv">Append to CSV</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Overview &raquo;</li>
+      <li>Utility Functions</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/Utilities.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+
+                <h2 id="utility-functions">Utility Functions</h2>
+<p>Utility functions are defined to read and write to specific files.</p>
+<p>The files can be imported via</p>
+<pre><code class="language-python">from pysna.utils import export_to_json, export_to_csv, append_to_json, append_to_csv, load_from_json
+</code></pre>
+<p>or are included in the import-all-statement:</p>
+<pre><code class="language-python">from pysna import *
+</code></pre>
+<hr />
+<h3 id="export-to-json">Export to JSON</h3>
+<p>Function:</p>
+<pre><code class="language-python">export_to_json(data: dict, export_path: str, encoding: str = 'utf-8', ensure_ascii: bool = False, *args)
+</code></pre>
+<p>Export dictionary data to JSON file.
+Function will add a <code>data</code> key for the JSON file and store the provided dictionary inside the <code>data</code> field.</p>
+<p>Args:</p>
+<ul>
+<li><code>data</code> (dict): Data dictionary.</li>
+<li><code>export_path</code> (str): Export path including file name and extension.</li>
+<li><code>encoding</code> (str, optional): Encoding of JSON file. Defaults to UTF-8.</li>
+<li><code>args</code> (optional): Further arguments to be passed to <code>json.dump()</code>.</li>
+</ul>
+<p>References: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
+<p><strong>NOTE:</strong> When trying to export a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. For recovering the original dictionary after JSON export, use the <a href="#load-from-json"><code>load_from_json</code></a> function.</p>
+<p>Example:</p>
+<pre><code class="language-python"># request results for Tweet comparison, return timestamp
+results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                             compare=[&quot;common_liking_users&quot;],
+                             return_timestamp=True)
+# export to JSON file
+export_to_json(results, export_path=&quot;compare_tweets.json&quot;)
+</code></pre>
+<p>The exported <code>compare_tweets.json</code> file will the look like:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        {
+            &quot;common_liking_users&quot;: [
+                3862364523
+            ],
+            &quot;utc_timestamp&quot;: &quot;2023-01-31 09:22:11.996652&quot;
+        }
+}
+</code></pre>
+<hr />
+<h3 id="append-to-json">Append to JSON</h3>
+<p>Function:</p>
+<pre><code class="language-python">append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs)
+</code></pre>
+<p>Append a dictionary to an existing JSON file.<br />
+Existing JSON file needs a 'data' key.</p>
+<p>Args:</p>
+<ul>
+<li><code>input_dict</code>: Dictionary containing new data that should be added to file.</li>
+<li><code>filepath</code>: Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
+<li><code>encoding</code>: The encoding of the file. Defaults to UTF-8.</li>
+<li><code>kwargs</code>: Additional keyword arguments to be passed to <code>json.dump()</code> and <code>json.load()</code></li>
+</ul>
+<p>References: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
+<p><strong>Note:</strong> When trying to append a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. For recovering the original dictionary after JSON export, use the <a href="#load-from-json"><code>load_from_json</code></a> function.</p>
+<p>Example:</p>
+<pre><code class="language-python"># generate new results that should be appended in the next step
+new_results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                                 compare=[&quot;common_liking_users&quot;],
+                                 return_timestamp=True)
+
+# append to an existing file.
+append_to_json(new_results, &quot;compare_tweets.json&quot;)
+</code></pre>
+<p>The extended <code>compare_tweets.json</code> file will be supplemented with one further entry within the <code>data</code> field. An example output could look like:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        {
+            &quot;common_liking_users&quot;: [
+                3862364523
+            ],
+            &quot;utc_timestamp&quot;: &quot;2023-01-31 09:22:11.996652&quot;
+        },
+        {
+            &quot;common_liking_users&quot;: [
+                3862364523
+            ],
+            &quot;utc_timestamp&quot;: &quot;2023-01-31 09:23:05.848485&quot;
+        }
+    ]
+}
+
+</code></pre>
+<hr />
+<h3 id="load-from-json">Load from JSON</h3>
+<p>Function:</p>
+<pre><code class="language-python">load_from_json(filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs) -&gt; dict
+</code></pre>
+<p>Load Python Dictionary from JSON file. Tuples are recovered.</p>
+<p>Args:</p>
+<ul>
+<li><code>filepath</code> (str): Path to JSON file.</li>
+<li><code>encoding</code> (str, optional): Encoding of file. Defaults to UTF-8.</li>
+<li><code>kwargs</code> (optional): Keyword arguments to be passed to <code>json.load()</code>.</li>
+</ul>
+<p>Returns:
+Python Dictionary containing (deserialized) data from JSON file.</p>
+<p>References: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
+<p>Example:
+Suppose an <code>example.json</code> file containing one entry with a serialized tuple key:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        {
+            &quot;(WWU_Muenster, goetheuni)&quot;: 0.578077
+        }
+    ]
+}
+</code></pre>
+<p>By calling:</p>
+<pre><code class="language-python">from pysna.utils import load_from_json
+
+data = load_from_json(&quot;example.json&quot;)
+print(data)
+</code></pre>
+<p>the tuple will be recovered and a conventional Python Dictionary will be returned:</p>
+<pre><code>{(&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;): 0.578077}
+</code></pre>
+<hr />
+<h3 id="export-to-csv">Export to CSV</h3>
+<p>Function:</p>
+<pre><code class="language-python">export_to_csv(data: dict, export_path: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, **kwargs)
+</code></pre>
+<p>Export dictionary data to CSV file.<br />
+Will raise an exception if <code>data</code> dictionary contains nested dictionaries.</p>
+<p>Args:</p>
+<ul>
+<li><code>data</code> (dict): Data dictionary</li>
+<li><code>export_path</code> (str): Exportpath including file name and extension.</li>
+<li><code>encoding</code> (str, optional): Encoding of CSV file. Defaults to UTF-8.</li>
+<li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to <code>','</code>.</li>
+<li><code>kwargs</code> (optional): Keyword arguments for <code>pandas.DataFrame.to_csv</code>.</li>
+</ul>
+<p>References: <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html</a></p>
+<p>Example:</p>
+<pre><code class="language-python"># request results for user information, return timestamp
+results = api.user_info(&quot;WWU_Muenster&quot;,
+                        [&quot;id&quot;, &quot;location&quot;, &quot;friends_count&quot;, &quot;followers_count&quot;, &quot;last_active&quot;, &quot;statuses_count&quot;],
+                        return_timestamp=True)
+# export to CSV file
+export_to_csv(results, export_path=&quot;user_info.csv&quot;)
+</code></pre>
+<hr />
+<h3 id="append-to-csv">Append to CSV</h3>
+<p>Function:</p>
+<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args)
+</code></pre>
+<p>Append a dictionary to an existing CSV file.<br />
+Will raise an exception if <code>data</code> dictionary contains nested dictionaries.</p>
+<p>Args:</p>
+<ul>
+<li><code>data</code> (dict): Dictionary containing new data that should be added to file.</li>
+<li><code>filepath</code> (str): Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
+<li><code>encoding</code> (str, optional): Encoding of CSV file. Defaults to UTF-8.</li>
+<li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to ",".</li>
+<li><code>args</code>: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: <code>*[read_kwargs, write_kwargs]</code>, whereas both are dictionaries (i.e., provide a list of two dictionaries).</li>
+</ul>
+<p>References:  </p>
+<ul>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html">https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html</a>  </li>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html</a></li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python"># request results for user information, return timestamp
+results = api.user_info(&quot;WWU_Muenster&quot;,
+                        [&quot;id&quot;, &quot;location&quot;, &quot;friends_count&quot;, &quot;followers_count&quot;, &quot;last_active&quot;, &quot;statuses_count&quot;],
+                        return_timestamp=True)
+# export to CSV file
+append_to_csv(results, filepath=&quot;user_info.csv&quot;)
+</code></pre>
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Only JSON and CSV file formats are supported, yet.</li>
+</ul>
+
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../TwitterAPI/" class="btn btn-neutral float-left" title="TwitterAPI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../cli/" class="btn btn-neutral float-right" title="CLI Tool">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+
+
+      <span><a href="../TwitterAPI/" style="color: #fcfcfc">&laquo; Previous</a></span>
+
+
+      <span><a href="../../cli/" style="color: #fcfcfc">Next &raquo;</a></span>
+
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

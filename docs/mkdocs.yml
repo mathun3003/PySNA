@@ -1,0 +1,34 @@
+# Site name
+site_name: PySNA Documentation
+
+# GitHub
+repo_url: https://github.com/mathun3003/PySNA
+
+# Navigation menu
+nav:
+  - Home: index.md
+  - Installation: user-guide/installation.md
+  - Quick Start: user-guide/quick-start.md
+  - Overview: # TODO
+      - TwitterAPI: user-guide/overview/TwitterAPI.md # TODO
+      - Utility Functions: user-guide/overview/Utilities.md
+      - CLI Tool: user-guide/cli.md
+  - Implementation Details: # TODO
+      - TwitterDataFetcher: maintenance/TwitterDataFetcher.md # TODO
+      - TwitterDataProcessor: maintenance/TwitterDataProcessor.md # TODO
+      - BaseDataProcessor: maintenance/BaseDataProcessor.md # TODO
+      - Software Testing: maintenance/testing.md # TODO
+
+# Theme
+theme:
+    features:
+      - tabs
+    name: readthedocs
+    highlightjs: true
+    hljs_languages:
+        - python
+        - bash
+
+# Plugins
+plugins:
+  - search

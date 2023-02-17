@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>TwitterAPI - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+
+      <script>
+        // Current page data
+        var mkdocs_page_name = "TwitterAPI";
+        var mkdocs_page_input_path = "user-guide\\overview\\TwitterAPI.md";
+        var mkdocs_page_url = null;
+      </script>
+
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">TwitterAPI</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#initialization">Initialization</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user_info">user_info</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compare_users">compare_users</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tweet_info">tweet_info</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compare_tweets">compare_tweets</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Overview &raquo;</li>
+      <li>TwitterAPI</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/TwitterAPI.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+
+                <h2 id="twitterapi">TwitterAPI</h2>
+<p>This class provides a Twitter API interface in order to interact with the Twitter Search API v2. It is built on top of the <a href="https://docs.tweepy.org/en/stable/client.html"><code>tweepy.Client</code></a> class. Thus, it supports all methods from the Tweepy client. Additional functions are added.</p>
+<p>The following functions are available:</p>
+<ul>
+<li><a href="#user_info"><code>user_info</code></a></li>
+<li><a href="#compare_users"><code>compare_users</code></a></li>
+<li><a href="#tweet_info"><code>tweet_info</code></a></li>
+<li><a href="#compare_tweets"><code>compare_tweets</code></a></li>
+</ul>
+<hr />
+<h3 id="initialization">Initialization</h3>
+<p>Header:</p>
+<pre><code class="language-python">TwitterAPI(bearer_token: Optional[Any] = None,
+           consumer_key: Optional[Any] = None,
+           consumer_secret: Optional[Any] = None,
+           access_token: Optional[Any] = None,
+           access_token_secret: Optional[Any] = None,
+           x_rapidapi_key: Optional[Any] = None,
+           x_rapidapi_host: Optional[Any] = None,
+           wait_on_rate_limit: bool = True)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>bearer_token</code>: Twitter API OAuth 2.0 Bearer Token</li>
+<li><code>consumer_key</code>: Twitter API OAuth 1.0a Consumer Key</li>
+<li><code>consumer_secret</code>: Twitter API OAuth 1.0a Consumer Secret</li>
+<li><code>access_token</code>: Twitter API OAuth 1.0a Access Token</li>
+<li><code>access_token_secret</code>: Twitter API OAuth 1.0a Access Token Secret</li>
+<li><code>x_rapidapi_key</code>: Access Token for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
+<li><code>x_rapidapi_host</code>: Host for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
+<li><code>wait_on_rate_limit</code>: Whether to wait when rate limit is reached. Defaults to True.</li>
+</ul>
+<hr />
+<h3 id="user_info">user_info</h3>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False)
+</code></pre>
+<p>Receive requested user information from Twitter User Object.</p>
+<p>Args:</p>
+<ul>
+<li><code>user</code> (str | int): Twitter User either specified by corresponding ID or screen name.</li>
+<li>
+<p><code>attributes</code> (List[LITERALS_USER_INFO] | str): Attributes of the User object.<br />
+These must be from this list: <a href="../literals-user-object/">Detailed description of user information attributes</a>. See the link for detailed description of the attributes.</p>
+</li>
+<li>
+<p><code>return_timestamp</code> (bool): Add UTC Timestamp of the request to results. Defaults to False.</p>
+</li>
+</ul>
+<p>References:</p>
+<ul>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup">https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup</a></li>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/user">https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/user</a></li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python"># request user information from the University of Münster
+results = api.user_info(&quot;WWU_Muenster&quot;,
+                        [&quot;id&quot;, &quot;created_at&quot;, &quot;last_active&quot;, &quot;followers_count&quot;])
+print(results)
+</code></pre>
+<p>will print:</p>
+<pre><code>{'id': 24677217,
+ 'created_at': 'Mon Mar 16 11:19:30 +0000 2009',
+ 'last_active': 'Wed Feb 15 13:51:04 +0000 2023',
+ 'followers_count': 20183}
+</code></pre>
+<hr />
+<h3 id="compare_users">compare_users</h3>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None)
+</code></pre>
+<p>Compare two or more users with the specified comparison attribute(s).</p>
+<p>Args:</p>
+<ul>
+<li><code>users</code> (List[str | int]):  User IDs or unique screen names.</li>
+<li><code>compare</code> (str | List[LITERALS_COMPARE_USERS]): Comparison attribute(s) by which users are compared. These must be from this list: <a href="../literals-compare-users/">Detailed description of user comparison attributes</a>. See the link for detailed description of the attributes.</li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp of the request to results. Defaults to False.</li>
+<li><code>features</code> (List[str], optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: <code>followers_count</code>, <code>friends_count</code>, <code>listed_count</code>, <code>favourites_count</code>, <code>statuses_count</code>. Must be provided if <code>similarity</code> comparison attribute was passed in. Defaults to None.</li>
+</ul>
+<p>References:  </p>
+<ul>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/user">https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/user</a>  </li>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show">https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show</a></li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python"># compare number of tweets
+results = api.compare_users([&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;, &quot;UniKonstanz&quot;], compare=&quot;tweets_count&quot;, return_timestamp=True)
+print(results)
+</code></pre>
+<p>will print:</p>
+<pre><code>{'tweets_count': {
+  'WWU_Muenster': 11670,
+  'goetheuni': 7245,
+  'UniKonstanz': 9857,
+  'metrics': {
+   'max': 11670,
+   'min': 7245,
+   'mean': 9590.666666666666,
+   'median': 9857.0,
+   'std': 1816.288584510243,
+   'var': 3298904.222222222,
+   'range': 4425,
+   'IQR': 2212.5,
+   'mad': 1563.777777777778}},
+ 'utc_timestamp': '2023-02-12 18:05:33.152930'}
+</code></pre>
+<hr />
+<h3 id="tweet_info">tweet_info</h3>
+<p>Function:</p>
+<pre><code class="language-python">tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>tweet_id</code> (str | int): Tweet ID either in string or integer representation.  </li>
+<li><code>attributes</code> (List[LITERALS_TWEET_INFO] | str): Attribute(s) of the Tweet object. These must be from this list: <a href="../literals-tweet-info/">Detailed description of Tweet information attributes</a>. See the link for detailed description of the attributes.  </li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp of the request to results. Defaults to False.  </li>
+</ul>
+<p>References:</p>
+<ul>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup">https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup</a>  </li>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet">https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet</a></li>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/annotations/overview">https://developer.twitter.com/en/docs/twitter-api/annotations/overview</a></li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python"># request creation date, language, and sentiment attributes for specified Tweet
+results = api.tweet_info(1612443577447026689, [&quot;created_at&quot;, &quot;lang&quot;, &quot;sentiment&quot;], return_timestamp=True)
+print(results)
+</code></pre>
+<p>will print:</p>
+<pre><code>{
+  'created_at': 'Mon Jan 09 13:38:01 +0000 2023',
+  'lang': 'de',
+  'sentiment': 'neutral',
+  'utc_timestamp': '2023-02-12 18:02:52.622169'
+}
+</code></pre>
+<hr />
+<h3 id="compare_tweets">compare_tweets</h3>
+<p>Function:</p>
+<pre><code class="language-python">compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>tweet_ids</code> (List[str | int]): Tweet IDs either in string or integer representation. At least two Tweet IDs are required.  </li>
+<li><code>compare</code> (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute(s) by which Tweets are compared. These must be from this list: <a href="../literals-compare-tweets/">Detailed description of Tweet comparison attributes</a>. See the link for detailed description of the attributes.</li>
+<li><code>return_timestamp</code> (bool optional): Add UTC Timestamp of the request to results. Defaults to False.  </li>
+<li><code>features</code> (List[str], optional): Defined features of Tweet Object on which similarity will be computed. Must be from: <code>public_metrics</code> (i.e., <code>retweet_count</code>, <code>reply_count</code>, <code>like_count</code>, <code>quote_count</code>, <code>impression_count</code>). Must be provided if <code>similarity</code> comparison attribute was passed in. Defaults to None.  </li>
+</ul>
+<p>References:</p>
+<ul>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup">https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup</a>  </li>
+<li><a href="https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet">https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet</a></li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python"># get common liking users of specified Tweets
+results = api.compare_tweets(tweet_ids=[1612443577447026689, 1611301422364082180, 1612823288723476480],
+                             compare=&quot;common_liking_users&quot;)
+print(results)
+</code></pre>
+<p>will print:</p>
+<pre><code>[3862364523]
+</code></pre>
+<hr />
+
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../quick-start/" class="btn btn-neutral float-left" title="Quick Start"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../Utilities/" class="btn btn-neutral float-right" title="Utility Functions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+
+
+      <span><a href="../../quick-start/" style="color: #fcfcfc">&laquo; Previous</a></span>
+
+
+      <span><a href="../Utilities/" style="color: #fcfcfc">Next &raquo;</a></span>
+
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

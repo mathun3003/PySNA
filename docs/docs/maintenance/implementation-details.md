@@ -1,0 +1,1 @@
+![PySNA Architecture depicted in UML](../assets/PySNA_Architecture.png)
