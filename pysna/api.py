@@ -171,6 +171,8 @@ class TwitterAPI(tweepy.Client):
     def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -> Any:
         """Receive requested user information from Twitter User Object.
 
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
         Args:
             user (str | int): Twitter User either specified by corresponding ID or screen name.
             attributes (List[str] | str): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, verified, statuses_count, status, contributors_enabled, profile_image_url_https, profile_banner_url, default_profile, default_profile_image, withheld_in_countries, bot_scores
@@ -178,17 +180,22 @@ class TwitterAPI(tweepy.Client):
 
         Raises:
             KeyError: If invalid attribute was provided.
+            ValueError: If Botometer secrets were not provided.
 
         Returns:
             dict: Requested user information.
         """
+        # catch Botometer API secrets before iteration over attributes.
+        if "bot_scores" in attributes:
+            if (self._x_rapidapi_key is None) or (self._x_rapidapi_host is None):
+                raise ValueError("'X_RAPIDAPI_KEY' and 'X_RAPIDAPI_HOST' secrets for Botometer API need to be provided.")
+
         # initialize empty dict to store requested attributes
         user_info = dict()
         # if single string was provided
         if isinstance(attributes, str):
             # convert to list for iteration
             attributes = [attributes]
-        # TODO: catch Botometer API secrets before iteration over attributes.
         # get user object
         user_obj = self.fetcher.get_user_object(user)
         # loop through the list of attributes and add them to the dictionary
@@ -232,6 +239,8 @@ class TwitterAPI(tweepy.Client):
 
     def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -> Any:
         """Compare two or more users with the specified comparison attribute(s).
+
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
         Args:
             users (List[str  |  int]): User IDs or screen names
@@ -372,6 +381,8 @@ class TwitterAPI(tweepy.Client):
     def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -> Any:
         """Receive requested Tweet information from Tweet Object.
 
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
         Args:
             tweet_id (str | int): Tweet ID
             attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, tweet_annotations, source, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, coordinates, place, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, lang, sentiment.
@@ -429,6 +440,8 @@ class TwitterAPI(tweepy.Client):
 
     def compare_tweets(self, tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -> Any:
         """Compare two or more Tweets with the specified comparison attribute.
+
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
         Args:
             tweets (List[str  |  int]): List of Tweet IDs.
