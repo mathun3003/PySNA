@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 import json
-import re
 import warnings
 from datetime import datetime
 from typing import Any, Dict
@@ -78,7 +77,7 @@ def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str =
 
 
 def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure_ascii: bool = False, *args):
-    """Export dictionary data to JSON file.
+    """Export dictionary data to JSON file. Tuple-keys are encoded to strings.
 
     Args:
         data (dict): Data dictionary
@@ -90,22 +89,22 @@ def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure
         with open(export_path, "w", encoding=encoding) as jsonfile:
             # add 'data' key in order to append additional dicts to same file, if not already exist
             if "data" not in data:
-                data = {"data": [data]}
+                serialized_data = {"data": [data]}
             # dump to json
-            json.dump(data, jsonfile, indent=4, ensure_ascii=ensure_ascii, *args)
+            json.dump(serialized_data, jsonfile, indent=4, ensure_ascii=ensure_ascii, *args)
     except IOError as e:
         raise e
     # usually when tuple cannot be serialized
-    except TypeError:
+    except TypeError or json.JSONDecodeError:
         # serialize tuples
-        data = _encode_json(data)
+        data = _tuple_to_string(data)
         # retry
         export_to_json(data=data, export_path=export_path, encoding=encoding, ensure_ascii=ensure_ascii)
     pass
 
 
 def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "utf-8", **kwargs):
-    """Append a dictionary to an existing JSON file.
+    """Append a dictionary to an existing JSON file. Tuple-keys are encoded to strings.
 
     Args:
         input_dict (Dict[str, Any]): Dictionary containing new data that should be added to file.
@@ -126,6 +125,8 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
         raise KeyError("The file to be extended must contain the key 'data'.")
     else:
         try:
+            # serialize tuples if any exist
+            input_dict = _tuple_to_string(input_dict)
             # append new dict to file
             f["data"].append(input_dict)
             with open(filepath, "w", encoding=encoding) as jsonfile:
@@ -133,9 +134,9 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
         except IOError as e:
             raise e
         # usually when tuple cannot be serialized
-        except TypeError:
+        except TypeError or json.JSONDecodeError:
             # serialize tuples
-            input_dict = _encode_json(input_dict)
+            input_dict = _tuple_to_string(input_dict)
             # retry
             append_to_json(input_dict=input_dict, filepath=filepath, encoding=encoding, **kwargs)
     pass
@@ -155,8 +156,12 @@ def load_from_json(filepath: str, encoding: str = "utf-8", **kwargs) -> dict:
     with open(filepath, "r", encoding=encoding) as jsonfile:
         f = json.load(jsonfile, **kwargs)
 
-    # try to deserialize if any tuples were found in the file
-    f = _decode_json(f)
+    if "data" in f:
+        entries = [_string_to_tuple(entry) for entry in f["data"]]
+        f = {"data": entries}
+    else:
+        # try to deserialize if any tuples were found in the file
+        f = _string_to_tuple(f)
     return f
 
 
@@ -173,78 +178,81 @@ def strf_datetime(date: datetime, format="%Y-%m-%d %H:%M:%S") -> str:
     return date.strftime(format)
 
 
-def _encode_json(data: dict):
-    # if "data" key exists
-    if "data" in data:
-        # iterate over every value
-        for key, value in data["data"][0].items():
-            # if dict was detected having tuples as keys
-            if (isinstance(value, dict)) and all(isinstance(k, tuple) for k in list(value.keys())):
-                # serialize tuples
-                data["data"][0][key] = {str(k).replace("'", ""): v for k, v in value.items()}
-        # if any top-level tuple was detected
-        if any(isinstance(key, tuple) for key in data["data"][0].keys()):
-            # serialize tuples
-            data["data"][0] = {(str(key).replace("'", "") if isinstance(key, tuple) else key): dct for key, dct in data["data"][0].items()}
-    else:
-        # iterate over every value
-        for key, value in data.items():
-            # if dict was detected having tuples as keys
-            if (isinstance(value, dict)) and all(isinstance(k, tuple) for k in list(value.keys())):
-                # serialize tuples
-                data[key] = {str(k).replace("'", ""): v for k, v in data.items()}
-        # if any top-level tuple was detected
-        if any(isinstance(key, tuple) for key in data.keys()):
-            # serialize tuples
-            data = {(str(key).replace("'", "") if isinstance(key, tuple) else key): dct for key, dct in data.items()}
+def _tuple_to_string(obj: Any) -> Any:
+    """Serialize tuple-keys to string representation. A tuple wil be obtain a leading '__tuple__' string and decomposed in list representation.
 
-    return data
+    Args:
+        obj (Any): Typically a dict, tuple, list, int, or string.
 
+    Returns:
+        Any: Input object with serialized tuples.
 
-def _decode_json(data: dict):
-    if "data" in data:
-        # iterate over every value
-        for entry_num, entry in enumerate(data["data"]):
-            for key in entry.keys():
-                # if a serialized tuple was detected
-                if isinstance(entry[key], dict):
-                    sub_dict = entry[key]
-                    if all([re.match(r"^\([^)]+\)$", k) for k in sub_dict.keys()]):
-                        for sub_key in sub_dict.keys():
-                            # deserialize tuples in sub dict
-                            sub_dict[tuple(re.sub(r"[\(\)\']", "", sub_key).split(", "))] = sub_dict.pop(sub_key)
-                            # set to input dict
-                            data["data"][entry_num][key] = sub_dict
-        # if any serialized top-level tuple was detected
-        for key in copy.deepcopy(data["data"][0]).keys():
-            if re.match(r"^\([^)]+\)$", key):
-                # deserialize tuples
-                data["data"][0][tuple(re.sub(r"[\(\)\']", "", key).split(", "))] = data["data"][0].pop(key)
-    else:
-        for key in data.keys():
-            # if a serialized tuple was detected
-            if isinstance(data[key], dict):
-                sub_dict = data[key]
-                if all([re.match(r"^\([^)]+\)$", k) for k in sub_dict.keys()]):
-                    for sub_key in sub_dict.keys():
-                        # deserialize tuples in sub dict
-                        sub_dict[tuple(re.sub(r"[\(\)\']", "", sub_key).split(", "))] = sub_dict.pop(sub_key)
-                        # set to input dict
-                        data[key] = sub_dict
-                # if int was changed to str, cast to int
-                elif any([key.isdigit() for key in sub_dict.keys()]):
-                    for sub_key in [k for k in sub_dict.keys() if k.isdigit()]:
-                        sub_dict[int(sub_key)] = sub_dict.pop(sub_key)
-                    for sub_key in [k for k in sub_dict.keys() if isinstance(k, str)]:
-                        for k in sub_dict[sub_key].keys():
-                            if k.isdigit():
-                                sub_dict[sub_key][int(k)] = sub_dict.pop(sub_dict[sub_key][k])
-            # cast to int if key is a digit
-            if key.isdigit():
-                data[int(key)] = data.pop(key)
-        # if any serialized top-level tuple was detected
-        for key in copy.deepcopy(data).keys():
+    Example:
+        A tuple ("WWU_Muenster", "goetheuni") will be encoded to "__tuple__["WWU_Muenster", "goetheuni"].
+    """
+    # deep copy object to avoid manipulation during iteration
+    obj_copy = copy.deepcopy(obj)
+    # if the object is a dictionary
+    if isinstance(obj, dict):
+        # iterate over every key
+        for key in obj:
+            # set for later to avoid modification in later iterations when this var does not get overwritten
+            serialized_key = None
+            # if key is tuple
             if isinstance(key, tuple):
-                # deserialize tuples
-                data[tuple(re.sub(r"[\(\)\']", "", key).split(", "))] = data.pop(key)
-    return data
+                # stringify the key
+                serialized_key = f"__tuple__{list(key)}"
+                # replace old key with encoded key
+                obj_copy[serialized_key] = obj_copy.pop(key)
+            # if the key was modified
+            if serialized_key is not None:
+                # do it again for the next nested dictionary
+                obj_copy[serialized_key] = _tuple_to_string(obj[key])
+            # else, just do it for the next dictionary
+            else:
+                obj_copy[key] = _tuple_to_string(obj[key])
+    return obj_copy
+
+
+def _string_to_tuple(obj: Any) -> Any:
+    """Convert serialized tuples back to original representation. Tuples need to have a leading "__tuple__" string.
+
+    Args:
+        obj (Any): Typically a dict, tuple, list, int, or string.
+
+    Returns:
+        Any: Input object with recovered tuples.
+
+    Example:
+        A encoded tuple "__tuple__["WWU_Muenster", "goetheuni"] will be decoded to ("WWU_Muenster", "goetheuni").
+    """
+    # deep copy object to avoid manipulation during iteration
+    obj_copy = copy.deepcopy(obj)
+    # if the object is a dictionary
+    if isinstance(obj, dict):
+        # iterate over every key
+        for key in obj:
+            # set for later to avoid modification in later iterations when this var does not get overwritten
+            serialized_key = None
+            # if key is a serialized tuple starting with the "__tuple__" affix
+            if isinstance(key, str) and key.startswith("__tuple__"):
+                # decode it so tuple
+                serialized_key = tuple(key.split("__tuple__")[1].strip("[]").replace("'", "").split(", "))
+                # if key is number in string representation
+                if all(entry.isdigit() for entry in serialized_key):
+                    # convert to integer, recover ID
+                    serialized_key = tuple(map(int, serialized_key))
+                # replace old key with encoded key
+                obj_copy[serialized_key] = obj_copy.pop(key)
+            # if the key was modified
+            if serialized_key is not None:
+                # do it again for the next nested dictionary
+                obj_copy[serialized_key] = _string_to_tuple(obj[key])
+            # else, just do it for the next dictionary
+            else:
+                obj_copy[key] = _string_to_tuple(obj[key])
+    # if another instance was found
+    elif isinstance(obj, list):
+        for item in obj:
+            _string_to_tuple(item)
+    return obj_copy
