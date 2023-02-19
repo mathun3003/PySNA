@@ -134,7 +134,7 @@ Function will add a <code>data</code> key for the JSON file and store the provid
 <li><code>args</code> (optional): Further arguments to be passed to <code>json.dump()</code>.</li>
 </ul>
 <p>References: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
-<p><strong>NOTE:</strong> When trying to export a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. For recovering the original dictionary after JSON export, use the <a href="#load-from-json"><code>load_from_json</code></a> function.</p>
+<p><strong>NOTE:</strong> When trying to export a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. Then, a tuple like <code>("WWU_Muenster", "goetheuni")</code> will be encoded to: <code>"__tuples__['WWU_Muenster', 'goetheuni']"</code>. For recovering the original dictionary after JSON export, use the <a href="#load-from-json"><code>load_from_json</code></a> function.</p>
 <p>Example:</p>
 <pre><code class="language-python"># request results for Tweet comparison, return timestamp
 results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
@@ -213,12 +213,13 @@ append_to_json(new_results, &quot;compare_tweets.json&quot;)
 <p>Returns:
 Python Dictionary containing (deserialized) data from JSON file.</p>
 <p>References: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
+<p><strong>NOTE</strong>: Tuples that have been encoded by the <a href="#export-to-json"><code>export_to_json</code></a> function with a leading <code>__tuples__</code> string will be recovered to original tuple representation. For instance, a encoded tuple <code>__tuple__ ["WWU_Muenster", "goetheuni"]</code> will be returned as <code>("WWU_Muenster", "goetheuni")</code>.</p>
 <p>Example:
 Suppose an <code>example.json</code> file containing one entry with a serialized tuple key:</p>
 <pre><code class="language-json">{
     &quot;data&quot;: [
         {
-            &quot;(WWU_Muenster, goetheuni)&quot;: 0.578077
+            &quot;__tuple__ ['WWU_Muenster', 'goetheuni']&quot;: 0.578077
         }
     ]
 }

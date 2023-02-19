@@ -36,7 +36,7 @@ Args:
 
 References: [https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)
 
-**NOTE:** When trying to export a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. For recovering the original dictionary after JSON export, use the [```load_from_json```](#load-from-json) function.
+**NOTE:** When trying to export a dictionary containing tuples as keys, the function will try to serialize them by converting tuples to strings. Then, a tuple like ```("WWU_Muenster", "goetheuni")``` will be encoded to: ```"__tuples__['WWU_Muenster', 'goetheuni']"```. For recovering the original dictionary after JSON export, use the [```load_from_json```](#load-from-json) function.
 
 Example:
 ```python
@@ -139,13 +139,17 @@ Python Dictionary containing (deserialized) data from JSON file.
 
 References: [https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)
 
+
+**NOTE**: Tuples that have been encoded by the [```export_to_json```](#export-to-json) function with a leading ```__tuples__``` string will be recovered to original tuple representation. For instance, a encoded tuple ```__tuple__ ["WWU_Muenster", "goetheuni"]``` will be returned as ```("WWU_Muenster", "goetheuni")```.
+
+
 Example:
 Suppose an ```example.json``` file containing one entry with a serialized tuple key:
 ```json
 {
     "data": [
         {
-            "(WWU_Muenster, goetheuni)": 0.578077
+            "__tuple__ ['WWU_Muenster', 'goetheuni']": 0.578077
         }
     ]
 }

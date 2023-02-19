@@ -148,7 +148,8 @@
 <p>Function:</p>
 <pre><code class="language-python">TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False)
 </code></pre>
-<p>Receive requested user information from Twitter User Object.</p>
+<p>Receive requested user information from Twitter User Object.  </p>
+<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>user</code> (str | int): Twitter User either specified by corresponding ID or screen name.</li>
@@ -182,7 +183,8 @@ print(results)
 <p>Function:</p>
 <pre><code class="language-python">TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None)
 </code></pre>
-<p>Compare two or more users with the specified comparison attribute(s).</p>
+<p>Compare two or more users with the specified comparison attribute(s).  </p>
+<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>users</code> (List[str | int]):  User IDs or unique screen names.</li>
@@ -222,6 +224,8 @@ print(results)
 <p>Function:</p>
 <pre><code class="language-python">tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False)
 </code></pre>
+<p>Receive requested Tweet information from Tweet Object.  </p>
+<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>tweet_id</code> (str | int): Tweet ID either in string or integer representation.  </li>
@@ -252,6 +256,8 @@ print(results)
 <p>Function:</p>
 <pre><code class="language-python">compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None)
 </code></pre>
+<p>Compare two or more Tweets with the specified comparison attribute.  </p>
+<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>tweet_ids</code> (List[str | int]): Tweet IDs either in string or integer representation. At least two Tweet IDs are required.  </li>

@@ -48,7 +48,9 @@ Function:
 TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False)
 ```
 
-Receive requested user information from Twitter User Object.
+Receive requested user information from Twitter User Object.  
+
+For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
 Args:
 
@@ -91,7 +93,9 @@ Function:
 TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None)
 ```
 
-Compare two or more users with the specified comparison attribute(s).
+Compare two or more users with the specified comparison attribute(s).  
+
+For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
 Args:
 
@@ -145,6 +149,10 @@ Function:
 tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False)
 ```
 
+Receive requested Tweet information from Tweet Object.  
+
+For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
 Args:
 
 - ```tweet_id``` (str | int): Tweet ID either in string or integer representation.  
@@ -184,6 +192,9 @@ Function:
 ```python
 compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None)
 ```
+Compare two or more Tweets with the specified comparison attribute.  
+
+For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
 Args:
 
