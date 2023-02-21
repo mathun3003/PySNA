@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Literals compare users - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Literals compare users";
+        var mkdocs_page_input_path = "user-guide\\overview\\literals-compare-users.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Literals compare users</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/literals-compare-users.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Detailed Description of the Attributes for the <a href="../TwitterAPI/#compare_users"><code>compare_users</code></a> function:</p>
+<ul>
+<li><code>relationship</code>: Returns detailed information about the relationship between a pair two arbitrary users. If more than two users were provided, all possible pairs of relationships will be returned.  </li>
+<li><code>followers_count</code>: Compares the number of followers the specified accounts currently have. Will return additional statistical metrics on the numbers of followers.  </li>
+<li><code>followees_count</code>:  Compares the number of friends (AKA their “followings” or "followees") the specified accounts currently have. Will return additional statistical metrics on the numbers of friends.  </li>
+<li><code>tweets_count</code>: Compares the number of composed tweets the specified accounts currently have. Will return additional statistical metrics on the numbers of tweets.  </li>
+<li><code>favourites_count</code>: Compares the number of liked tweets the specified accounts currently have. Will return additional statistical metrics on the numbers of liked tweets. British spelling used in the field name for historical reasons.  </li>
+<li><code>common_followers</code>: Returns the set of followers all specified accounts have in common.  </li>
+<li><code>distinct_followers</code>: Returns the sets of distinct followers all specified accounts have (i.e., the difference between the followers of all accounts is calculated).  </li>
+<li><code>common_followees</code>: Returns the set of friends (AKA their “followings” or "followees") all specified accounts have in common.  </li>
+<li><code>distinct_followees</code>: Returns the sets of distinct friends (AKA their “followings” or "followees") all specified accounts have (i.e., the difference between the friends of all accounts is calculated).  </li>
+<li><code>commonly_liked_tweets</code>: Returns the set of liked tweets all specified accounts have in common.  </li>
+<li><code>distinctly_liked_tweets</code>: Returns the sets of distinct liked tweets all specified accounts have (i.e., the difference between all liked tweets of all accounts is calculated).  </li>
+<li><code>similarity</code>: Computes the euclidean distance between two feature vectors. Each feature vector contains numerical attributes from each user. The features that should be contained in the feature vector have to be provided in the <code>features</code> argument of the function. Available features are:  <ul>
+<li><code>followers_count</code>: The number of followers this account currently has.  </li>
+<li><code>friends_count</code>: The number of users this account is following (AKA their “followings” or "followees").  </li>
+<li><code>listed_count</code>: The number of public lists that this user is a member of.  </li>
+<li><code>favourites_count</code>: The number of Tweets this user has liked in the account’s lifetime. British spelling used in the field name for historical reasons.  </li>
+<li><code>statuses_count</code>: The number of Tweets (including retweets) issued by the user.<br />
+If more than two users were provided, all possible pairs of combinations will be returned containing a distance. The smaller the distance, the more similar the users are. Output will be sorted in ascending order, thus, most similar users are on top.
+Each entry in the output contains a pair of two users.</li>
+</ul>
+</li>
+<li><code>created_at</code>: Compares the specified accounts on their creation dates. Additional Will return additional statistical metrics on the dates.  </li>
+<li><code>protected</code>: Compares users on their <code>protected</code> attribute. When true, indicates that this user has chosen to protect their Tweets.</li>
+<li><code>verified</code>: Compares users on their <code>verified</code> attribute. When true, indicates that the user has a verified account.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

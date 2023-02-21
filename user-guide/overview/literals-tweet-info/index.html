@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Literals tweet info - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Literals tweet info";
+        var mkdocs_page_input_path = "user-guide\\overview\\literals-tweet-info.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Literals tweet info</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/literals-tweet-info.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Detailed Description of the Attributes for the <a href="../TwitterAPI/#tweet_info"><code>tweet_info</code></a> function:</p>
+<ul>
+<li><code>id</code>: The integer representation of the unique identifier for this Tweet.  </li>
+<li><code>id_str</code>: The string representation of the unique identifier for this Tweet.  </li>
+<li><code>text</code>: The actual UTF-8 text of the status update.  </li>
+<li><code>truncated</code>: Indicates whether the value of the <code>text</code> parameter was truncated, for example, as a result of a retweet exceeding the original Tweet text length limit of 140 characters. Truncated text will end in ellipsis, like this ... Since Twitter now rejects long Tweets vs truncating them, the large majority of Tweets will have this set to <code>false</code> . Note that while native retweets may have their toplevel text property shortened, the original text will be available under the <code>retweeted_status</code> object and the <code>truncated</code> parameter will be set to the value of the original status (in most cases, <code>false</code>).  </li>
+<li><code>created_at</code>: UTC time when this Tweet was created.  </li>
+<li><code>entities</code>: Entities which have been parsed out of the text of the Tweet (hashtags, URLs, user mentions, media, symbols, polls).  </li>
+<li><code>tweet_annotations</code>: Context annotations and named entities of the Tweet object. Context annotations are derived from the analysis of a Tweet’s text and will include a domain and entity pairing which can be used to discover Tweets on topics that may have been previously difficult to surface. Named Entities are comprised of people, places, products, and organizations. Entities are delivered as part of the entity payload section. They are programmatically assigned based on what is explicitly mentioned (named-entity recognition) in the Tweet text. See the <a href="https://developer.twitter.com/en/docs/twitter-api/annotations/overview">official website</a> for further details.</li>
+<li><code>source</code>: Utility used to post the Tweet, as an HTML-formatted string. Tweets from the Twitter website have a source value of <code>web</code>.  </li>
+<li><code>author_info</code>: Twitter User Object of the tweet author.  </li>
+<li><code>retweeters</code>: Twitter user IDs from retweeters.  </li>
+<li><code>in_reply_to_status_id</code>: If the represented Tweet is a reply, this field will contain the integer representation of the original Tweet’s ID. (Nullable)  </li>
+<li><code>in_reply_to_status_id_str</code>: If the represented Tweet is a reply, this field will contain the string representation of the original Tweet’s ID. (Nullable)  </li>
+<li><code>in_reply_to_user_id</code>: If the represented Tweet is a reply, this field will contain the integer representation of the original Tweet’s author ID. This will not necessarily always be the user directly mentioned in the Tweet. (Nullable)</li>
+<li><code>in_reply_to_user_id_str</code>: If the represented Tweet is a reply, this field will contain the string representation of the original Tweet’s author ID. This will not necessarily always be the user directly mentioned in the Tweet. (Nullable)</li>
+<li><code>in_reply_to_screen_name</code>: If the represented Tweet is a reply, this field will contain the screen name of the original Tweet’s author. (Nullable)  </li>
+<li><code>user</code>: The user who posted this Tweet. See User data dictionary for complete list of attributes.</li>
+<li><code>coordinates</code>: Represents the geographic location of this Tweet as reported by the user or client application. The inner coordinates array is formatted as geoJSON (longitude first, then latitude). (Nullable)  </li>
+<li><code>place</code>: When present, indicates that the tweet is associated (but not necessarily originating from) a place. (Nullable)  </li>
+<li><code>is_quote_status</code>: Indicates whether this is a Quoted Tweet.  </li>
+<li><code>public_metrics</code>: Public metrics for this Tweet containing (impressions_count (=views), quote_count, reply_count, retweet_count, favorite_count (=likes))  </li>
+<li><code>quoting_users</code>:  Twitter User IDs from users who quoted this Tweet.  </li>
+<li><code>liking_users</code>: Twitter User IDs from users who liked this Tweet.  </li>
+<li><code>favorited</code>: Indicates whether this Tweet has been liked by the authenticating user. (Nullable)  </li>
+<li><code>retweeted</code>: Indicates whether this Tweet has been Retweeted by the authenticating user.  </li>
+<li><code>possibly_sensitive</code>: This field indicates content may be recognized as sensitive. The Tweet author can select within their own account preferences and choose “Mark media you tweet as having material that may be sensitive” so each Tweet created after has this flag set. This may also be judged and labeled by an internal Twitter support agent. (Nullable)  </li>
+<li><code>lang</code>: When present, indicates a BCP 47 language identifier corresponding to the machine-detected language of the Tweet text, or <code>und</code> if no language could be detected. See more documentation <a href="https://developer.twitter.com/en/docs/twitter-api/enterprise/powertrack-api/guides/operators">HERE</a>.</li>
+<li><code>sentiment</code>: The sentiment of the Tweet, either positive, neutral, or negative. The sentiment is detected by using <a href="https://textblob.readthedocs.io/en/dev/">TextBlob</a> which uses a Naive Bayes Classifier trained on movie reviews. Currently, only english Tweets are supported. In case a Tweet of a different language is analyzed, results will still be returned but might not be accurate.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>CLI Tool - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "CLI Tool";
+        var mkdocs_page_input_path = "user-guide\\overview\\cli.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">CLI Tool</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Overview &raquo;</li>
+      <li>CLI Tool</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/cli.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="command-line-interface-tool">Command-line Interface Tool</h2>
+<p>The main functions from the TwitterAPI class are also available on the CLI.</p>
+<p>To see the usage instructions and help, run:</p>
+<pre><code class="language-bash">pysna -h
+</code></pre>
+<p>If you wish to see the usage instructions for a function, run:</p>
+<pre><code class="language-bash">pysna &lt;function&gt; --help
+</code></pre>
+<p>For example, if you want to request a comparison of two users, you can run:</p>
+<pre><code class="language-bash">pysna compare-users &quot;WWU_Muenster&quot; &quot;goetheuni&quot; -c &quot;tweets_count&quot; &quot;common_followers&quot; -o &quot;results.json&quot; --return-timestamp
+</code></pre>
+<p>This will perform a comparison on the <code>"WWU_Muenster"</code> and <code>"goetheuni"</code> Twitter Accounts based their number of composed Tweets and their common followers. The results are exported to the <code>results.json</code> file. Also, the timestamp of the request will be returned.</p>
+<p><strong>NOTE</strong>: Every request needs valid credentials for the official Twitter API. Thus, pass in a <code>.env</code> file to every function call by using the <code>--env</code> flag or use the <a href="./#set-secrets"><code>set-secrets</code></a> function to set the API secrets for upcoming requests (recommended).</p>
+<hr />
+<h2 id="functions">Functions</h2>
+<h3 id="set-secrets">set-secrets</h3>
+<p>In order to set the API secrets to run every command from any working directory, it is recommended to use this function.</p>
+<p>The function will copy the given <code>.env</code> file to the <code>~/.pysna/config/</code> directory and will create a config file containing your API secrets. This file will be read every time a request is made.</p>
+<p>If you wish to overwrite the existing config file containing the secrets, rerun this function with a new <code>.env</code> file.</p>
+<p>If you wish to use other secrets for authentification sporadically, you can use the <code>--env</code> flag of every function to use different secrets than specified in the config file.</p>
+<p><strong>NOTE</strong>: The provided <code>.env</code> file must have the format:</p>
+<pre><code>BEARER_TOKEN=...
+CONSUMER_KEY=...
+CONSUMER_SECRET=...
+ACCESS_TOKEN=...
+ACCESS_TOKEN_SECRET=...
+X_RAPIDAPI_KEY=...
+X_RAPIDAPI_HOST=...
+</code></pre>
+<ul>
+<li><code>BEARER_TOKEN</code>: Twitter API OAuth 2.0 Bearer Token</li>
+<li><code>CONSUMER_KEY</code>: Twitter API OAuth 1.0a Consumer Key</li>
+<li><code>CONSUMER_SECRET</code>: Twitter API OAuth 1.0a Consumer Secret</li>
+<li><code>ACCESS_TOKEN</code>: Twitter API OAuth 1.0a Access Token</li>
+<li><code>ACCESS_TOKEN_SECRET</code>: Twitter API OAuth 1.0a Access Token Secret</li>
+<li><code>X_RAPIDAPI_KEY</code>: Access Token for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
+<li><code>X_RAPIDAPI_HOST</code>: Host for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
+</ul>
+<p>Only <code>.env</code> files are supported, yet.</p>
+<p>Example:</p>
+<pre><code class="language-bash">pysna set-secrets local.env
+</code></pre>
+<p>or, if you want to use different secrets for a request, use the <code>--env</code> flag:</p>
+<pre><code class="language-bash">pysna compare-users [...] --env ./local.env
+</code></pre>
+<hr />
+<h3 id="user-info">user-info</h3>
+<p>Command:</p>
+<p><code>pysna user-info &lt;user&gt; &lt;attributes&gt; [--return-timestamp] [--output] [--append] [--encoding] [--env]</code></p>
+<p>Args:</p>
+<ul>
+<li><code>user</code> (required): Twitter User ID or unique screen name</li>
+<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the <a href="overview.md">overview</a>.</li>
+<li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
+<li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.).
+Flag short form:<code>-o</code>.</li>
+<li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
+<li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
+Flag short form:<code>-e</code>.</li>
+</ul>
+<hr />
+<h3 id="compare-users">compare-users</h3>
+<p>Command:</p>
+<p><code>pysna compare-users &lt;users&gt; -c &lt;compare&gt; [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]</code></p>
+<p>Args:</p>
+<ul>
+<li><code>users</code> (required): IDs or unique screen names of Twitter users. Pass in the users separated by space.</li>
+<li><code>compare</code> (required): Comparison attributes Must be from the following: <code>relationship</code>, <code>followers_count</code>, <code>followees_count</code>, <code>tweets_count</code>, <code>favourites_count</code>, <code>common_followers</code>, <code>distinct_followers</code>, <code>common_followees</code>, <code>distinct_followees</code>, <code>commonly_liked_tweets</code>, <code>distinctly_liked_tweets</code>, <code>similarity</code>, <code>created_at</code>, <code>protected</code>, <code>verified</code>.
+For an overview of what the comparison attributes do, see the corresponding section in the <a href="overview.md">overview</a>.
+Provide the comparison attributes separated by space after the <code>-c</code> flag.</li>
+<li><code>features</code> (positional): Define the components of the feature vector for the <code>similarity</code> comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
+Features must be from: <code>followers_count</code>, <code>friends_count</code>, <code>listed_count</code>, <code>favourites_count</code>, <code>statuses_count</code>.</li>
+<li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
+<li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.).
+Flag short form:<code>-o</code>.</li>
+<li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
+<li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
+Flag short form:<code>-e</code>.</li>
+</ul>
+<hr />
+<h3 id="tweet-info">tweet-info</h3>
+<p>Command:</p>
+<p><code>pysna tweet-info &lt;tweet&gt; &lt;attributes&gt; [--return-timestamp] [--output] [--append] [--encoding] [--env]</code></p>
+<p>Args:</p>
+<ul>
+<li><code>tweet</code> (required): Unique Tweet ID.</li>
+<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the <a href="overview.md">overview</a>.</li>
+<li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
+<li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.)
+Flag short form:<code>-o</code>.</li>
+<li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
+<li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
+Flag short form:<code>-e</code>.</li>
+</ul>
+<hr />
+<h3 id="compare-tweets">compare-tweets</h3>
+<p>Command:</p>
+<p><code>pysna compare-tweets &lt;tweets&gt; -c &lt;compare&gt; [--features] [--return-timestamp] [--output] [--append] [--encoding] [--env]</code></p>
+<p>Args:</p>
+<ul>
+<li><code>tweets</code> (required): Unique Tweet IDs separated by space.</li>
+<li><code>compare</code> (required): Comparison attributes Must be from the following: <code>view_count</code>, <code>like_count</code>, <code>retweet_count</code>, <code>quote_count</code>, <code>reply_count</code>, <code>common_quoting_users</code>, <code>distinct_quoting_users</code>, <code>common_liking_users</code>, <code>distinct_liking_users</code>, <code>common_retweeters</code>, <code>distinct_retweeters</code>, <code>similarity</code>, <code>created_at</code>.
+For an overview of what the comparison attributes do, see the corresponding section in the <a href="overview.md">overview</a>.
+Provide the comparison attributes separated by space after the <code>-c</code> flag.</li>
+<li><code>features</code> (positional): Define the components of the feature vector for the <code>similarity</code> comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
+Features must be from: <code>retweet_count</code>, <code>favorite_count</code>.</li>
+<li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
+<li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.).
+Flag short form:<code>-o</code>.</li>
+<li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
+<li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
+Flag short form:<code>-e</code>.</li>
+</ul>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../Utilities/" class="btn btn-neutral float-left" title="Utility Functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../../maintenance/TwitterDataFetcher/" class="btn btn-neutral float-right" title="TwitterDataFetcher">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../Utilities/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../../maintenance/TwitterDataFetcher/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

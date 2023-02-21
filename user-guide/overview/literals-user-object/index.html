@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Literals user object - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Literals user object";
+        var mkdocs_page_input_path = "user-guide\\overview\\literals-user-object.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Overview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Literals user object</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/literals-user-object.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>Detailed Description of the Attributes for the <a href="../TwitterAPI/#user_info"><code>user_info</code></a> function:</p>
+<ul>
+<li><code>id</code>: The integer representation of the unique identifier for this User.</li>
+<li><code>id_str</code>: The string representation of the unique identifier for this User.</li>
+<li><code>name</code>: The name of the user, as they’ve defined it.</li>
+<li><code>screen_name</code>: The screen name, handle, or alias that this user identifies themselves with.</li>
+<li><code>followers</code>: IDs, names, and screen names of the user's followers.</li>
+<li><code>followees</code>: IDs, names, and screen names of the user's followees.</li>
+<li><code>location</code>: The user-defined location for this account’s profile. (Nullable)</li>
+<li><code>description</code>: The user-defined UTF-8 string describing their account. (Nullable)</li>
+<li><code>url</code>: A URL provided by the user in association with their profile. (Nullable)</li>
+<li><code>entities</code>: Entities of the user object.</li>
+<li><code>protected</code>: When true, indicates that this user has chosen to protect their Tweets.</li>
+<li><code>followers_count</code>: The number of followers this account currently has.</li>
+<li><code>friends_count</code>: The number of users this account is following (AKA their “followings” or "followees").</li>
+<li><code>listed_count</code>: The number of public lists that this user is a member of.</li>
+<li><code>created_at</code>: The UTC datetime that the user account was created on Twitter.</li>
+<li><code>latest_activity</code>: Latest acitivity according to the users timeline.</li>
+<li><code>last_active</code>: Datetime of the latest activity according to the users timeline.</li>
+<li><code>liked_tweets</code>:  List of IDs of the liked tweets by the user.</li>
+<li><code>composed_tweets</code>: List of IDs of the composed tweet by the user.</li>
+<li><code>favourites_count</code>: The number of Tweets this user has liked in the account’s lifetime. British spelling used in the field name for historical reasons.</li>
+<li><code>verified</code>: When true, indicates that the user has a verified account.</li>
+<li><code>statuses_count</code>: The number of Tweets (including retweets) issued by the user.</li>
+<li><code>status</code>: Latest tweet object according to the user's timeline.</li>
+<li><code>contributors_enabled</code>: Whether contributors are enabled for this account.</li>
+<li><code>profile_image_url_https</code>: A HTTPS-based URL pointing to the user’s profile image.</li>
+<li><code>profile_banner_url</code>: The HTTPS-based URL pointing to the standard web representation of the user’s uploaded profile banner.</li>
+<li><code>default_profile</code>: When true, indicates that the user has not altered the theme or background of their user profile.</li>
+<li><code>default_profile_image</code>: When true, indicates that the user has not uploaded their own profile image and a default image is used instead.</li>
+<li><code>withheld_in_countries</code>: When present, indicates a list of uppercase two-letter country codes this content is withheld from.</li>
+<li><code>bot_scores</code>:  Estimation for bot-like behavior from the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a>.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
