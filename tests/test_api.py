@@ -2,8 +2,7 @@
 import pickle
 from typing import get_args
 
-import vcr
-from config import PySNATestCase
+from config import PySNATestCase, tape
 
 test_user_id_1 = 24677217
 test_username_1 = "WWU_Muenster"
@@ -25,7 +24,7 @@ class TestTwitterAPI(PySNATestCase):
 
     maxDiff = None
 
-    @vcr.use_cassette("tests/cassettes/user_info.yaml")
+    @tape.use_cassette("tests/cassettes/user_info.yaml")
     def test_user_info(self):
         user_info = self.api.user_info(test_username_1, get_args(self.api.LITERALS_USER_INFO))
         # Assert that the response matches the saved cassette
@@ -34,7 +33,7 @@ class TestTwitterAPI(PySNATestCase):
             expected_response = pickle.load(handle)
         self.assertDictEqual(cassette_response, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/tweet_info.yaml")
+    @tape.use_cassette("tests/cassettes/tweet_info.yaml")
     def test_tweet_info(self):
         cassette_response = self.api.tweet_info(test_tweet_id_1, get_args(self.api.LITERALS_TWEET_INFO))
         with open("tests/fixtures/tweet_info.pickle", "rb") as handle:
@@ -42,14 +41,14 @@ class TestTwitterAPI(PySNATestCase):
         self.assertDictEqual(cassette_response, expected_response)
 
     # TODO: test
-    @vcr.use_cassette("tests/cassettes/compare_users.yaml")
+    @tape.use_cassette("tests/cassettes/compare_users.yaml")
     def test_compare_users(self):
         cassette_response = self.api.compare_users([test_username_1, test_username_2, test_username_3], get_args(self.api.LITERALS_COMPARE_USERS), features=["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"])
         with open("tests/fixtures/compare_users.pickle", "rb") as handle:
             expected_response = pickle.load(handle)
         self.assertDictEqual(cassette_response, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/compare_tweets.yaml")
+    @tape.use_cassette("tests/cassettes/compare_tweets.yaml")
     def test_compare_tweets(self):
         cassette_response = self.api.compare_tweets(
             [test_tweet_id_1, test_tweet_id_2, test_tweet_id_3],

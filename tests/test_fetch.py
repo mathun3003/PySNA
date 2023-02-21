@@ -2,8 +2,7 @@
 import pickle
 
 import tweepy
-import vcr
-from config import PySNATestCase
+from config import PySNATestCase, tape
 
 test_user_id_1 = 24677217
 test_username_1 = "WWU_Muenster"
@@ -25,7 +24,7 @@ class TestTwitterDataFetcher(PySNATestCase):
 
     maxDiff = None
 
-    @vcr.use_cassette("tests/cassettes/manual_request.yaml")
+    @tape.use_cassette("tests/cassettes/manual_request.yaml")
     def test_manual_request(self):
         url = f"https://api.twitter.com/2/users/{test_user_id_1}"
         cassette_response = self.fetcher._manual_request(url, "GET", additional_fields={"user.fields": ["username"]})
@@ -35,7 +34,7 @@ class TestTwitterDataFetcher(PySNATestCase):
             expected_response = pickle.load(handle)
         self.assertDictEqual(cassette_response, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_user_object.yaml")
+    @tape.use_cassette("tests/cassettes/get_user_object.yaml")
     def test_get_user_object(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_user_object(test_username_1)
@@ -55,7 +54,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_1._json, expected_response)
         self.assertDictEqual(cassette_response_2._json, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_user_follower_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_user_follower_ids.yaml")
     def test_get_user_follower_ids(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_user_follower_ids(test_username_1)
@@ -74,7 +73,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertSetEqual(cassette_response_2, expected_response)
         self.assertSetEqual(cassette_response_3, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_user_followee_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_user_followee_ids.yaml")
     def test_get_user_followee_ids(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_user_followee_ids(test_username_1)
@@ -93,7 +92,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertSetEqual(cassette_response_2, expected_response)
         self.assertSetEqual(cassette_response_3, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_latest_activity.yaml")
+    @tape.use_cassette("tests/cassettes/get_latest_activity.yaml")
     def test_get_latest_activity(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_latest_activity(test_username_1)
@@ -110,7 +109,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_1, expected_response)
         self.assertDictEqual(cassette_response_2, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_lastest_activity_date.yaml")
+    @tape.use_cassette("tests/cassettes/get_lastest_activity_date.yaml")
     def test_get_latest_activity_date(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_latest_activity_date(test_username_1)
@@ -127,7 +126,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertEqual(cassette_response_1, expected_response)
         self.assertEqual(cassette_response_2, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_relationship.yaml")
+    @tape.use_cassette("tests/cassettes/get_relationship.yaml")
     def test_get_relationship(self):
         # by screen name
         cassette_response_1 = self.fetcher.get_relationship(test_username_1, test_username_2)
@@ -153,7 +152,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_4, expected_response)
         self.assertDictEqual(cassette_response_5, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_relationship_pairs.yaml")
+    @tape.use_cassette("tests/cassettes/get_relationship_pairs.yaml")
     def test_get_relationship_pairs(self):
         # generate results
         results = self.fetcher.get_relationship_pairs([test_user_id_1, test_user_id_2, test_user_id_3])
@@ -166,7 +165,7 @@ class TestTwitterDataFetcher(PySNATestCase):
             test_results = pickle.load(handle)
         self.assertDictEqual(results, test_results)
 
-    @vcr.use_cassette("tests/cassettes/get_tweet_object.yaml")
+    @tape.use_cassette("tests/cassettes/get_tweet_object.yaml")
     def test_get_tweet_object(self):
         # by int
         cassette_response_1 = self.fetcher.get_tweet_object(test_tweet_id_1)
@@ -183,7 +182,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_1._json, expected_response)
         self.assertDictEqual(cassette_response_2._json, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_liking_users_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_liking_users_ids.yaml")
     def test_get_liking_users_ids(self):
         cassette_response_1 = self.fetcher.get_liking_users_ids(test_tweet_id_1)
         cassette_response_2 = self.fetcher.get_liking_users_ids(str(test_tweet_id_1))
@@ -201,7 +200,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertListEqual(cassette_response_1, expected_response)
         self.assertListEqual(cassette_response_2, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_retweeters_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_retweeters_ids.yaml")
     def test_get_retweeters_ids(self):
         cassette_response_1 = self.fetcher.get_retweeters_ids(test_tweet_id_1)
         cassette_response_2 = self.fetcher.get_retweeters_ids(str(test_tweet_id_1))
@@ -219,7 +218,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertListEqual(cassette_response_1, expected_response)
         self.assertListEqual(cassette_response_2, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_quoting_users_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_quoting_users_ids.yaml")
     def test_get_quoting_users_ids(self):
         cassette_response_1 = self.fetcher.get_quoting_users_ids(test_tweet_id_1)
         cassette_response_2 = self.fetcher.get_quoting_users_ids(str(test_tweet_id_1))
@@ -238,7 +237,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertListEqual(cassette_response_2, expected_response)
 
     # BUG: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-    @vcr.use_cassette("tests/cassettes/get_liked_tweets_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_liked_tweets_ids.yaml")
     def test_get_liked_tweets_ids(self):
         cassette_response_1 = self.fetcher.get_liked_tweets_ids(test_user_id_1)
         cassette_response_2 = self.fetcher.get_liked_tweets_ids(str(test_user_id_1))
@@ -258,7 +257,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertSetEqual(cassette_response_2, expected_response)
         self.assertSetEqual(cassette_response_3, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_composed_tweets_ids.yaml")
+    @tape.use_cassette("tests/cassettes/get_composed_tweets_ids.yaml")
     def test_get_composed_tweets_ids(self):
         cassette_response_1 = self.fetcher.get_composed_tweets_ids(test_user_id_1, limit=100)
         cassette_response_2 = self.fetcher.get_composed_tweets_ids(str(test_user_id_1), limit=100)
@@ -282,7 +281,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertListEqual(cassette_response_2, expected_response)
         self.assertListEqual(cassette_response_3, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_botometer_scores.yaml")
+    @tape.use_cassette("tests/cassettes/get_botometer_scores.yaml")
     def test_get_botometer_scores(self):
         cassette_response_1 = self.fetcher.get_botometer_scores(test_user_id_1)
         cassette_response_2 = self.fetcher.get_botometer_scores(str(test_user_id_1))
@@ -302,7 +301,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_2, expected_response)
         self.assertDictEqual(cassette_response_3, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_context_annotations.yaml")
+    @tape.use_cassette("tests/cassettes/get_context_annotations.yaml")
     def test_get_context_annotations(self):
         # by string
         cassette_response_1 = self.fetcher.get_context_annotations_and_entities(str(test_tweet_id_1))
@@ -319,7 +318,7 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertDictEqual(cassette_response_1, expected_response)
         self.assertDictEqual(cassette_response_2, expected_response)
 
-    @vcr.use_cassette("tests/cassettes/get_public_metrics.yaml")
+    @tape.use_cassette("tests/cassettes/get_public_metrics.yaml")
     def test_get_public_metrics(self):
         # by string
         cassette_response_1 = self.fetcher.get_public_metrics(str(test_tweet_id_1))

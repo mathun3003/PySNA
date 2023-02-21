@@ -2,6 +2,7 @@
 import os
 import unittest
 
+import vcr
 from dotenv import load_dotenv
 
 from pysna.api import TwitterAPI
@@ -19,6 +20,9 @@ access_token = os.environ.get("ACCESS_KEY", "")
 access_token_secret = os.environ.get("ACCESS_SECRET", "")
 rapidapi_key = os.environ.get("X_RAPIDAPI_KEY")
 rapidapi_host = os.environ.get("X_RAPIDAPI_HOST")
+
+
+tape = vcr.VCR(filter_headers=["Authorization"])
 
 
 class PySNATestCase(unittest.TestCase):

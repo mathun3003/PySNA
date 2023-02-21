@@ -5,8 +5,7 @@ from datetime import datetime
 from numbers import Number
 
 import numpy as np
-import vcr
-from config import PySNATestCase
+from config import PySNATestCase, tape
 
 test_user_id_1 = 24677217
 test_username_1 = "WWU_Muenster"
@@ -113,7 +112,7 @@ class TestTwitterDataProcessor(PySNATestCase):
 
     maxDiff = None
 
-    @vcr.use_cassette("tests/cassettes/user_obj.yaml")
+    @tape.use_cassette("tests/cassettes/user_obj.yaml")
     def test_extract_followers(self):
         cassette_user = self.api.fetcher.get_user_object(test_user_id_1)
         results = self.data_processor.extract_followers(cassette_user)
@@ -124,7 +123,7 @@ class TestTwitterDataProcessor(PySNATestCase):
             test_results = pickle.load(handle)
         self.assertDictEqual(results, test_results)
 
-    @vcr.use_cassette("tests/cassettes/user_obj2.yaml")
+    @tape.use_cassette("tests/cassettes/user_obj2.yaml")
     def test_extract_followees(self):
         cassette_user = self.api.fetcher.get_user_object(test_user_id_1)
         results = self.data_processor.extract_followees(cassette_user)
@@ -148,7 +147,7 @@ class TestTwitterDataProcessor(PySNATestCase):
         self.assertIsInstance(function_response, str)
         self.assertEqual(function_response, "positive")
 
-    @vcr.use_cassette("tests/cassettes/calc_similarity_users.yaml")
+    @tape.use_cassette("tests/cassettes/calc_similarity_users.yaml")
     def test_calc_similarity_users(self):
         # get serialized user objects first
         user_objs = [self.fetcher.get_user_object(user)._json for user in [test_user_id_1, test_user_id_2, test_user_id_3]]
@@ -163,7 +162,7 @@ class TestTwitterDataProcessor(PySNATestCase):
             test_results = pickle.load(handle)
         self.assertDictEqual(results, test_results)
 
-    @vcr.use_cassette("tests/cassettes/calc_similarity_tweets.yaml")
+    @tape.use_cassette("tests/cassettes/calc_similarity_tweets.yaml")
     def test_calc_similarity_tweet(self):
         # get public metrics from Tweet objects first
         public_metrics = {tweet_id: self.fetcher.get_public_metrics(tweet_id) for tweet_id in [test_tweet_id_1, test_tweet_id_2, test_tweet_id_3]}
