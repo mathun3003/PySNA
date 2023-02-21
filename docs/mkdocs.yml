@@ -10,7 +10,7 @@ nav:
   - Installation: user-guide/installation.md
   - Quick Start: user-guide/quick-start.md
   - Overview: # TODO
-      - TwitterAPI: user-guide/overview/TwitterAPI.md # TODO: explain comparison over time (with an example)
+      - TwitterAPI: user-guide/overview/TwitterAPI.md
       - Utility Functions: user-guide/overview/Utilities.md
       - CLI Tool: user-guide/cli.md
   - Implementation Details: # TODO

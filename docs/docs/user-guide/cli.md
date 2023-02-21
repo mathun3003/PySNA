@@ -22,15 +22,24 @@ pysna compare-users "WWU_Muenster" "goetheuni" -c "tweets_count" "common_followe
 
 This will perform a comparison on the ``"WWU_Muenster"`` and ``"goetheuni"`` Twitter Accounts based their number of composed Tweets and their common followers. The results are exported to the ``results.json`` file. Also, the timestamp of the request will be returned.
 
-**NOTE**: every request needs valid credentials for the official Twitter API. If you run this command from a different directory than from your project root, pass in the path to an ``.env`` file containing your secrets. Also, if you have a differend named environment file in your project root (e.g., ``local.env``), you have to pass the filename, too, using the ``--env`` flag:
+**NOTE**: Every request needs valid credentials for the official Twitter API. Thus, pass in a ```.env``` file to every function call by using the ```--env``` flag or use the [```set-secrets```](cli.md#set-secrets) function to set the API secrets for upcoming requests (recommended).
 
-```bash
-pysna compare-users [...] --env ./local.env
-```
+________
 
-The default value is set to ``./.env``.
+Functions
+------------
 
-**NOTE**: The ```.env``` file must be of the form:
+### set-secrets
+
+In order to set the API secrets to run every command from any working directory, it is recommended to use this function.
+
+The function will copy the given ```.env``` file to the ```~/.pysna/config/``` directory and will create a config file containing your API secrets. This file will be read every time a request is made.
+
+If you wish to overwrite the existing config file containing the secrets, rerun this function with a new ```.env``` file.
+
+If you wish to use other secrets for authentification sporadically, you can use the ```--env``` flag of every function to use different secrets than specified in the config file.
+
+**NOTE**: The provided ```.env``` file must have the format:
 
 ```
 BEARER_TOKEN=...
@@ -50,10 +59,24 @@ X_RAPIDAPI_HOST=...
 - ```X_RAPIDAPI_KEY```: Access Token for the [Botometer API](https://rapidapi.com/OSoMe/api/botometer-pro/details) from the [RapidAPI platform](https://rapidapi.com/hub)
 - ```X_RAPIDAPI_HOST```: Host for the [Botometer API](https://rapidapi.com/OSoMe/api/botometer-pro/details) from the [RapidAPI platform](https://rapidapi.com/hub)
 
+Only ```.env``` files are supported, yet.
+
+
+Example:
+
+```bash
+pysna set-secrets local.env
+```
+
+or, if you want to use different secrets for a request, use the ```--env``` flag:
+
+```bash
+pysna compare-users [...] --env ./local.env
+```
+
 ________
 
-Functions
-------------
+
 ### user-info
 
 Command:
@@ -69,7 +92,7 @@ Args:
 Flag short form:```-o```.
 - ```append``` (optional): appends the output to an existing file. Pass in the path to the existing file with the ```output``` flag.
 - ```encoding``` (optional): specify file encoding. Defaults to UTF-8.
-- ```env``` (positional): specify path to environment file. Defaults to ```.env```.
+- ```env``` (positional): specify path to environment file. Defaults to ```~/.pysna/config/secrets.env``` (i.e., the config file path set via the [```set-secrets```](cli.md#set-secrets) function).
 Flag short form:```-e```.
 
 ________
@@ -93,7 +116,7 @@ Features must be from: ```followers_count```, ```friends_count```, ```listed_cou
 Flag short form:```-o```.
 - ```append``` (optional): appends the output to an existing file. Pass in the path to the existing file with the ```output``` flag.
 - ```encoding``` (optional): specify file encoding. Defaults to UTF-8.
-- ```env``` (positional): specify path to environment file. Defaults to ```.env```.
+- ```env``` (positional): specify path to environment file. Defaults to ```~/.pysna/config/secrets.env``` (i.e., the config file path set via the [```set-secrets```](cli.md#set-secrets) function).
 Flag short form:```-e```.
 
 ________
@@ -113,7 +136,7 @@ Args:
 Flag short form:```-o```.
 - ```append``` (optional): appends the output to an existing file. Pass in the path to the existing file with the ```output``` flag.
 - ```encoding``` (optional): specify file encoding. Defaults to UTF-8.
-- ```env``` (positional): specify path to environment file. Defaults to ```.env```.
+- ```env``` (positional): specify path to environment file. Defaults to ```~/.pysna/config/secrets.env``` (i.e., the config file path set via the [```set-secrets```](cli.md#set-secrets) function).
 Flag short form:```-e```.
 
 ________
@@ -137,11 +160,7 @@ Features must be from: ```retweet_count```, ```favorite_count```.
 Flag short form:```-o```.
 - ```append``` (optional): appends the output to an existing file. Pass in the path to the existing file with the ```output``` flag.
 - ```encoding``` (optional): specify file encoding. Defaults to UTF-8.
-- ```env``` (positional): specify path to environment file. Defaults to ```.env```.
+- ```env``` (positional): specify path to environment file. Defaults to ```~/.pysna/config/secrets.env``` (i.e., the config file path set via the [```set-secrets```](cli.md#set-secrets) function).
 Flag short form:```-e```.
 
 ________
-
-Notes
-------------
-- Only ``.env`` files are supported for the CLI, yet.

@@ -113,11 +113,15 @@
 <pre><code class="language-bash">pysna compare-users &quot;WWU_Muenster&quot; &quot;goetheuni&quot; -c &quot;tweets_count&quot; &quot;common_followers&quot; -o &quot;results.json&quot; --return-timestamp
 </code></pre>
 <p>This will perform a comparison on the <code>"WWU_Muenster"</code> and <code>"goetheuni"</code> Twitter Accounts based their number of composed Tweets and their common followers. The results are exported to the <code>results.json</code> file. Also, the timestamp of the request will be returned.</p>
-<p><strong>NOTE</strong>: every request needs valid credentials for the official Twitter API. If you run this command from a different directory than from your project root, pass in the path to an <code>.env</code> file containing your secrets. Also, if you have a differend named environment file in your project root (e.g., <code>local.env</code>), you have to pass the filename, too, using the <code>--env</code> flag:</p>
-<pre><code class="language-bash">pysna compare-users [...] --env ./local.env
-</code></pre>
-<p>The default value is set to <code>./.env</code>.</p>
-<p><strong>NOTE</strong>: The <code>.env</code> file must be of the form:</p>
+<p><strong>NOTE</strong>: Every request needs valid credentials for the official Twitter API. Thus, pass in a <code>.env</code> file to every function call by using the <code>--env</code> flag or use the <a href="./#set-secrets"><code>set-secrets</code></a> function to set the API secrets for upcoming requests (recommended).</p>
+<hr />
+<h2 id="functions">Functions</h2>
+<h3 id="set-secrets">set-secrets</h3>
+<p>In order to set the API secrets to run every command from any working directory, it is recommended to use this function.</p>
+<p>The function will copy the given <code>.env</code> file to the <code>~/.pysna/config/</code> directory and will create a config file containing your API secrets. This file will be read every time a request is made.</p>
+<p>If you wish to overwrite the existing config file containing the secrets, rerun this function with a new <code>.env</code> file.</p>
+<p>If you wish to use other secrets for authentification sporadically, you can use the <code>--env</code> flag of every function to use different secrets than specified in the config file.</p>
+<p><strong>NOTE</strong>: The provided <code>.env</code> file must have the format:</p>
 <pre><code>BEARER_TOKEN=...
 CONSUMER_KEY=...
 CONSUMER_SECRET=...
@@ -135,8 +139,14 @@ X_RAPIDAPI_HOST=...
 <li><code>X_RAPIDAPI_KEY</code>: Access Token for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
 <li><code>X_RAPIDAPI_HOST</code>: Host for the <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a> from the <a href="https://rapidapi.com/hub">RapidAPI platform</a></li>
 </ul>
+<p>Only <code>.env</code> files are supported, yet.</p>
+<p>Example:</p>
+<pre><code class="language-bash">pysna set-secrets local.env
+</code></pre>
+<p>or, if you want to use different secrets for a request, use the <code>--env</code> flag:</p>
+<pre><code class="language-bash">pysna compare-users [...] --env ./local.env
+</code></pre>
 <hr />
-<h2 id="functions">Functions</h2>
 <h3 id="user-info">user-info</h3>
 <p>Command:</p>
 <p><code>pysna user-info &lt;user&gt; &lt;attributes&gt; [--return-timestamp] [--output] [--append] [--encoding] [--env]</code></p>
@@ -149,7 +159,7 @@ X_RAPIDAPI_HOST=...
 Flag short form:<code>-o</code>.</li>
 <li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
 <li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
-<li><code>env</code> (positional): specify path to environment file. Defaults to <code>.env</code>.
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
 Flag short form:<code>-e</code>.</li>
 </ul>
 <hr />
@@ -169,7 +179,7 @@ Features must be from: <code>followers_count</code>, <code>friends_count</code>,
 Flag short form:<code>-o</code>.</li>
 <li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
 <li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
-<li><code>env</code> (positional): specify path to environment file. Defaults to <code>.env</code>.
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
 Flag short form:<code>-e</code>.</li>
 </ul>
 <hr />
@@ -185,7 +195,7 @@ Flag short form:<code>-e</code>.</li>
 Flag short form:<code>-o</code>.</li>
 <li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
 <li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
-<li><code>env</code> (positional): specify path to environment file. Defaults to <code>.env</code>.
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
 Flag short form:<code>-e</code>.</li>
 </ul>
 <hr />
@@ -205,14 +215,10 @@ Features must be from: <code>retweet_count</code>, <code>favorite_count</code>.<
 Flag short form:<code>-o</code>.</li>
 <li><code>append</code> (optional): appends the output to an existing file. Pass in the path to the existing file with the <code>output</code> flag.</li>
 <li><code>encoding</code> (optional): specify file encoding. Defaults to UTF-8.</li>
-<li><code>env</code> (positional): specify path to environment file. Defaults to <code>.env</code>.
+<li><code>env</code> (positional): specify path to environment file. Defaults to <code>~/.pysna/config/secrets.env</code> (i.e., the config file path set via the <a href="./#set-secrets"><code>set-secrets</code></a> function).
 Flag short form:<code>-e</code>.</li>
 </ul>
 <hr />
-<h2 id="notes">Notes</h2>
-<ul>
-<li>Only <code>.env</code> files are supported for the CLI, yet.</li>
-</ul>
 
             </div>
           </div><footer>
