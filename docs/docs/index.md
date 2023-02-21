@@ -7,7 +7,7 @@ Contents for users:
 - [Overview](user-guide/overview.md)
     - [TwitterAPI](user-guide/overview/TwitterAPI.md)
     - [Utility Functions](user-guide/overview/Utilities.md)
-- [CLI Tool](user-guide/cli.md)
+- [CLI Tool](user-guide/overview/cli.md)
 
 Contents for maintainers:
 

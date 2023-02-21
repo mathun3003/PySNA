@@ -3,7 +3,7 @@ Quick Start
 Import the API class for the Twitter API by writing:
 
 ```python
-from pysna.api import TwitterAPI
+from pysna import TwitterAPI
 ```
 
 or import utility functions, too, by writing:

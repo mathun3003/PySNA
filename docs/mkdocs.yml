@@ -9,10 +9,10 @@ nav:
   - Home: index.md
   - Installation: user-guide/installation.md
   - Quick Start: user-guide/quick-start.md
-  - Overview: # TODO
+  - Overview:
       - TwitterAPI: user-guide/overview/TwitterAPI.md
       - Utility Functions: user-guide/overview/Utilities.md
-      - CLI Tool: user-guide/cli.md
+      - CLI Tool: user-guide/overview/cli.md
   - Implementation Details: # TODO
       - TwitterDataFetcher: maintenance/TwitterDataFetcher.md # TODO
       - TwitterDataProcessor: maintenance/TwitterDataProcessor.md # TODO

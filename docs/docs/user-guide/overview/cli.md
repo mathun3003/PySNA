@@ -86,7 +86,7 @@ Command:
 Args:
 
 - ```user``` (required): Twitter User ID or unique screen name
-- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the [overview](overview.md).
+- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see [here](./literals-user-object.md).
 - ```return-timestamp``` (optional): return UTC timestamp of the query.
 - ```output``` (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write ```output.json``` for JSON export.).
 Flag short form:```-o```.
@@ -107,7 +107,7 @@ Args:
 
 - ```users``` (required): IDs or unique screen names of Twitter users. Pass in the users separated by space.
 - ```compare``` (required): Comparison attributes Must be from the following: ```relationship```, ```followers_count```, ```followees_count```, ```tweets_count```, ```favourites_count```, ```common_followers```, ```distinct_followers```, ```common_followees```, ```distinct_followees```, ```commonly_liked_tweets```, ```distinctly_liked_tweets```, ```similarity```, ```created_at```, ```protected```, ```verified```.
-For an overview of what the comparison attributes do, see the corresponding section in the [overview](overview.md).
+For an overview of what the comparison attributes do, see [here](./literals-compare-users.md).
 Provide the comparison attributes separated by space after the ```-c``` flag.
 - ```features``` (positional): Define the components of the feature vector for the ```similarity``` comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
 Features must be from: ```followers_count```, ```friends_count```, ```listed_count```, ```favourites_count```, ```statuses_count```.
@@ -130,7 +130,7 @@ Command:
 Args:
 
 - ```tweet``` (required): Unique Tweet ID.
-- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the [overview](overview.md).
+- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see [here](./literals-tweet-info.md).
 - ```return-timestamp``` (optional): return UTC timestamp of the query.
 - ```output``` (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write ```output.json``` for JSON export.)
 Flag short form:```-o```.
@@ -151,7 +151,7 @@ Args:
 
 - ```tweets``` (required): Unique Tweet IDs separated by space.
 - ```compare``` (required): Comparison attributes Must be from the following: ```view_count```, ```like_count```, ```retweet_count```, ```quote_count```, ```reply_count```, ```common_quoting_users```, ```distinct_quoting_users```, ```common_liking_users```, ```distinct_liking_users```, ```common_retweeters```, ```distinct_retweeters```, ```similarity```, ```created_at```.
-For an overview of what the comparison attributes do, see the corresponding section in the [overview](overview.md).
+For an overview of what the comparison attributes do, see [here](./literals-compare-tweets.md).
 Provide the comparison attributes separated by space after the ```-c``` flag.
 - ```features``` (positional): Define the components of the feature vector for the ```similarity``` comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
 Features must be from: ```retweet_count```, ```favorite_count```.
