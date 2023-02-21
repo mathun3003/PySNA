@@ -224,3 +224,45 @@ will print:
 ```
 
 ________
+
+
+For all functions, a comparison over time can be achieved by using the ```return_timestamp``` argument for each request, storing the data in a JSON or CSV file using the [```export_to_json```](./Utilities.md#export-to-json) and [```export_to_csv```](./Utilities.md#export-to-csv), respectively, and append new records to existing files with the [```append_to_json```](./Utilities.md#append-to-json) or [```append_to_csv```](./Utilities.md#append-to-csv) utility functions.
+
+Example:
+
+```python
+# request results for Tweet comparison, return timestamp
+results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                             compare=["common_liking_users"],
+                             return_timestamp=True)
+# export to JSON file
+export_to_json(results, export_path="compare_tweets.json")
+
+# some time later...
+
+# generate new results that should be appended in the next step
+new_results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                                 compare=["common_liking_users"],
+                                 return_timestamp=True)
+# append to an existing file.
+append_to_json(new_results, "compare_tweets.json")
+```
+
+The ```compare_tweets.json``` could then look like this:
+
+```json
+{
+  "data": [
+    {
+      "common_liking_users": [3862364523],
+      "utc_timestamp": "2023-02-21 11:26:45.885444"
+    },
+    {
+      "common_liking_users": [3862364523, 20965264523],
+      "utc_timestamp": "2023-02-22 12:31:23.765328"
+    }
+  ]
+}
+```
+
+________

@@ -280,6 +280,39 @@ print(results)
 <pre><code>[3862364523]
 </code></pre>
 <hr />
+<p>For all functions, a comparison over time can be achieved by using the <code>return_timestamp</code> argument for each request, storing the data in a JSON or CSV file using the <a href="../Utilities/#export-to-json"><code>export_to_json</code></a> and <a href="../Utilities/#export-to-csv"><code>export_to_csv</code></a>, respectively, and append new records to existing files with the <a href="../Utilities/#append-to-json"><code>append_to_json</code></a> or <a href="../Utilities/#append-to-csv"><code>append_to_csv</code></a> utility functions.</p>
+<p>Example:</p>
+<pre><code class="language-python"># request results for Tweet comparison, return timestamp
+results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                             compare=[&quot;common_liking_users&quot;],
+                             return_timestamp=True)
+# export to JSON file
+export_to_json(results, export_path=&quot;compare_tweets.json&quot;)
+
+# some time later...
+
+# generate new results that should be appended in the next step
+new_results = api.compare_tweets([1612443577447026689, 1611301422364082180, 1612823288723476480],
+                                 compare=[&quot;common_liking_users&quot;],
+                                 return_timestamp=True)
+# append to an existing file.
+append_to_json(new_results, &quot;compare_tweets.json&quot;)
+</code></pre>
+<p>The <code>compare_tweets.json</code> could then look like this:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;common_liking_users&quot;: [3862364523],
+      &quot;utc_timestamp&quot;: &quot;2023-02-21 11:26:45.885444&quot;
+    },
+    {
+      &quot;common_liking_users&quot;: [3862364523, 20965264523],
+      &quot;utc_timestamp&quot;: &quot;2023-02-22 12:31:23.765328&quot;
+    }
+  ]
+}
+</code></pre>
+<hr />
 
             </div>
           </div><footer>
