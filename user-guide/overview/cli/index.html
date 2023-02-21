@@ -153,7 +153,7 @@ X_RAPIDAPI_HOST=...
 <p>Args:</p>
 <ul>
 <li><code>user</code> (required): Twitter User ID or unique screen name</li>
-<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the <a href="overview.md">overview</a>.</li>
+<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see <a href="../literals-user-object/">here</a>.</li>
 <li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
 <li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.).
 Flag short form:<code>-o</code>.</li>
@@ -170,7 +170,7 @@ Flag short form:<code>-e</code>.</li>
 <ul>
 <li><code>users</code> (required): IDs or unique screen names of Twitter users. Pass in the users separated by space.</li>
 <li><code>compare</code> (required): Comparison attributes Must be from the following: <code>relationship</code>, <code>followers_count</code>, <code>followees_count</code>, <code>tweets_count</code>, <code>favourites_count</code>, <code>common_followers</code>, <code>distinct_followers</code>, <code>common_followees</code>, <code>distinct_followees</code>, <code>commonly_liked_tweets</code>, <code>distinctly_liked_tweets</code>, <code>similarity</code>, <code>created_at</code>, <code>protected</code>, <code>verified</code>.
-For an overview of what the comparison attributes do, see the corresponding section in the <a href="overview.md">overview</a>.
+For an overview of what the comparison attributes do, see <a href="../literals-compare-users/">here</a>.
 Provide the comparison attributes separated by space after the <code>-c</code> flag.</li>
 <li><code>features</code> (positional): Define the components of the feature vector for the <code>similarity</code> comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
 Features must be from: <code>followers_count</code>, <code>friends_count</code>, <code>listed_count</code>, <code>favourites_count</code>, <code>statuses_count</code>.</li>
@@ -189,7 +189,7 @@ Flag short form:<code>-e</code>.</li>
 <p>Args:</p>
 <ul>
 <li><code>tweet</code> (required): Unique Tweet ID.</li>
-<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see the corresponding section in the <a href="overview.md">overview</a>.</li>
+<li><code>attributes</code> (required): pass in desired attributes separated by space. For a list of attributes, see <a href="../literals-tweet-info/">here</a>.</li>
 <li><code>return-timestamp</code> (optional): return UTC timestamp of the query.</li>
 <li><code>output</code> (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write <code>output.json</code> for JSON export.)
 Flag short form:<code>-o</code>.</li>
@@ -206,7 +206,7 @@ Flag short form:<code>-e</code>.</li>
 <ul>
 <li><code>tweets</code> (required): Unique Tweet IDs separated by space.</li>
 <li><code>compare</code> (required): Comparison attributes Must be from the following: <code>view_count</code>, <code>like_count</code>, <code>retweet_count</code>, <code>quote_count</code>, <code>reply_count</code>, <code>common_quoting_users</code>, <code>distinct_quoting_users</code>, <code>common_liking_users</code>, <code>distinct_liking_users</code>, <code>common_retweeters</code>, <code>distinct_retweeters</code>, <code>similarity</code>, <code>created_at</code>.
-For an overview of what the comparison attributes do, see the corresponding section in the <a href="overview.md">overview</a>.
+For an overview of what the comparison attributes do, see <a href="../literals-compare-tweets/">here</a>.
 Provide the comparison attributes separated by space after the <code>-c</code> flag.</li>
 <li><code>features</code> (positional): Define the components of the feature vector for the <code>similarity</code> comparison attribute. Must be passed in if the aforementioned comparison attribute was provided.
 Features must be from: <code>retweet_count</code>, <code>favorite_count</code>.</li>
