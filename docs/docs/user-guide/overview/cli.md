@@ -86,7 +86,7 @@ Command:
 Args:
 
 - ```user``` (required): Twitter User ID or unique screen name
-- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see [here](./literals-user-object.md).
+- ```attributes``` (required): pass in desired attributes separated by space. For a list of attributes, see [here](./literals-user-info.md).
 - ```return-timestamp``` (optional): return UTC timestamp of the query.
 - ```output``` (optional): writes the output to a file. Pass in the file path and file name including the extension. If empty, output is printed to the CLI. Currently, CSV and JSON exports are supported. (e.g., write ```output.json``` for JSON export.).
 Flag short form:```-o```.

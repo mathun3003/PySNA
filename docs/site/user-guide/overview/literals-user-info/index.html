@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Literals user object - PySNA Documentation</title>
+    <title>Literals user info - PySNA Documentation</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
 
       <script>
         // Current page data
-        var mkdocs_page_name = "Literals user object";
-        var mkdocs_page_input_path = "user-guide\\overview\\literals-user-object.md";
+        var mkdocs_page_name = "Literals user info";
+        var mkdocs_page_input_path = "user-guide\\overview\\literals-user-info.md";
         var mkdocs_page_url = null;
       </script>
 
@@ -88,9 +88,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-      <li>Literals user object</li>
+      <li>Literals user info</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/literals-user-object.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/literals-user-info.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -115,7 +115,7 @@
 <li><code>friends_count</code>: The number of users this account is following (AKA their “followings” or "followees").</li>
 <li><code>listed_count</code>: The number of public lists that this user is a member of.</li>
 <li><code>created_at</code>: The UTC datetime that the user account was created on Twitter.</li>
-<li><code>latest_activity</code>: Latest acitivity according to the users timeline.</li>
+<li><code>latest_activity</code>: Latest acitivity according to the users timeline. If the latest activity is a retweet (marked by a leading 'RT' in the text), the text will be truncated to 140 characters. The full text of the original tweet is in the <code>retweeted_status</code> field of the JSON response. Hence, see under the <code>latest_activity</code> -&gt; <code>retweeted_status</code> -&gt; <code>full_text</code> field.  </li>
 <li><code>last_active</code>: Datetime of the latest activity according to the users timeline.</li>
 <li><code>liked_tweets</code>:  List of IDs of the liked tweets by the user.</li>
 <li><code>composed_tweets</code>: List of IDs of the composed tweet by the user.</li>

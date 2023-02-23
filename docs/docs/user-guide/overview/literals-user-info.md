@@ -16,7 +16,7 @@ Detailed Description of the Attributes for the [```user_info```](./TwitterAPI.md
 - ```friends_count```: The number of users this account is following (AKA their “followings” or "followees").
 - ```listed_count```: The number of public lists that this user is a member of.
 - ```created_at```: The UTC datetime that the user account was created on Twitter.
-- ```latest_activity```: Latest acitivity according to the users timeline.
+- ```latest_activity```: Latest acitivity according to the users timeline. If the latest activity is a retweet (marked by a leading 'RT' in the text), the text will be truncated to 140 characters. The full text of the original tweet is in the ```retweeted_status``` field of the JSON response. Hence, see under the ```latest_activity``` -> ```retweeted_status``` -> ```full_text``` field.  
 - ```last_active```: Datetime of the latest activity according to the users timeline.
 - ```liked_tweets```:  List of IDs of the liked tweets by the user.
 - ```composed_tweets```: List of IDs of the composed tweet by the user.

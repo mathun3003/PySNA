@@ -56,7 +56,7 @@ Args:
 
 - ```user``` (str | int): Twitter User either specified by corresponding ID or screen name.
 - ```attributes``` (List[LITERALS_USER_INFO] | str): Attributes of the User object.  
-These must be from this list: [Detailed description of user information attributes](./literals-user-object.md). See the link for detailed description of the attributes.
+These must be from this list: [Detailed description of user information attributes](./literals-user-info.md). See the link for detailed description of the attributes.
 
 - ```return_timestamp``` (bool): Add UTC Timestamp of the request to results. Defaults to False.
 
