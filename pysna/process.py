@@ -7,7 +7,7 @@ from typing import Dict, List
 
 import numpy as np
 import tweepy
-from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 class BaseDataProcessor:
@@ -208,15 +208,19 @@ class TwitterDataProcessor(BaseDataProcessor):
         Returns:
             str: the sentiment of the Tweet. Either positive, neutral, or negative.
         """
-        # create TextBlob object of passed tweet text
-        analysis = TextBlob(self.clean_tweet(tweet))
-        # set sentiment
-        if analysis.sentiment.polarity > 0:
-            return "positive"
-        elif analysis.sentiment.polarity == 0:
-            return "neutral"
+        # create VADER instance
+        analyser = SentimentIntensityAnalyzer()
+        # get polarity scores from cleaned tweet
+        polarity_scores = analyser.polarity_scores(self.clean_tweet(tweet))
+        # define label
+        if polarity_scores["compound"] >= 0.05:
+            label = "positive"
+        elif polarity_scores["compound"] <= -0.05:
+            label = "negative"
         else:
-            return "negative"
+            label = "neutral"
+        # return label and polarity scores
+        return {"label": label, "polarity_scores": polarity_scores}
 
     def calc_similarity(self, user_objs: List[dict] | None = None, tweet_metrics: List[Dict[int, dict]] | None = None, *, features: List[str]) -> dict:
         """Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.

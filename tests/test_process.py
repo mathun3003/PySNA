@@ -144,8 +144,8 @@ class TestTwitterDataProcessor(PySNATestCase):
 
     def test_detect_tweet_sentiment(self):
         function_response = self.data_processor.detect_tweet_sentiment(test_tweet)
-        self.assertIsInstance(function_response, str)
-        self.assertEqual(function_response, "positive")
+        self.assertIsInstance(function_response, dict)
+        self.assertEqual(function_response["label"], "positive")
 
     @tape.use_cassette("tests/cassettes/calc_similarity_users.yaml")
     def test_calc_similarity_users(self):
