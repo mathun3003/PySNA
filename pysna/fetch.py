@@ -219,10 +219,10 @@ class TwitterDataFetcher:
         """
         # if screen name was provided
         if (isinstance(user, str)) and (user.isdigit() is False):
-            url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true"
+            url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&include_rts=true&trim_user=true&tweet_mode=extended"
         # else go with user ID
         else:
-            url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&include_rts=true&trim_user=true"
+            url = f"https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&include_rts=true&trim_user=true&tweet_mode=extended"
         response_json = self._manual_request(url)
         # return the first item since timeline is sorted descending
         return response_json[0]
@@ -388,7 +388,7 @@ class TwitterDataFetcher:
         Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
         """
         try:
-            tweet_obj = self.api.get_status(tweet, include_entities=True)
+            tweet_obj = self.api.get_status(tweet, include_entities=True, tweet_mode="extended")
         except tweepy.errors.NotFound as e:
             log.error("404 Not Found: Resource not found.")
             raise e
@@ -484,5 +484,3 @@ class TwitterDataFetcher:
         response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
         public_metrics = response_json["data"]["public_metrics"]
         return public_metrics
-
-    # TODO: non-public metrics

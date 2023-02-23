@@ -59,7 +59,8 @@ class TwitterAPI(tweepy.Client):
     LITERALS_TWEET_INFO = Literal[
         "id",
         "id_str",
-        "text",
+        "full_text",
+        "display_text_range",
         "truncated",
         "created_at",
         "entities",
@@ -72,6 +73,7 @@ class TwitterAPI(tweepy.Client):
         "in_reply_to_user_id_str",
         "in_reply_to_screen_name",
         "user",
+        "contributors",
         "coordinates",
         "place",
         "is_quote_status",
@@ -80,6 +82,7 @@ class TwitterAPI(tweepy.Client):
         "liking_users",
         "favorited",
         "retweeted",
+        "retweeted_status",
         "possibly_sensitive",
         "lang",
         "sentiment",
@@ -184,6 +187,8 @@ class TwitterAPI(tweepy.Client):
 
         Returns:
             dict: Requested user information.
+
+        References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#user_info
         """
         # catch Botometer API secrets before iteration over attributes.
         if "bot_scores" in attributes:
@@ -200,8 +205,11 @@ class TwitterAPI(tweepy.Client):
         user_obj = self.fetcher.get_user_object(user)
         # loop through the list of attributes and add them to the dictionary
         for attr in attributes:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_USER_INFO):
+                raise ValueError("Invalid attribute for '{}'".format(attr))
             # if the desired attribute is in default user object returned by the v1 Search API
-            if attr in user_obj._json.keys():
+            elif attr in user_obj._json.keys():
                 user_info[attr] = user_obj._json[attr]
             # get information about user's followers
             elif attr == "followers":
@@ -228,9 +236,9 @@ class TwitterAPI(tweepy.Client):
             # get user's botometer scores
             elif attr == "bot_scores":
                 user_info[attr] = self.fetcher.get_botometer_scores(user)
-            # if invalid attribute was provided
+            # if attribute was not found
             else:
-                raise ValueError("Invalid attribute for '{}'".format(attr))
+                user_info[attr] = None
             # if timestamp should be returned
         if return_timestamp:
             user_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -253,6 +261,8 @@ class TwitterAPI(tweepy.Client):
 
         Returns:
             dict | list: Results of requested comparison attribute(s).
+
+        Referencs: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#compare_users
         """
         # users list must contain at least two elements
         assert len(users) > 1, "'users' list must contain at least two elements, {} was/were provided".format(len(users))
@@ -272,6 +282,9 @@ class TwitterAPI(tweepy.Client):
         results = dict()
         # iterate over comparison attributes
         for attr in compare:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_COMPARE_USERS):
+                raise ValueError("Invalid attribute for '{}'".format(attr))
             # match comparison attributes
             match attr:
                 # compare relationships between two users
@@ -369,9 +382,9 @@ class TwitterAPI(tweepy.Client):
                     # add datetime metrics
                     creation_dates = self.data_processor.calc_datetime_metrics(creation_dates)
                     results[attr] = creation_dates
-                # if other comparison attribute was provided
+                # if comparison attribute was not found
                 case _:
-                    raise ValueError("Invalid comparison attribute for '{}'".format(attr))
+                    results[attr] = None
         # if timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -385,7 +398,7 @@ class TwitterAPI(tweepy.Client):
 
         Args:
             tweet_id (str | int): Tweet ID
-            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, text, truncated, created_at, entities, tweet_annotations, source, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, coordinates, place, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, possibly_sensitive, lang, sentiment.
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, full_text, display_text_range, truncated, created_at, entities, tweet_annotations, source, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, contributors, coordinates, place, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, retweeted_status, possibly_sensitive, lang, sentiment.
             return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
 
         Raises:
@@ -393,6 +406,8 @@ class TwitterAPI(tweepy.Client):
 
         Returns:
             dict: Requested Tweet information.
+
+        References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#tweet_info
         """
         # get tweet object
         tweet_obj = self.fetcher.get_tweet_object(tweet_id)
@@ -405,8 +420,11 @@ class TwitterAPI(tweepy.Client):
             # convert to list for iteration
             attributes = [attributes]
         for attr in attributes:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_TWEET_INFO):
+                raise ValueError("Invalid attribute for '{}'".format(attr))
             # get default attributes from tweepy Status model
-            if attr in tweet_obj._json.keys():
+            elif attr in tweet_obj._json.keys():
                 tweet_info[attr] = tweet_obj._json[attr]
             # get all quoting users
             elif attr == "quoting_users":
@@ -428,10 +446,10 @@ class TwitterAPI(tweepy.Client):
                 tweet_info[attr] = self.fetcher.get_context_annotations_and_entities(tweet_id)
             # get tweet sentiment
             elif attr == "sentiment":
-                tweet_info[attr] = self.data_processor.detect_tweet_sentiment(tweet_obj.text)
-            # if invalid attribute was provided
+                tweet_info[attr] = self.data_processor.detect_tweet_sentiment(tweet_obj.full_text)
+            # if attribute was not found
             else:
-                raise ValueError("Invalid attribute for '{}'".format(attr))
+                tweet_info[attr] = None
         # if timestamp should be returned
         if return_timestamp:
             tweet_info["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")
@@ -455,6 +473,8 @@ class TwitterAPI(tweepy.Client):
 
         Returns:
             dict: Requested results for comparison attribute.
+
+        References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#compare_tweets
         """
         # tweets list must contain at least two IDs
         assert len(tweet_ids) > 1, "'tweets' list object needs at least two entries, not {}".format(len(tweet_ids))
@@ -474,6 +494,9 @@ class TwitterAPI(tweepy.Client):
         results = dict()
         # iterate over every given comparison atttribute
         for attr in compare:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_COMPARE_TWEETS):
+                raise ValueError("Invalid attribute for '{}'".format(attr))
             # match comparison attribute
             match attr:
                 # compare numer of views / impressions
@@ -572,9 +595,9 @@ class TwitterAPI(tweepy.Client):
                     # add datetime metrics
                     creation_dates = self.data_processor.calc_datetime_metrics(creation_dates)
                     results[attr] = creation_dates
-                # if invalid comparison attribute was provided
+                # if attribute was not found
                 case _:
-                    raise ValueError("Invalid comparison attribute for '{}'".format(attr))
+                    results[attr] = None
         # if UTC timestamp should be returned
         if return_timestamp:
             results["utc_timestamp"] = strf_datetime(datetime.utcnow(), format="%Y-%m-%d %H:%M:%S.%f")

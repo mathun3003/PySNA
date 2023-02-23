@@ -222,7 +222,7 @@ class TwitterDataProcessor(BaseDataProcessor):
         """Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.
 
         Args:
-            user_objs (List[dict] | None, optional): List of serialized Twitter user objects. Defaults to None.
+            user_objs (List[dict] | None, optional): List of serialized Twitter user objects from Twitter Search API v1. Defaults to None.
             tweet_metrics (List[Dict[int | dict]] | None, optional): List of public Tweet metrics as dictionaries with Tweet IDs as keys. Defaults to None.
             features (List[str]): Features that should be contained in the feature vector. Features have to be numeric and must belong to the respective object (i.e., user or tweet.)
 

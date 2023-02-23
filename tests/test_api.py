@@ -40,7 +40,6 @@ class TestTwitterAPI(PySNATestCase):
             expected_response = pickle.load(handle)
         self.assertDictEqual(cassette_response, expected_response)
 
-    # TODO: test
     @tape.use_cassette("tests/cassettes/compare_users.yaml")
     def test_compare_users(self):
         cassette_response = self.api.compare_users([test_username_1, test_username_2, test_username_3], get_args(self.api.LITERALS_COMPARE_USERS), features=["followers_count", "friends_count", "listed_count", "favourites_count", "statuses_count"])
@@ -53,7 +52,7 @@ class TestTwitterAPI(PySNATestCase):
         cassette_response = self.api.compare_tweets(
             [test_tweet_id_1, test_tweet_id_2, test_tweet_id_3],
             get_args(self.api.LITERALS_COMPARE_TWEETS),
-            features=["retweet_count", "favorite_count"],
+            features=["retweet_count", "like_count"],
         )
         with open("tests/fixtures/compare_tweets.pickle", "rb") as handle:
             expected_response = pickle.load(handle)
