@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
                   </li>
@@ -65,13 +65,23 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">TwitterDataProcessor</a>
+    <ul class="current">
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Function</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -99,7 +109,242 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
 
-                <p>Coming soon...</p>
+                <h2 id="twitterdataprocessor">TwitterDataProcessor</h2>
+<p>The <code>TwitterDataProcessor</code> has the purpose to process Twitter-specific data and respective data dictionaries (i.e., user or tweet data dictionaries). This class is used inside the <code>TwitterAPI</code> class as a component class through composition.</p>
+<p>This class can also be used to process previously collected data. It requires no authentication for the Twitter platform and, thus, can be used in isolation.</p>
+<p>This class has a separated concern compared to the other package's classes, namely to process Twitter-related data.</p>
+<h1 id="initialization">Initialization</h1>
+<p>If you want to use this class for data processing or other package components, follow the steps below.</p>
+<p>Import the <code>TwitterDataProcessor</code> class from the <code>process</code> module.</p>
+<pre><code class="language-python">from pysna.process import TwitterDataProcessor
+
+data_processor = TwitterDataProcessor()
+</code></pre>
+<p>and invoke a function:</p>
+<pre><code class="language-python">tweet = &quot;Savage Love 🎶 #SavageLoveRemix&quot;
+data_processor.clean_tweet(tweet)
+</code></pre>
+<h1 id="methods">Methods</h1>
+<h3 id="extract_followers">extract_followers</h3>
+<p>Extract IDs, names, and screen names from a user's followers. This function takes in a Tweepy user object from the v1 API version and returns a dictionary containing the extracted information.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataProcessor.extract_followers(user_object: tweepy.User)
+</code></pre>
+<p>This function will return a dictionary of the form</p>
+<pre><code class="language-python">{&quot;followers_ids&quot;: [],
+&quot;followers_names&quot;: [],
+&quot;followers_screen_names&quot;: []}
+</code></pre>
+<p><strong>NOTE</strong>: This function needs a recently fetched Twitter user object from the API v1. Stored user objects (e.g., using the <code>pickle</code> module) that are to be analyzed later will lead to an error.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def extract_followers(self, user_object: tweepy.User) -&gt; Dict[str, str | int]:
+    &quot;&quot;&quot;Extract IDs, names, and screen names from a user's followers.
+
+    Args:
+        user_object (tweepy.User): Tweepy User Object.
+
+    Returns:
+        Dict[str, str | int]: Dictionary containing IDs, names, and screen names.
+    &quot;&quot;&quot;
+    info = {&quot;followers_ids&quot;: list(), &quot;followers_names&quot;: list(), &quot;followers_screen_names&quot;: list()}
+    # extract follower IDs
+    info[&quot;followers_ids&quot;] = user_object.follower_ids()
+    # extract names and screen names
+    for follower in user_object.followers():
+        info[&quot;followers_names&quot;].append(follower.name)
+        info[&quot;followers_screen_names&quot;].append(follower.screen_name)
+    return info
+</code></pre>
+
+</details>
+<hr />
+<h3 id="extract_followees">extract_followees</h3>
+<p>Extract IDs, names, and screen names from a user's followees (i.e., their follows). This function takes in a Tweepy user object from the v1 API version and returns a dictionary containing the extracted information.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataProcessor.extract_followees(user_object: tweepy.User)
+</code></pre>
+<p>This function will return a dictionary of the form</p>
+<pre><code class="language-python">{&quot;followees_ids&quot;: [],
+&quot;followees_names&quot;: [],
+&quot;followees_screen_names&quot;: []}
+</code></pre>
+<p><strong>NOTE</strong>: This function needs a recently fetched Twitter user object from the API v1. Stored user objects (e.g., using the <code>pickle</code> module) that are to be analyzed later will lead to an error.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def extract_followees(self, user_object: tweepy.User) -&gt; Dict[str, str | int]:
+    &quot;&quot;&quot;Extract IDs, names, and screen names from a user's followees.
+
+    Args:
+        user_object (tweepy.User): Tweepy User Object.
+
+    Returns:
+        Dict[str, str | int]: Dictionary containing IDs, names, and screen names.
+    &quot;&quot;&quot;
+    info = {&quot;followees_ids&quot;: list(), &quot;followees_names&quot;: list(), &quot;followees_screen_names&quot;: list()}
+    # extract IDs, names and screen names
+    for followee in user_object.friends():
+        info[&quot;followees_ids&quot;].append(followee.id)
+        info[&quot;followees_names&quot;].append(followee.name)
+        info[&quot;followees_screen_names&quot;].append(followee.screen_name)
+    return info
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="clean_tweet">clean_tweet</h3>
+<p>Utility function to clean tweet text by removing links, special characters using simple regex statements. It takes in the raw text of a tweet.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataProcessor.clean_tweet(tweet: str)
+</code></pre>
+<p>This function is used before the <code>detect_tweet_sentiment</code> function. Thus, the tweet is cleaned first and then its sentiment is determined. Both functions are used in combination within the <code>TwitterAPI</code> class.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def clean_tweet(self, tweet: str) -&gt; str:
+    &quot;&quot;&quot;Utility function to clean tweet text by removing links, special characters using simple regex statements.
+
+    Args:
+        tweet (str): Raw text of the Tweet.
+
+    Returns:
+        str: Cleaned Tweet
+    &quot;&quot;&quot;
+    return &quot; &quot;.join(re.sub(r&quot;(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)&quot;, &quot; &quot;, tweet).split())
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="detect_tweet_sentiment">detect_tweet_sentiment</h3>
+<p>Utility function to classify sentiment of passed tweet using vader sentiment analyzer. English Tweets only. The function takes in the text of a tweet (cleaned from special characters, linkes, emojis, etc.) and will return the tweet sentiment as well as the polarity scores.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataProcessor.detect_tweet_sentiment(tweet: str)
+</code></pre>
+<p>For sentiment detection, the <a href="https://github.com/cjhutto/vaderSentiment">Vader sentiment analyzer</a> is used as this one turned out to be more accurate for tweets compared to NLTK sentiment analyzers.</p>
+<p>The function will return a dictionary containing the label of the sentiment (i.e., positive, neutral, or negative) and the polarity scores:</p>
+<pre><code class="language-python">{&quot;label&quot;: label,
+&quot;polarity_scores&quot;: polarity_score}
+</code></pre>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def detect_tweet_sentiment(self, tweet: str) -&gt; dict:
+    &quot;&quot;&quot;Utility function to classify sentiment of passed tweet using textblob's sentiment method. English Tweets only.
+
+    Args:
+        tweet (str): The raw text of the Tweet.
+
+    Returns:
+        str: the sentiment of the Tweet (either positive, neutral, or negative) and the polarity scores.
+    &quot;&quot;&quot;
+    # create VADER instance
+    analyser = SentimentIntensityAnalyzer()
+    # get polarity scores from cleaned tweet
+    polarity_scores = analyser.polarity_scores(self.clean_tweet(tweet))
+    # define label
+    if polarity_scores[&quot;compound&quot;] &gt;= 0.05:
+        label = &quot;positive&quot;
+    elif polarity_scores[&quot;compound&quot;] &lt;= -0.05:
+        label = &quot;negative&quot;
+    else:
+        label = &quot;neutral&quot;
+    # return label and polarity scores
+    return {&quot;label&quot;: label, &quot;polarity_scores&quot;: polarity_scores}
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="calc_similarity">calc_similarity</h3>
+<p>This function is used to calculate the similarity between multiple user or tweet objects. The function takes in either a list of user objects or a list of public tweet metrics as well as a <code>features</code> list. Either user objects or tweet metrics need to be provided, not both.</p>
+<p>The user objects must be recently fetched from the Twitter API v1. A stored object (e.g., by using the <code>pickle</code> Python module) will not have the necessary properties to be resolved by this function. Otherwise, an error will be returned.</p>
+<p>The similarity is calculated based on a feature vector containing numeric values. Thus, for a given set of user or tweet attributes, the features must be provided on which the similarity will be computed.</p>
+<p>As a distance measure and, thus, the similarity of feature vectors, the vector norm of second order will be calculated which is equivalent to the euclidean distance. Therefore, the <a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.norm.html"><code>numpy.linalg.norm</code></a> function is used. The smaller the distance, the more similar the two vectors are.</p>
+<p>The function will determine the distance between a distinct pair of user or tweet objects. For instance, when three user objects for the Twitter accounts <code>12355</code>, <code>734231</code>, <code>9083468</code> are provided, the following output will be generated:</p>
+<pre><code class="language-python">{(12355, 734231): 4567.098,
+(12355, 9083468): 5980.076,
+(734231, 9083468): 8763.32}
+</code></pre>
+<p>The output dictionary contains the distinct pairs of objects as a tuple as dictionary keys. The distances for each distinct pair is given as dictionary value. The output is sorted in ascending order. Hence, the minimal distance and, thus, the most similar pair is provided as first dictionary entry.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataProcessor.calc_similarity(user_objs: List[dict] | None = None, tweet_metrics: List[Dict[int, dict]] | None = None, *, features: List[str])
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>user_objs</code> (List[dict] | None, optional): List of serialized Twitter user objects from Twitter Search API v1. Defaults to None.</li>
+<li><code>tweet_metrics</code> (List[Dict[int | dict]] | None, optional): List of public Tweet metrics as dictionaries with Tweet IDs as keys. Defaults to None.</li>
+<li><code>features</code> (List[str]): Features that should be contained in the feature vector. Features have to be numeric and must belong to the respective object (i.e., user or tweet.)</li>
+</ul>
+<p>The features that can be provided for the <code>features</code> list can be found in the <a href="../../user-guide/overview/literals-compare-tweets/">detailed description of the attributes for the <code>compare_tweets</code> function</a> and the <a href="../../user-guide/overview/literals-compare-users/">detailed description of the attributes for the  <code>compare_users</code> function</a>.</p>
+<p>The implementation design of this function allows a comparison of Twitter users or tweets based on the available metrics. The implementation was inspired by the characterics of social bots on Twitter as they often have a similar number of followers or followees and their posted tweets often have a similar number of likes. Thus, the calculated similarities might help to identify bot-like behavior of Twitter accounts as well as identify deviations from normal Twitter accounts. If their similarities are small, they are likely to have a similar behavior on Twitter (i.e., a bot could be analyzed).</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def calc_similarity(self, user_objs: List[dict] | None = None, tweet_metrics: List[Dict[int, dict]] | None = None, *, features: List[str]) -&gt; dict:
+    &quot;&quot;&quot;Calculates the euclidean distance of users/tweets based on a feature vector. Either user objects or Tweet objects must be specified, not both.
+
+    Args:
+        user_objs (List[dict] | None, optional): List of serialized Twitter user objects from Twitter Search API v1. Defaults to None.
+        tweet_metrics (List[Dict[int | dict]] | None, optional): List of public Tweet metrics as dictionaries with Tweet IDs as keys. Defaults to None.
+        features (List[str]): Features that should be contained in the feature vector. Features have to be numeric and must belong to the respective object (i.e., user or tweet.)
+
+    Raises:
+        ValueError: If either 'user_objs' and 'tweet_objs' or none of them were provided.
+        AssertionError: If non-numeric feature was provided in the 'features' list.
+
+    Returns:
+        dict: Unique pair of users/tweets containing the respective euclidean distance. Sorted in ascending order.
+    &quot;&quot;&quot;
+    # init empty dict to store distances
+    distances = dict()
+    # if users and tweets were provided
+    if user_objs and tweet_metrics:
+        raise ValueError(&quot;Either 'user_objs' or 'tweet_metrics' must be specified, not both.&quot;)
+    # if only user_objs were provided
+    elif user_objs:
+        # iterate over every uniqe pair
+        for i in range(len(user_objs)):
+            for j in range(i + 1, len(user_objs)):
+                # get user objects for each pair
+                user_i = user_objs[i]
+                user_j = user_objs[j]
+                # build feature vector
+                vec_i = np.array([user_i[feature] for feature in features])
+                vec_j = np.array([user_j[feature] for feature in features])
+                # feature vectors have to contain numeric values
+                assert all(isinstance(feat, Number) for feat in vec_i), &quot;only numeric features are allowed&quot;
+                assert all(isinstance(feat, Number) for feat in vec_j), &quot;only numeric features are allowed&quot;
+                # calc euclidean distance
+                distances[(user_i[&quot;id&quot;], user_j[&quot;id&quot;])] = np.linalg.norm(vec_i - vec_j, ord=2)
+    elif tweet_metrics:
+        # iterate over every uniqe pair
+        for i in range(len(tweet_metrics)):
+            for j in range(i + 1, len(tweet_metrics)):
+                # get Tweet objects for each pair
+                tweet_i = list(tweet_metrics.values())[i]
+                tweet_j = list(tweet_metrics.values())[j]
+                # build feature vector
+                vec_i = np.array([tweet_i[feature] for feature in features])
+                vec_j = np.array([tweet_j[feature] for feature in features])
+                # feature vectors have to contain numeric values
+                assert all(isinstance(feat, Number) for feat in vec_i), &quot;only numeric features are allowed&quot;
+                assert all(isinstance(feat, Number) for feat in vec_j), &quot;only numeric features are allowed&quot;
+                # calc euclidean distance
+                distances[(list(tweet_metrics.keys())[i], list(tweet_metrics.keys())[j])] = np.linalg.norm(vec_i - vec_j, ord=2)
+    # if none was provided
+    else:
+        raise ValueError(&quot;Either 'user_objs' or 'tweet_metrics' must be provided.&quot;)
+    # sort dict in ascendin order
+    sorted_values = dict(sorted(distances.items(), key=operator.itemgetter(1)))
+    return sorted_values
+</code></pre>
+
+</details>
+<hr />
 
             </div>
           </div><footer>

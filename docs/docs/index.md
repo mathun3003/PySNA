@@ -4,7 +4,7 @@ Contents for users:
 
 - [Installation](user-guide/installation.md)
 - [Quick Start](user-guide/quick-start.md)
-- [Overview](user-guide/overview.md)
+- [User Guide](user-guide/overview.md)
     - [TwitterAPI](user-guide/overview/TwitterAPI.md)
     - [Utility Functions](user-guide/overview/Utilities.md)
 - [CLI Tool](user-guide/overview/cli.md)
@@ -12,10 +12,14 @@ Contents for users:
 Contents for maintainers:
 
 - [Implementation Details](maintenance/implementation-details.md)
+    - [TwitterAPI](maintenance/TwitterAPI.md)
     - [TwitterDataFetcher](maintenance/TwitterDataFetcher.md)
     - [TwitterDataProcessor](maintenance/TwitterDataProcessor.md)
     - [BaseDataProcessor](maintenance/BaseDataProcessor.md)
-- [Software Tests](maintenance/testing.md)
+    - [Utility Functions](maintenance/utils.md)
+    - [CLI Functions](maintenance/cli.md)
+    - [Software Tests](maintenance/testing.md)
+    - [Repository Information](maintenance/repository.md)
 
 Links:
 

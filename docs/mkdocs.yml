@@ -9,15 +9,19 @@ nav:
   - Home: index.md
   - Installation: user-guide/installation.md
   - Quick Start: user-guide/quick-start.md
-  - Overview:
+  - User Guide:
       - TwitterAPI: user-guide/overview/TwitterAPI.md
       - Utility Functions: user-guide/overview/Utilities.md
       - CLI Tool: user-guide/overview/cli.md
   - Implementation Details: # TODO
+      - TwitterAPI: maintenance/TwitterAPI.md # TODO
       - TwitterDataFetcher: maintenance/TwitterDataFetcher.md # TODO
-      - TwitterDataProcessor: maintenance/TwitterDataProcessor.md # TODO
-      - BaseDataProcessor: maintenance/BaseDataProcessor.md # TODO
+      - TwitterDataProcessor: maintenance/TwitterDataProcessor.md
+      - BaseDataProcessor: maintenance/BaseDataProcessor.md
+      - Utility Functions: maintenance/utils.md # TODO
+      - CLI Function: maintenance/cli.md # TODO
       - Software Testing: maintenance/testing.md # TODO
+      - Repository Information: maintenance/repository.md # TODO
 
 # Theme
 theme:
