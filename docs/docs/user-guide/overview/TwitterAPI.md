@@ -50,7 +50,10 @@ TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str
 
 Receive requested user information from Twitter User Object.  
 
-For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+This function takes in a Twitter user identifier (i.e., an ID or unique screen name). The attributes are passed in by a list object or by a single string.
+
+
+For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, ``None`` will be returned.
 
 Args:
 
@@ -95,7 +98,10 @@ TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_CO
 
 Compare two or more users with the specified comparison attribute(s).  
 
-For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+This function takes in multiple Twitter user identifiers (i.e., IDs or unique screen names). The comparison attributes are passed in by a list object or by a single string.
+
+
+For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
 Args:
 
@@ -151,7 +157,9 @@ tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, ret
 
 Receive requested Tweet information from Tweet Object.  
 
-For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+This function takes in a tweet ID as string or integer representation. The attributes are passed in by a list object or by a single string.
+
+For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, ``None`` will be returned.
 
 Args:
 
@@ -194,7 +202,10 @@ compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_
 ```
 Compare two or more Tweets with the specified comparison attribute.  
 
-For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+This function takes in multiple tweet IDs as string or integer representation. The comparison attributes are passed in by a list object or by a single string.
+
+
+For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
 
 Args:
 

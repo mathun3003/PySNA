@@ -14,8 +14,8 @@ nav:
       - Utility Functions: user-guide/overview/Utilities.md
       - CLI Tool: user-guide/overview/cli.md
   - Implementation Details: # TODO
-      - TwitterAPI: maintenance/TwitterAPI.md # TODO
-      - TwitterDataFetcher: maintenance/TwitterDataFetcher.md # TODO
+      - TwitterAPI: maintenance/TwitterAPI.md
+      - TwitterDataFetcher: maintenance/TwitterDataFetcher.md
       - TwitterDataProcessor: maintenance/TwitterDataProcessor.md
       - BaseDataProcessor: maintenance/BaseDataProcessor.md
       - Utility Functions: maintenance/utils.md # TODO
