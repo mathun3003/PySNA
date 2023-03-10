@@ -74,8 +74,10 @@
                   <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Utility Functions</a>
+    <ul class="current">
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Function</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
                   </li>
@@ -107,13 +109,445 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
 
+                <h2 id="utility-functions">Utility Functions</h2>
+<p>Some utility functions were implemented to support export and import of collected data to different formats. With the help of these functions, a comparison over time is made possible as they can be used in combination with specific arguments from the main functions of the <code>TwitterAPI</code> class.</p>
+<p>Besides the class-linked methods from the <code>TwitterAPI</code>, <code>TwitterDataFetcher</code>, and <code>TwitterDataProcessor</code> classes, utility functions were developed which are part of the <code>utils</code> module of the package. These are, by not being part of a class, not only usable for Twitter data exclusively, but also for data from other social media platforms and are not linked to classes or the corresponding platforms, therefore. Methods for export to CSV and JSON files were designed as well as appending new observations to existing files.</p>
+<p>All functions can be imported by running:</p>
+<pre><code class="language-python">from pysna.utils import *
+</code></pre>
+<p>or name the desired functions in the import statement.</p>
+<p>In the following, functions for internal usage as well as user functions are presented.</p>
+<h1 id="internal-utility-functions">Internal Utility Functions</h1>
+<p>The following functions are used internally at different places in the code. They are not intended to be used directly by users. Often, they are designed to be helper functions for contributing developers.</p>
+<hr />
+<h3 id="strf_datetime">strf_datetime</h3>
+<p>Converts datetime objects to string representation. Default format is <code>%Y-%m-%d %H:%M:%S</code> and will return a datetime string like <code>2023-03-10 09:16:12.662320</code>.</p>
+<p>Function:</p>
+<pre><code class="language-python">strf_datetime(date: datetime, format: str = &quot;%Y-%m-%d %H:%M:%S&quot;)
+</code></pre>
+<p>This function takes in a date format string. Any other format different to the default one can be passed in using the <code>format</code> argument.</p>
+<p>This function is used internally to convert a Unix timestamp to a readable format. This is the case, for the <code>return_timestamp</code> argument of the four main functions from the <code>TwitterAPI</code> class`.</p>
+<details>
+<summary>Source Code</summary>
 
+<pre><code class="language-python">def strf_datetime(date: datetime, format: str = &quot;%Y-%m-%d %H:%M:%S&quot;) -&gt; str:
+    &quot;&quot;&quot;Convert datetime object to string representation.
+
+    Args:
+        date (datetime): Input datetime object
+        format (str, optional): Datetime string format. Defaults to &quot;%Y-%m-%d %H:%M:%S&quot;.
+
+    Returns:
+        str: string representation of input datetime in given format.
+    &quot;&quot;&quot;
+    return date.strftime(format)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="tuple_to_string-private">tuple_to_string (private)</h3>
+<p>This function serializes tuples-keys from dictionaries to string representation. A tuple-key wil obtain a leading <code>__tuple__</code> string and decomposed in list representation. This function is private as it is not intended for external usage by the package user.</p>
+<p>The reason why this function was implemented is that an export to JSON format is not possible with tuples as keys. Some of the four main functions from the <code>TwitterAPI</code> class will generate tuples as dictionary keys (e.g., when a relationship of two Twitter users or twees is investigated). The JSON format does not support tuples for serialization and, thus, needs a list representation of Python tuples. This function will iterate recursively through the entire dictionary that is provided to the function and will exchange the dictionary tuple-keys to a string representation. Thus, even for nested dictionaries, this function will find and convert all tuple-keys inside the dictionary.</p>
+<p>Function:</p>
+<pre><code class="language-python">_tuple_to_string(obj: Any)
+</code></pre>
+<p>For instance, a tuple-key like <code>("WWU_Muenster", "goetheuni")</code> will be encoded to <code>__tuple__["WWU_Muenster", "goetheuni"]</code>. Then, the <code>JSONEncoder</code> class from the <code>json</code> Python module can convert this key as string.</p>
+<p>This function is used within the <a href="./#export_to_json"><code>export_to_json</code></a> function to serialize tuples inside the data dictionary.</p>
+<p>In order to avoid a manipulation of the object passed in, a deep copy of the object is performed at the beginning before conversion.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def _tuple_to_string(obj: Any) -&gt; Any:
+    &quot;&quot;&quot;Serialize tuple-keys to string representation. A tuple wil obtain a leading '__tuple__' string and decomposed in list representation.
+
+    Args:
+        obj (Any): Typically a dict, tuple, list, int, or string.
+
+    Returns:
+        Any: Input object with serialized tuples.
+
+    Example:
+        A tuple (&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;) will be encoded to &quot;__tuple__[&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;].
+    &quot;&quot;&quot;
+    # deep copy object to avoid manipulation during iteration
+    obj_copy = copy.deepcopy(obj)
+    # if the object is a dictionary
+    if isinstance(obj, dict):
+        # iterate over every key
+        for key in obj:
+            # set for later to avoid modification in later iterations when this var does not get overwritten
+            serialized_key = None
+            # if key is tuple
+            if isinstance(key, tuple):
+                # stringify the key
+                serialized_key = f&quot;__tuple__{list(key)}&quot;
+                # replace old key with encoded key
+                obj_copy[serialized_key] = obj_copy.pop(key)
+            # if the key was modified
+            if serialized_key is not None:
+                # do it again for the next nested dictionary
+                obj_copy[serialized_key] = _tuple_to_string(obj[key])
+            # else, just do it for the next dictionary
+            else:
+                obj_copy[key] = _tuple_to_string(obj[key])
+    return obj_copy
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="string_to_tuple-private">string_to_tuple (private)</h3>
+<p>This function converts serialized tuples back to original representation. Serialized tuples need to have a leading <code>__tuple__</code> string. This function is private as no external usage by the package user is intended.</p>
+<p>This function does the opposite of what the <a href="./#tuple_to_string"><code>_tuple_to_string</code></a> function does. Since any tuple-keys were decomposed into a string representation through the <a href="./#export_to_json"><code>export_to_json</code></a> function, these tuples need to be recovered when the data is to be imported again. Therefore, this function is used internally within the <a href="./#load_from_json"><code>load_from_json</code></a> function. This function iterates recursively through the entire JSON data that is being loaded and decodes any serialized tuple with a leading <code>__tuple__</code> string to the corresponding Python tuple representation, so that serialized tuples are recovered.</p>
+<p>Function:</p>
+<pre><code class="language-python">_string_to_tuple(obj: Any)
+</code></pre>
+<p>In order to avoid a manipulation of the object passed in, a deep copy of the object is performed at the beginning before conversion.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def _string_to_tuple(obj: Any) -&gt; Any:
+    &quot;&quot;&quot;Convert serialized tuples back to original representation. Tuples need to have a leading &quot;__tuple__&quot; string.
+
+    Args:
+        obj (Any): Typically a dict, tuple, list, int, or string.
+
+    Returns:
+        Any: Input object with recovered tuples.
+
+    Example:
+        A encoded tuple &quot;__tuple__[&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;] will be decoded to (&quot;WWU_Muenster&quot;, &quot;goetheuni&quot;).
+    &quot;&quot;&quot;
+    # deep copy object to avoid manipulation during iteration
+    obj_copy = copy.deepcopy(obj)
+    # if the object is a dictionary
+    if isinstance(obj, dict):
+        # iterate over every key
+        for key in obj:
+            # set for later to avoid modification in later iterations when this var does not get overwritten
+            serialized_key = None
+            # if key is a serialized tuple starting with the &quot;__tuple__&quot; affix
+            if isinstance(key, str) and key.startswith(&quot;__tuple__&quot;):
+                # decode it so tuple
+                serialized_key = tuple(key.split(&quot;__tuple__&quot;)[1].strip(&quot;[]&quot;).replace(&quot;'&quot;, &quot;&quot;).split(&quot;, &quot;))
+                # if key is number in string representation
+                if all(entry.isdigit() for entry in serialized_key):
+                    # convert to integer, recover ID
+                    serialized_key = tuple(map(int, serialized_key))
+                # replace old key with encoded key
+                obj_copy[serialized_key] = obj_copy.pop(key)
+            # if the key was modified
+            if serialized_key is not None:
+                # do it again for the next nested dictionary
+                obj_copy[serialized_key] = _string_to_tuple(obj[key])
+            # else, just do it for the next dictionary
+            else:
+                obj_copy[key] = _string_to_tuple(obj[key])
+    # if another instance was found
+    elif isinstance(obj, list):
+        for item in obj:
+            _string_to_tuple(item)
+    return obj_copy
+</code></pre>
+
+</details>
+
+<hr />
+<h1 id="user-utility-functions">User Utility Functions</h1>
+<p>These functions are designed for external usage by the package user. They allow export to JSON or CSV formats as well as appending new observations to existing files. For the JSON format specifically, a function was designed to load and recover a saved Python dictionary from a JSON file.</p>
+<p>All user utility function can be imported by running</p>
+<pre><code class="language-python">from pysna import *
+</code></pre>
+<p>as they are part of the import-all shortcut.</p>
+<hr />
+<h3 id="export_to_json">export_to_json</h3>
+<p>Export dictionary data to JSON file. Tuple-keys are encoded to strings.</p>
+<p>Function:</p>
+<pre><code class="language-python">export_to_json(data: dict, export_path: str, encoding: str = &quot;utf-8&quot;, ensure_ascii: bool = False, *args)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>data</code> (dict): Data dictionary that should be exported.</li>
+<li><code>export_path</code> (str): Export path including file name and extension.</li>
+<li><code>encoding</code> (str, optional): Encoding of JSON file. Defaults to "utf-8".</li>
+<li><code>ensure_ascii</code> (bool): Wheather to convert characters to ASCII. Defaults to False.</li>
+</ul>
+<p>Other encodings could be specified by overwriting the default for the <code>encoding</code> argument. The <code>ensure_ascii</code> argument is used for the <code>json.dump</code> function from the <code>json</code> Python module. Additional arguments can be passed to the <code>json.dump</code> function by the <code>`*args</code> argument of this function.</p>
+<p>In case a tuple was detected in the input data dictionary, an error will be raised during the serialization since JSON does not support tuple encoding. Therefore, the <code>TypeError</code> or <code>json.JSONDecodeError</code> are caught and the data dictionary will be preprocessed by the internal <a href="./#tuple_to_string"><code>_tuple_to_string</code></a> function. Then, all tuple-keys inside the data dictionary will be converted to a string representation and the export will be repeated with the serialized tuples.</p>
+<p>Any exported dictionary will be exported to a JSON file of the form:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        ...
+    ]
+}
+</code></pre>
+<p>Thus, the dictionary will be stored inside the list of the <code>data</code> key. This allows appending new entries to the same file (for more information, see the <a href="./#append_to_json"><code>append_to_json</code></a> function).</p>
+<p>Reference: <a href="https://docs.python.org/3/library/json.html">https://docs.python.org/3/library/json.html</a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def export_to_json(data: dict, export_path: str, encoding: str = &quot;utf-8&quot;, ensure_ascii: bool = False, *args):
+    &quot;&quot;&quot;Export dictionary data to JSON file. Tuple-keys are encoded to strings.
+
+    Args:
+        data (dict): Data dictionary
+        export_path (str): Export path including file name and extension.
+        encoding (str, optional): Encoding of JSON file. Defaults to &quot;utf-8&quot;.
+        ensure_ascii (bool): Wheather to convert characters to ASCII. Defaults to False.
+    &quot;&quot;&quot;
+
+    try:
+        with open(export_path, &quot;w&quot;, encoding=encoding) as jsonfile:
+            # add 'data' key in order to append additional dicts to same file, if not already exist
+            if &quot;data&quot; not in data:
+                serialized_data = {&quot;data&quot;: [data]}
+            # dump to json
+            json.dump(serialized_data, jsonfile, indent=4, ensure_ascii=ensure_ascii, *args)
+    except IOError as e:
+        raise e
+    # usually when tuple cannot be serialized
+    except TypeError or json.JSONDecodeError:
+        # serialize tuples
+        data = _tuple_to_string(data)
+        # retry
+        export_to_json(data=data, export_path=export_path, encoding=encoding, ensure_ascii=ensure_ascii)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="append_to_json">append_to_json</h3>
+<p>Append a dictionary to an existing JSON file. Tuple-keys are encoded to strings.</p>
+<p>Function:</p>
+<pre><code class="language-python">append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>input_dict</code> (Dict[str, Any]): Dictionary containing new data that should be added to file.</li>
+<li><code>filepath</code> (str): Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
+<li><code>encoding</code> (str, optional): The encoding of the file. Defaults to "utf-8".</li>
+</ul>
+<p>The function takes in a data dictionary containing the data that should be added to an existing file. Tuple-keys will be encoded to strings using the <a href="./#tuples_to_strings"><code>_tuples_to_strings</code></a> function. If any tuple-key inside the dictionary is detected during the serialization, the corresponding <code>TypeError</code> and/or <code>json.JSONDecodeError</code> will be caught and the <a href="./#tuples_to_strings"><code>_tuples_to_strings</code></a> will be invoked. After that, the export will be repeated. The filepath of the existing JSON file must be provided including the file extension. Other encodings different to UTF-8 can also be specified. Keyword arguments can also be passed to the <code>json.dumps</code> function by the <code>**kwargs</code> argument.</p>
+<p>The provided input data dictionary will be appended to the <code>data</code> key of the JSON file. Hence, the existing file must be of the form:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        ...
+    ]
+}
+</code></pre>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs):
+    &quot;&quot;&quot;Append a dictionary to an existing JSON file. Tuple-keys are encoded to strings.
+
+    Args:
+        input_dict (Dict[str, Any]): Dictionary containing new data that should be added to file.
+        filepath (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
+        encoding (str, optional): The encoding of the file. Defaults to &quot;utf-8&quot;.
+
+    NOTE: Existing JSON file needs a 'data' key.
+
+    Raises:
+        ValueError: If input dict and file do not have the same keys or columns, respectively.
+    &quot;&quot;&quot;
+
+    # load file from path
+    with open(filepath, &quot;r&quot;, encoding=encoding) as input_file:
+        f = json.load(input_file, **kwargs)
+    # existing file should have a &quot;data&quot;-key and a list to append to
+    if &quot;data&quot; not in f.keys():
+        raise KeyError(&quot;The file to be extended must contain the key 'data'.&quot;)
+    else:
+        try:
+            # serialize tuples if any exist
+            input_dict = _tuple_to_string(input_dict)
+            # append new dict to file
+            f[&quot;data&quot;].append(input_dict)
+            with open(filepath, &quot;w&quot;, encoding=encoding) as jsonfile:
+                json.dump(f, jsonfile, indent=4, **kwargs)
+        except IOError as e:
+            raise e
+        # usually when tuple cannot be serialized
+        except TypeError or json.JSONDecodeError:
+            # serialize tuples
+            input_dict = _tuple_to_string(input_dict)
+            # retry
+            append_to_json(input_dict=input_dict, filepath=filepath, encoding=encoding, **kwargs)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="load_from_json">load_from_json</h3>
+<p>Load Python dictionary from JSON file. Tuples are recovered.</p>
+<p>Function:</p>
+<pre><code class="language-python">load_from_json(filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>filepath</code> (str): Path to JSON file.</li>
+<li><code>encoding</code> (str, optional): Encoding of file. Defaults to "utf-8".</li>
+</ul>
+<p>The function allows to recover a JSON serialized dictionary containing tuple-keys. Therefore, the interncal <a href="./#strings_to_tuples"><code>_strings_to_tuples</code></a> is used. The user will get a full Python dictionary like before the export to JSON of it.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def load_from_json(filepath: str, encoding: str = &quot;utf-8&quot;, **kwargs) -&gt; dict:
+    &quot;&quot;&quot;Load Python Dictionary from JSON file. Tuples are recovered.
+
+    Args:
+        filepath (str): Path to JSON file.
+        encoding (str, optional): Encoding of file. Defaults to &quot;utf-8&quot;.
+
+    Returns:
+        dict: Python Dictionary containing (deserialized) data from JSON file.
+    &quot;&quot;&quot;
+    # read from filepath
+    with open(filepath, &quot;r&quot;, encoding=encoding) as jsonfile:
+        f = json.load(jsonfile, **kwargs)
+
+    if &quot;data&quot; in f:
+        entries = [_string_to_tuple(entry) for entry in f[&quot;data&quot;]]
+        f = {&quot;data&quot;: entries}
+    else:
+        # try to deserialize if any tuples were found in the file
+        f = _string_to_tuple(f)
+    return f
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="export_to_csv">export_to_csv</h3>
+<p>Besides the JSON export, a CSV export option is provided by this function. Dictionary data is exported to CSV files using the <a href="https://pandas.pydata.org/">Pandas</a> package.</p>
+<p>Function:</p>
+<pre><code class="language-python">export_to_csv(data: dict, export_path: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, **kwargs)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>data</code> (dict): Data dictionary (nested dictionaries are not allowed)</li>
+<li><code>export_path</code> (str): Export path including file name and extension.</li>
+<li><code>encoding</code> (str, optional): Encoding of CSV file. Defaults to 'utf-8'.</li>
+<li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to ",".</li>
+<li><code>kwargs</code>: Keyword arguments for pd.DataFrame.to_csv. See references below for further details.</li>
+</ul>
+<p>The function will raise a <code>ValueError</code> if a nested dictionary was provided.</p>
+<p>This function was designed to allow an export of a simple one-level dictionary to a more readable format compared to JSON. However, it is highly recommended to use the JSON export function instead.</p>
+<p>Reference: <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html</a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def export_to_csv(data: dict, export_path: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, **kwargs):
+    &quot;&quot;&quot;Export dictionary data to CSV file.
+
+    Args:
+        data (dict): Data dictionary (nested dictionaries are not allowed)
+        export_path (str): Export path including file name and extension.
+        encoding (str, optional): Encoding of CSV file. Defaults to 'utf-8'.
+        sep (str, optional): Value separator for CSV file. Defaults to &quot;,&quot;.
+        kwargs: Keyword arguments for pd.DataFrame.to_csv. See references below for further details.
+
+    Raises:
+        ValueError: If nested dictionary was provided.
+        IOError: If export fails due to bad input.
+
+    References: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
+    &quot;&quot;&quot;
+    # catch nested dict
+    if any(isinstance(data[key], dict) for key in data.keys()):
+        raise ValueError(&quot;'data' dictionary must not contain nested dictionaries. Use JSON export instead.&quot;)
+    try:
+        # convert to pandas dataframe from dict
+        f = pd.DataFrame(data, index=[0])
+        # export data frame
+        f.to_csv(export_path, encoding=encoding, sep=sep, index=False, **kwargs)
+    except IOError as e:
+        raise e
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="append_to_csv">append_to_csv</h3>
+<p>Append a dictionary to an existing CSV file.</p>
+<p>Function:</p>
+<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>data</code> (dict): Dictionary containing new data that should be added to file.</li>
+<li><code>filepath</code> (str): Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
+<li><code>encoding</code> (str, optional): Encoding of CSV file.. Defaults to 'utf-8'.</li>
+<li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to ",".</li>
+<li><code>args</code>: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.</li>
+</ul>
+<p>The <code>args</code> argument allows to specify additional read and write options. Therefore, the user can pass in a list containing keyword arguments for read and write. Thus, the <code>args</code> argument has to be of the form:</p>
+<pre><code class="language-python">[{&quot;doublequote&quot;: False},    # read keywords arguments
+{&quot;prefix&quot;: &quot;foo_&quot;}]         # write keywords argument
+</code></pre>
+<p>Read keyword arguments will be passed to the p<code>andas.read_csv</code> function whereas write keyword arguments will be passed to the <code>pandas.DataFrame.to_csv</code> function.</p>
+<p>The function will raise a <code>ValueError</code> if a nested dictionary was provided.</p>
+<p>This function was designed to allow an append of a simple one-level dictionary to an existing CSV file. However, it is highly recommended to use the JSON export function instead.</p>
+<p>References:  </p>
+<ul>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html">Pandas to CSV</a></li>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html">Pandas read CSV</a></li>
+</ul>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args):
+    &quot;&quot;&quot;Append a dictionary to an existing CSV file.
+
+    Args:
+        data (dict): Dictionary containing new data that should be added to file.
+        filepath (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
+        encoding (str, optional): Encoding of CSV file.. Defaults to 'utf-8'.
+        sep (str, optional): Value separator for CSV file. Defaults to &quot;,&quot;.
+        args: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.
+
+    Raises:
+        ValueError: If nested dictionary was provided.
+        ValueError: If 'args' does not contain a dictionaries for read and write.
+        IOError: If export fails due to bad input.
+
+    References:
+        - https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
+        - https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
+    &quot;&quot;&quot;
+    # catch nested dict
+    if any(isinstance(data[key], dict) for key in data.keys()):
+        raise ValueError(&quot;'data' dictionary must not contain nested dictionaries. Use JSON export instead.&quot;)
+    if args:
+        if any(not isinstance(kwargs, dict) for kwargs in args):
+            raise ValueError(&quot;'args' must be of type list containing dictionaries.&quot;)
+    try:
+        # read existing file
+        f = pd.read_csv(filepath, sep=sep, encoding=encoding)
+        # convert data dict to df
+        input_df = pd.DataFrame(data, index=[0])
+        # concat dfs
+        f = pd.concat([f, input_df], axis=0)
+        # export to CSV
+        f.to_csv(filepath, sep=sep, encoding=encoding, index=False)
+    except IOError as e:
+        raise e
+</code></pre>
+
+</details>
+<hr />
+<p>A function for CSV import was not designed as this was already implemented by the <code>csv</code> Python package or the <code>Pandas</code> package. Thus, a comparable function seemed unreasonable and redundant.</p>
+<hr />
 
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../BaseDataProcessor/" class="btn btn-neutral float-left" title="BaseDataProcessor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../cli/" class="btn btn-neutral float-right" title="CLI Function">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../cli/" class="btn btn-neutral float-right" title="CLI Functions">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>

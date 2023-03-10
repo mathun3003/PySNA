@@ -922,6 +922,7 @@ TwitterDataFetcher.get_public_metrics(tweet_id: str | int)
 The function takes in the tweet ID as string or integer representation.
 
 The following public metrics are returned:  
+
 - ``impressions_count`` (=views)
 - ``quote_count``
 - ``reply_count``

@@ -18,9 +18,9 @@ nav:
       - TwitterDataFetcher: maintenance/TwitterDataFetcher.md
       - TwitterDataProcessor: maintenance/TwitterDataProcessor.md
       - BaseDataProcessor: maintenance/BaseDataProcessor.md
-      - Utility Functions: maintenance/utils.md # TODO
-      - CLI Function: maintenance/cli.md # TODO
-      - Software Testing: maintenance/testing.md # TODO
+      - Utility Functions: maintenance/utils.md
+      - CLI Functions: maintenance/cli.md
+      - Software Testing: maintenance/testing.md
       - Repository Information: maintenance/repository.md # TODO
 
 # Theme

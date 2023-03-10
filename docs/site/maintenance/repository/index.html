@@ -75,11 +75,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Function</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Repository Information</a>
+    <ul class="current">
+    </ul>
                   </li>
               </ul>
       </div>
@@ -107,7 +109,114 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
 
-
+                <h2 id="repository-information">Repository Information</h2>
+<h1 id="directory-tree">Directory Tree</h1>
+<pre><code>docs/
+    mkdocs.yml
+    docs/
+        ...
+    site/
+        ...
+examples/
+    append_to_csv.ipynb
+    append_to_json.ipynb
+    compare_tweets.ipynb
+    compare_users.ipynb
+    export_to_csv.ipynb
+    export_to_json.ipynb
+    tweet_info.ipynb
+    user_info.ipynb
+    resources/
+        compare_tweets.json
+        tweet_info.json
+        user_info.csv
+        user_info.json
+pysna/
+    api.py
+    cli.py
+    fetch.py
+    process.py
+    utils.py
+    __init__.py
+tests/
+    config.py
+    test_api.py
+    test_fetch.py
+    test_process.py
+    test_utils.py
+    cassettes/
+        ...
+    fixtures/
+        ...
+.pre-commit-config.yaml
+build_deploy.sh
+LICENSE
+README.md
+requirements.txt
+setup.py
+</code></pre>
+<p><strong>Details</strong>:</p>
+<ul>
+<li>
+<p>The <code>docs</code> directory contains the documentation. The <a href="https://www.mkdocs.org/">mkdocs</a> package was used to build the documentation. The <code>mkdocs.yaml</code> specifies the navigation and structure or the documentation. the <code>docs/docs/</code> directory contains the markdowns files for the documentation. The <code>docs/site/</code> directory contains the HTML and JavaScript files that build the website. The website is hosted on GitHub Pages.</p>
+</li>
+<li>
+<p>The <code>examples</code> directory contains Jupyter Notebooks that shows how the package can be used and output examples. These files are mainly used to guide the user of the package and provide additional help. The <code>examples/resources/</code> directory contains saved files that were generated during a function call in one of the notebooks. Users can view these examples to get an idea of how data is saved with the help of this package.</p>
+</li>
+<li>
+<p>The <code>pysna</code> directory contains all necessary files for the pacakge.</p>
+<ul>
+<li><code>__init__.py</code> specifies the import statement shortcuts and is mandatory to define this directory as a Python package.</li>
+<li><code>api.py</code> contains the <code>TwitterAPI</code> class.</li>
+<li><code>cli.py</code> contains the CLI wrappers and functions for the <code>TwitterAPI</code> class.</li>
+<li><code>fetch.py</code> contains the <code>TwitterDataFetcher</code> class.</li>
+<li><code>process.py</code> contains the <code>BaseDataProcessor</code> and <code>TwitterDataProcessor</code> classes.</li>
+<li><code>utils.py</code> contains the (internal) utility functions.</li>
+</ul>
+</li>
+<li>
+<p>The <code>tests</code> directory contains all unit tests for the package.</p>
+<ul>
+<li>The <code>cassettes</code> folder contains all cassettes made by the <a href="https://vcrpy.readthedocs.io/en/latest/">VCR.py</a> library.</li>
+<li>The <code>fixtures</code> folder contains all byte encoded pickle fixtures.</li>
+<li><code>config.py</code> defines the base test case and configuration of test cases.</li>
+<li><code>test_api.py</code> contains all test cases for the <code>TwitterAPI</code> class.</li>
+<li><code>test_fetch.py</code> contains all test cases for the <code>TwitterDataFetcher</code> class.</li>
+<li><code>test_process.py</code> contains all test cases for the <code>BaseDataProcessor</code> and <code>TwitterDataProcessor</code> classes.</li>
+<li><code>test_utils.py</code> contains the test cases for internal utility functions.</li>
+</ul>
+</li>
+<li>
+<p>The <code>.pre-commit.yaml</code> files defines <a href="https://pre-commit.com/">pre-commit</a> hooks. They turned out to be very useful since they ensured clean coding during the implementation. The following pre-commit hooks were defined:</p>
+<ul>
+<li><code>check-yaml</code>: auto-formatting yaml files.</li>
+<li><code>end-of-file-fixer</code>: adds an empty line to the end of the file.</li>
+<li><code>trailing-whitespace</code>: removes trailing whitespace from any files (except markdown files for line breaks)</li>
+<li><code>requirements-txt-fixer</code>: checks the used and specified requirements from the <code>requirements.txt</code></li>
+<li><code>detect-private-key</code>: throws an exception if any string was found that looks like a private key/secret.</li>
+<li><code>fix-encoding-pragma</code>: remove the coding pragma in a python3-only codebase.</li>
+<li><code>black</code>: ensures <a href="https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html">black</a> code style.</li>
+<li><code>isort</code>: automatically sorts imports.</li>
+<li><code>flake8</code>: ensures code style according to <a href="https://flake8.pycqa.org/en/latest/">flake8</a>.</li>
+</ul>
+</li>
+<li>
+<p><code>build_deploy.sh</code> is used to push the package to the Python Package Index (PyPI). When running the script with the <code>--test</code> flag, the package will be pushed to the testing stage of PyPI instead of the production stage.</p>
+</li>
+<li>
+<p><code>LICENSE</code>: lincense specifications. MIT license.</p>
+</li>
+<li>
+<p><code>README.md</code>: basic readme file saying what you can do with this package.</p>
+</li>
+<li>
+<p><code>requirements.txt</code>: dependencies used for this package.</p>
+</li>
+<li>
+<p><code>setup.py</code>: setup file for package distribution.</p>
+</li>
+</ul>
+<hr />
 
             </div>
           </div><footer>
