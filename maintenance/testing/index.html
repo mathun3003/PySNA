@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
                   </li>
@@ -65,13 +65,33 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Software Testing</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#config">Config</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-twitterapi">Testing TwitterAPI</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-twitterdatafetcher">Testing TwitterDataFetcher</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-twitterdataprocessor">Testing TwitterDataProcessor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-utility-functions">Testing Utility Functions</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -99,12 +119,130 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>Coming soon...</p>
+                <h2 id="software-testing">Software Testing</h2>
+<p>During the implementation process, a mixture of manual and automated testing was performed.</p>
+<p>For automated testing, the library <a href="https://vcrpy.readthedocs.io/en/latest/">VCR.py</a> is used. Thereby, cassettes (i.e., separate files) allow recording HTTP interactions (and their metadata) from external dependencies that use HTTP requests. They are stored under the <code>tests/cassettes</code> folder of the repository. When the test case is rerun, the cassettes are used to simulate an HTTP request and its responses caused by the client by recreating it from the prerecorded interactions without producing any traffic on the external services.</p>
+<p><strong>NOTE</strong>: Whenever any function using a cassette or fixture for testing is modified in its behavior, it is likely that the cassette and fixture have to be recreated as they store the results of a previous version of the function. This is especially the case when a new (comparison) attribute is made available to any of the four main functions of the <code>TwitterAPI</code> class.</p>
+<p>After a function was implemented, it was tested manually first, and then the cassette was recoreded. A fixture with the expected results has been stored beforehand. During the implementation, regression testing was performed to ensure the correct functionality of the software component. The fixtures are saved under the <code>tests/fixtures</code> directory of the repository.</p>
+<p>All fixtures are byte encoded are stored in pickle files.</p>
+<p>Besides the VCR.py package, the <code>unittest</code> library was used to design test cases.</p>
+<h3 id="config">Config</h3>
+<p>Within the <code>config.py</code>, the secrets are loaded and a <code>unittest.Testcase</code> instance was created. This test case stores the secrets as well as class instances and forms the basis for other test cases.</p>
+<p>For testing with VCR.py, bearer tokens are filtered from the headers.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">tape = vcr.VCR(filter_headers=[&quot;Authorization&quot;])
+
+
+class PySNATestCase(unittest.TestCase):
+    def setUp(self):
+        self.bearer_token = bearer_token
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.access_token = access_token
+        self.access_token_secret = access_token_secret
+        self.rapidapi_key = rapidapi_key
+        self.rapidapi_host = rapidapi_host
+
+        self.api = TwitterAPI(self.bearer_token, self.consumer_key, self.consumer_secret, self.access_token, self.access_token_secret, self.rapidapi_key, self.rapidapi_host)
+
+        self.fetcher = TwitterDataFetcher(self.bearer_token, self.consumer_key, self.consumer_secret, self.access_token, self.access_token_secret, self.rapidapi_key, self.rapidapi_host)
+
+        self.data_processor = TwitterDataProcessor()
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="testing-twitterapi">Testing TwitterAPI</h3>
+<p>Test cases for the <code>TwitterAPI</code> class test the four main functions of the class.</p>
+<p>Therefore, the corresponding function is called first so get the cassette response. Then, the fixture is loaded and the results are compared.</p>
+<p>The test cases can be found under the <code>tests/test_api.py</code> file of the repository.</p>
+<details>
+<summary>Example for testing with cassettes</summary>
+
+<pre><code class="language-python">@tape.use_cassette(&quot;tests/cassettes/tweet_info.yaml&quot;)
+def test_tweet_info(self):
+    cassette_response = self.api.tweet_info(test_tweet_id_1, get_args(self.api.LITERALS_TWEET_INFO))
+    with open(&quot;tests/fixtures/tweet_info.pickle&quot;, &quot;rb&quot;) as handle:
+        expected_response = pickle.load(handle)
+    self.assertDictEqual(cassette_response, expected_response)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="testing-twitterdatafetcher">Testing TwitterDataFetcher</h3>
+<p>For the <code>TwitterDataFetcher</code> class, unit testing was performed more granularly. Each function was tested with the help of cassettes and fixtures. The results were compared but also the instances and return types of each function were tested.</p>
+<p>The test cases can be found under the <code>tests/test_fetch.py</code> file of the repository.</p>
+<details>
+<summary>Example for testing with cassettes</summary>
+
+<pre><code class="language-python">@tape.use_cassette(&quot;tests/cassettes/manual_request.yaml&quot;)
+def test_manual_request(self):
+    url = f&quot;https://api.twitter.com/2/users/{test_user_id_1}&quot;
+    cassette_response = self.fetcher._manual_request(url, &quot;GET&quot;, additional_fields={&quot;user.fields&quot;: [&quot;username&quot;]})
+    self.assertIsInstance(cassette_response, dict)
+    self.assertEqual(cassette_response[&quot;data&quot;][&quot;username&quot;], test_username_1)
+    with open(&quot;tests/fixtures/manual_request.pickle&quot;, &quot;rb&quot;) as handle:
+        expected_response = pickle.load(handle)
+    self.assertDictEqual(cassette_response, expected_response)
+</code></pre>
+
+</details>
+
+<p>Here, some functions were tested for different inputs and check for the exact same output (i.e., Twitter user ID vs. screen name).</p>
+<hr />
+<h3 id="testing-twitterdataprocessor">Testing TwitterDataProcessor</h3>
+<p>Both classes, <code>BaseDataProcessor</code> and <code>TwitterDataProcessor</code>, were tested. Each function of the <code>`BaseDataProcessor</code> class was tested with predefined unit tests without using cassettes. Results as well as instances were checked.</p>
+<p>The test cases can be found under the <code>tests/test_process.py</code> file of the repository.</p>
+<details>
+<summary>Example for unit testing without cassettes</summary>
+
+<pre><code class="language-python">test_sets = {test_user_id_1: set([1, 3, 5, 7]), test_user_id_2: set([3, 6, 7, 9]), test_user_id_3: set([0, 3, 7])}
+
+def test_intersection(self):
+    # calc intersection
+    results = self.data_processor.intersection(test_sets.values())
+    # assert instances
+    self.assertIsInstance(results, list)
+    assert all(isinstance(item, Number) for item in results)
+    # assert results to be equal
+    self.assertListEqual(results, [3, 7])
+</code></pre>
+
+</details>
+
+<p>For the functions of the <code>TwitterDataProcessor</code> class, unit tests were also defined previously. Some functions, however, required recently fetcher Twitter user or tweet objects to be tested. Therefore, cassettes and fixtures were created like for the functions of the <code>TwitterAPI</code> class.</p>
+<details>
+<summary>Example for unit testing with cassettes</summary>
+
+<pre><code class="language-python">@tape.use_cassette(&quot;tests/cassettes/user_obj.yaml&quot;)
+def test_extract_followers(self):
+    cassette_user = self.api.fetcher.get_user_object(test_user_id_1)
+    results = self.data_processor.extract_followers(cassette_user)
+    # ensure instances
+    self.assertIsInstance(results, dict)
+    # compare with fixture
+    with open(&quot;tests/fixtures/extract_followers.pickle&quot;, &quot;rb&quot;) as handle:
+        test_results = pickle.load(handle)
+    self.assertDictEqual(results, test_results)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="testing-utility-functions">Testing Utility Functions</h3>
+<p>Only the internal utility functions <a href="../utils/#internal-utility-functions"><code>_tuples_to_string</code></a> and <a href="../utils/#internal-utility-functions"><code>_string_to_tuple</code></a> are tested. Cassettes and fixture were not used as they does not rely on external data from a third-party service. These test cases were designed beforehand. The results as well as the instances were tested.</p>
+<p>The test cases can be found under the <code>tests/test_utils.py</code> file of the repository.</p>
+<hr />
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../BaseDataProcessor/" class="btn btn-neutral float-left" title="BaseDataProcessor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../cli/" class="btn btn-neutral float-left" title="CLI Functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../repository/" class="btn btn-neutral float-right" title="Repository Information">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -131,8 +269,10 @@
         </span>
     
     
-      <span><a href="../BaseDataProcessor/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../repository/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>TwitterAPI - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "TwitterAPI";
+        var mkdocs_page_input_path = "maintenance\\TwitterAPI.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../user-guide/installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">TwitterAPI</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Implementation Details &raquo;</li>
+      <li>TwitterAPI</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/maintenance/TwitterAPI.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="twitterapi">TwitterAPI</h2>
+<p>The <code>TwitterAPI</code> class forms the main class for user interaction and serves as a simple interface through encapsulation since the user can use all the functionalities of the package via the four main functions. All functionalities (except the utility function from the <code>utils</code> module) can be used via this class.</p>
+<p>The <code>TwitterAPI</code> class combines compatible data processing mechanisms with the respective data queries. This is achieved through composition whereby instances of the <code>TwitterDataFetcher</code> and <code>TwitterDataProcessor</code> are created within the class’s constructor.</p>
+<p>Data processing mechanisms are outsourced to the functions of the <code>TwitterDataProcessor</code> instance whereas the data querying mechanisms are outsourced to the <code>TwitterDataFetcher</code> instance.</p>
+<p>This design decision ensures hiding implementation details from users or developers during usage or implementation and makes the code more structured. Thus, whenever any developer wants to make adjustments/fixes to the code, he or she has not to be aware of the code from the <code>TwitterDataProcessor</code> and <code>TwitterDataFetcher</code> instances. Contributing developers are able to understand this class's implementation by understanding the seperation of classes' concerns.</p>
+<p>This class serves the purpose of handling the input and output of user interactions through an interface. No further data processing or fetching is performed by this class.</p>
+<p>This class is built on top of the <a href="https://docs.tweepy.org/en/stable/client.html?"><code>tweepy.Client</code></a> class. The <code>TwitterAPI</code> class inherits the <a href="https://docs.tweepy.org/en/stable/client.html?"><code>tweepy.Client</code></a> class. Thus, every function from the inherited class will also be available in the <code>TwitterAPI</code> class, resulting in an package that extends the official Twitter API. The default behavior of the <a href="https://docs.tweepy.org/en/stable/client.html?"><code>tweepy.Client</code></a> class is overwritten but retained in order to extend this class.  </p>
+<p>See the package architecture on the <a href="../implementation-details/">overview section of this chapter</a>.</p>
+<h1 id="initialization">Initialization</h1>
+<p>Import the <code>TwitterAPI</code> class from the <code>api</code> module or use the shortcut.</p>
+<pre><code class="language-python">from pysna.api import TwitterAPI # full path
+from pysna import TwitterAPI # shortcut
+
+api = TwitterAPI(
+    bearer_token: Any | None = None,
+    consumer_key: Any | None = None,
+    consumer_secret: Any | None = None,
+    access_token: Any | None = None,
+    access_token_secret: Any | None = None,
+    x_rapidapi_key: Any | None = None,
+    x_rapidapi_host: Any | None = None,
+    wait_on_rate_limit: bool = True
+)
+</code></pre>
+<p>and invoke a function:</p>
+<pre><code class="language-python">user_id = 123450897612
+api.user_info(user_id, [&quot;screen_name&quot;, &quot;followers_count&quot;])
+</code></pre>
+<p>Find the necessary secrets on the <a href="../../user-guide/overview/TwitterAPI/#initialization">user guide instructions</a>.</p>
+<h1 id="methods">Methods</h1>
+<p>All functions have pre-defined input parameters (either for the <code>attributes</code> or <code>compare</code> arguments). They are stored inside the literal objects:</p>
+<ul>
+<li><code>TwitterAPI.LITERALS_USER_INFO</code>: available attributes for a Twitter account. For more information, see <a href="../../user-guide/overview/literals-user-info/">here</a>.</li>
+<li><code>TwitterAPI.LITERALS_COMPARE_USERS</code>: available comparison attributes for Twitter accounts. For more information, see <a href="../../user-guide/overview/literals-compare-users/">here</a>.</li>
+<li><code>TwitterAPI.LITERALS_TWEET_INFO</code>: available attributes for a tweet. For more information, see <a href="../../user-guide/overview/literals-tweet-info/">here</a>.</li>
+<li><code>TwitterAPI.LITERALS_COMPARE_TWEETS</code>: available comparison attributes for tweets. For more information, see <a href="../../user-guide/overview/literals-compare-tweets/">here</a>.  </li>
+</ul>
+<p>Each (comparison) attribute is covered in the corresponding main function by iterations of a for loop. Whenever one of the four main functions is called, the required data resources are fetched by making API calls via the <code>TwitterDataFetcher</code> class for each specified (comparison) attribute and are processed by the <code>TwitterDataProcessor</code> class if necessary. For instance, when comparing multiple users on their common followers, individual followers for each user are fetched first and then processed by calculating the intersection set of all individual followers.  </p>
+<p>If any new functionality is added to this class (e.g., get the length of a tweet by a <code>length</code> attribute), the new attribute has to be added to the corresponding literal object.</p>
+<p>In addition, the comparison functions also have a <code>features</code> argument which is used to define a feature vector for comparison. The available similarity features for users and tweets are also specified in separate literal objects:</p>
+<ul>
+<li><code>TwitterAPI.SIMILARITY_FEATURES_COMPARE_USERS</code>: available similarity features for the <code>TwitterAPI.compare_users</code> function. For more information, see <a href="../../user-guide/overview/literals-compare-users/">here</a>.</li>
+<li><code>TwitterAPI.SIMILARITY_FEATURES_COMPARE_TWEETS</code>: available similarity features for the <code>TwitterAPI.compare_tweets</code> function. For more information, see <a href="../../user-guide/overview/literals-compare-tweets/">here</a>.  </li>
+</ul>
+<h3 id="handle_output-private">handle_output (private)</h3>
+<p>This function is designed to handle the output of the four main functions accordingly. To avoid accessing a returned dictionary with only one available key, this function returns either the single value from the one-key dictionary or the full dictionary itself if multiple keys are available.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI._handle_output(output: dict)
+</code></pre>
+<p>This function is private and, thus, not intended for external use. This function was designed to facilitate the use of the package without the need for accessing a returned one-key dictionary.</p>
+<hr />
+<h3 id="user_info">user_info</h3>
+<p>This function allows to request user information from a Twitter account.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>user</code> (str | int): Twitter User either specified by corresponding ID or screen name.</li>
+<li><code>attributes</code> (List[str] | str): Attributes of the User object. These must be from <a href="../../user-guide/overview/literals-user-info/">this list</a>.</li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp to results. Defaults to False.</li>
+</ul>
+<p>This function takes in a Twitter user identifier (i.e., an ID or unique screen name). The attributes are passed in by a list object or by a single string.</p>
+<p>For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, <code>None</code> will be returned.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def user_info(self, user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False) -&gt; Any:
+    &quot;&quot;&quot;Receive requested user information from Twitter User Object.
+
+    For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
+    Args:
+        user (str | int): Twitter User either specified by corresponding ID or screen name.
+        attributes (List[str] | str): Attributes of the User object. These must be from: id, id_str, name, screen_name, followers, followees, location, description, url, entities, protected, followers_count, friends_count, listed_count, created_at, latest_activity, last_active, liked_tweets, composed_tweets, favourites_count, verified, statuses_count, status, contributors_enabled, profile_image_url_https, profile_banner_url, default_profile, default_profile_image, withheld_in_countries, bot_scores
+        return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+
+    Raises:
+        KeyError: If invalid attribute was provided.
+        ValueError: If Botometer secrets were not provided.
+
+    Returns:
+        dict: Requested user information.
+
+    References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#user_info
+    &quot;&quot;&quot;
+    # catch Botometer API secrets before iteration over attributes.
+    if &quot;bot_scores&quot; in attributes:
+        if (self._x_rapidapi_key is None) or (self._x_rapidapi_host is None):
+            raise ValueError(&quot;'X_RAPIDAPI_KEY' and 'X_RAPIDAPI_HOST' secrets for Botometer API need to be provided.&quot;)
+
+    # initialize empty dict to store requested attributes
+    user_info = dict()
+    # if single string was provided
+    if isinstance(attributes, str):
+        # convert to list for iteration
+        attributes = [attributes]
+    # get user object
+    user_obj = self.fetcher.get_user_object(user)
+    # loop through the list of attributes and add them to the dictionary
+    for attr in attributes:
+        # if invalid attribute was provided
+        if attr not in get_args(self.LITERALS_USER_INFO):
+            raise ValueError(&quot;Invalid attribute for '{}'&quot;.format(attr))
+        # if the desired attribute is in default user object returned by the v1 Search API
+        elif attr in user_obj._json.keys():
+            user_info[attr] = user_obj._json[attr]
+        # get information about user's followers
+        elif attr == &quot;followers&quot;:
+            user_info[attr] = self.data_processor.extract_followers(user_obj)
+        # get information about user's followees
+        elif attr == &quot;followees&quot;:
+            user_info[attr] = self.data_processor.extract_followees(user_obj)
+        # get all liked tweets of user
+        elif attr == &quot;liked_tweets&quot;:
+            # get page results first
+            liked_tweets = self.fetcher.get_liked_tweets_ids(user)
+            user_info[attr] = liked_tweets
+        # get all composed tweets
+        elif attr == &quot;composed_tweets&quot;:
+            # get page results first
+            composed_tweets = self.fetcher.get_composed_tweets_ids(user)
+            user_info[attr] = composed_tweets
+        # get user's latest activity
+        elif attr == &quot;latest_activity&quot;:
+            user_info[attr] = self.fetcher.get_latest_activity(user)
+        # get user's latest activity date
+        elif attr == &quot;last_active&quot;:
+            user_info[attr] = self.fetcher.get_latest_activity_date(user)
+        # get user's botometer scores
+        elif attr == &quot;bot_scores&quot;:
+            user_info[attr] = self.fetcher.get_botometer_scores(user)
+        # if attribute was not found
+        else:
+            user_info[attr] = None
+        # if timestamp should be returned
+    if return_timestamp:
+        user_info[&quot;utc_timestamp&quot;] = strf_datetime(datetime.utcnow(), format=&quot;%Y-%m-%d %H:%M:%S.%f&quot;)
+
+    return self._handle_output(user_info)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="compare_users">compare_users</h3>
+<p>This function allows a comparison of multiple Twitter accounts.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>users</code> (List[str  |  int]): User IDs or screen names</li>
+<li><code>compare</code> (str): Comparison attribute. Must be from <a href="../../user-guide/overview/literals-compare-users/">this list</a>.</li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp to results. Defaults to False.</li>
+<li><code>features</code> (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from the <a href="../../user-guide/overview/literals-compare-users/">features list</a>. Defaults to None.</li>
+</ul>
+<p>This function takes in multiple Twitter user identifiers (i.e., IDs or unique screen names). The comparison attributes are passed in by a list object or by a single string.</p>
+<p>For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def compare_users(self, users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None) -&gt; Any:
+        &quot;&quot;&quot;Compare two or more users with the specified comparison attribute(s).
+
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
+        Args:
+            users (List[str  |  int]): User IDs or screen names
+            compare (str): Comparison attribute. Must be from: relationship, followers_count, followees_count, tweets_count, favourites_count, common_followers, distinct_followers, common_followees, distinct_followees, commonly_liked_tweets, distinctly_liked_tweets, similarity, created_at, protected, verified.
+            return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+            features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: followers_count, friends_count, listed_count, favourites_count, statuses_count. Defaults to None.
+
+        Raises:
+            ValueError: If invalid comparison attribute was provided.
+
+        Returns:
+            dict | list: Results of requested comparison attribute(s).
+
+        Referencs: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#compare_users
+        &quot;&quot;&quot;
+        # users list must contain at least two elements
+        assert len(users) &gt; 1, &quot;'users' list must contain at least two elements, {} was/were provided&quot;.format(len(users))
+
+        # catch if feature vector contains only numeric values, and contains at least two elements
+        if features:
+            assert len(features) &gt; 1, &quot;'features' list must have at least two elements. {} was/were given&quot;.format(len(features))
+            for feat in features:
+                if feat not in get_args(self.SIMILARITY_FEATURES_COMPARE_USERS):
+                    raise ValueError(f&quot;Only numeric features are supported. Must be from: {', '.join(get_args(self.SIMILARITY_FEATURES_COMPARE_USERS))}. You passed in {feat}&quot;)
+
+        # if single comparison attribute was provided as string
+        if isinstance(compare, str):
+            # change to list object
+            compare = [compare]
+        # init empty dict to store results
+        results = dict()
+        # iterate over comparison attributes
+        for attr in compare:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_COMPARE_USERS):
+                raise ValueError(&quot;Invalid attribute for '{}'&quot;.format(attr))
+            # match comparison attributes
+            match attr:
+                # compare relationships between two users
+                case &quot;relationship&quot;:
+                    results[attr] = self.fetcher.get_relationship_pairs(users)
+                # compare number of followers
+                case &quot;followers_count&quot;:
+                    # get individual followers
+                    followers = {user: self.fetcher.get_user_object(user).followers_count for user in users}
+                    # add descriptive metrics
+                    followers_with_metrics = self.data_processor.calc_descriptive_metrics(followers)
+                    results[attr] = followers_with_metrics
+                # compare number of friends
+                case &quot;followees_count&quot;:
+                    # get individual followees
+                    followees = {user: self.fetcher.get_user_object(user).friends_count for user in users}
+                    # add descriptive metrics
+                    followees = self.data_processor.calc_descriptive_metrics(followees)
+                    results[attr] = followees
+                # compare number of Tweets issued by each user
+                case &quot;tweets_count&quot;:
+                    # get individual statuses counts
+                    tweets = {user: self.fetcher.get_user_object(user).statuses_count for user in users}
+                    # add descriptive metrics
+                    tweets = self.data_processor.calc_descriptive_metrics(tweets)
+                    results[attr] = tweets
+                # compare number of likes issued by each user
+                case &quot;favourites_count&quot;:
+                    # get individual likes
+                    likes = {user: self.fetcher.get_user_object(user).favourites_count for user in users}
+                    # add descriptive metrics
+                    likes = self.data_processor.calc_descriptive_metrics(likes)
+                    results[attr] = likes
+                # compare protected attribute of users
+                case &quot;protected&quot;:
+                    results[attr] = {user: self.fetcher.get_user_object(user).protected for user in users}
+                # compare verified attribute for users
+                case &quot;verified&quot;:
+                    results[attr] = {user: self.fetcher.get_user_object(user).verified for user in users}
+                # get common followers
+                case &quot;common_followers&quot;:
+                    # get individual followers first
+                    individual_followers = [self.fetcher.get_user_follower_ids(user) for user in users]
+                    # get common followers by calculating the intersection
+                    common_followers = self.data_processor.intersection(individual_followers)
+                    results[attr] = common_followers
+                # get distinct followers
+                case &quot;distinct_followers&quot;:
+                    # get individual followers first
+                    individual_followers = {user: self.fetcher.get_user_follower_ids(user) for user in users}
+                    # get distinct followers by calculating the difference of each set
+                    distinct_followers = self.data_processor.difference(individual_followers)
+                    results[attr] = distinct_followers
+                # get common followees
+                case &quot;common_followees&quot;:
+                    # get individual followees first
+                    individual_followees = [self.fetcher.get_user_followee_ids(user) for user in users]
+                    # get common followees by calculating the intersection
+                    common_followees = self.data_processor.intersection(individual_followees)
+                    results[attr] = common_followees
+                # get distinct followees
+                case &quot;distinct_followees&quot;:
+                    # get individual followees first
+                    individual_followees = {user: self.fetcher.get_user_followee_ids(user) for user in users}
+                    # get distinct followees by calculating the difference of each set
+                    distinct_followees = self.data_processor.difference(individual_followees)
+                    results[attr] = distinct_followees
+                # get common liked tweets
+                case &quot;commonly_liked_tweets&quot;:
+                    # get individual liked tweets first
+                    individual_likes = [self.fetcher.get_liked_tweets_ids(user) for user in users]
+                    # get common liked tweets by calculating the intersection
+                    common_likes = self.data_processor.intersection(individual_likes)
+                    results[attr] = common_likes
+                # get distinct liked tweets
+                case &quot;distinctly_liked_tweets&quot;:
+                    # get individual liked tweets first
+                    individual_likes = {user: self.fetcher.get_liked_tweets_ids(user) for user in users}
+                    # get distinct liked tweets by calculating the difference for each set
+                    distinct_likes = self.data_processor.difference(individual_likes)
+                    results[attr] = distinct_likes
+                # compute similarity between two users basd on the defined features
+                case &quot;similarity&quot;:
+                    # feature list object must be defined
+                    if features is None:
+                        raise ValueError(&quot;'features' list must be provided.&quot;)
+                    # get serialized user objects first
+                    user_objs = [self.fetcher.get_user_object(user)._json for user in users]
+                    # calculate similarity based on defined feature vector
+                    results[attr] = self.data_processor.calc_similarity(user_objs=user_objs, features=features)
+                # compare creaation dates
+                case &quot;created_at&quot;:
+                    # get individual creation dates first
+                    creation_dates = {user: self.fetcher.get_user_object(user).created_at for user in users}
+                    # add datetime metrics
+                    creation_dates = self.data_processor.calc_datetime_metrics(creation_dates)
+                    results[attr] = creation_dates
+                # if comparison attribute was not found
+                case _:
+                    results[attr] = None
+        # if timestamp should be returned
+        if return_timestamp:
+            results[&quot;utc_timestamp&quot;] = strf_datetime(datetime.utcnow(), format=&quot;%Y-%m-%d %H:%M:%S.%f&quot;)
+
+        return self._handle_output(results)
+</code></pre>
+
+</details>
+<hr />
+<h3 id="tweet_info">tweet_info</h3>
+<p>This function allows to request tweet information from a tweet object.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>tweet_id</code> (str | int): Tweet ID</li>
+<li><code>attributes</code> (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from <a href="../../user-guide/overview/literals-tweet-info/">this list</a>.</li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp to results. Defaults to False.</li>
+</ul>
+<p>This function takes in a tweet ID as string or integer representation. The attributes are passed in by a list object or by a single string.</p>
+<p>For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, <code>None</code> will be returned.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def tweet_info(self, tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False) -&gt; Any:
+        &quot;&quot;&quot;Receive requested Tweet information from Tweet Object.
+
+        For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
+        Args:
+            tweet_id (str | int): Tweet ID
+            attributes (List[LITERALS_TWEET_INFO] | str): Attributes of the Tweet object. These must be from: id, id_str, full_text, display_text_range, truncated, created_at, entities, tweet_annotations, source, retweeters, in_reply_to_status_id, in_reply_to_status_id_str, in_reply_to_user_id, in_reply_to_user_id_str, in_reply_to_screen_name, user, contributors, coordinates, place, is_quote_status, public_metrics, quoting_users, liking_users, favorited, retweeted, retweeted_status, possibly_sensitive, lang, sentiment.
+            return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+
+        Raises:
+            ValueError: If invalid attribute was provided.
+
+        Returns:
+            dict: Requested Tweet information.
+
+        References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#tweet_info
+        &quot;&quot;&quot;
+        # get tweet object
+        tweet_obj = self.fetcher.get_tweet_object(tweet_id)
+
+        # initialize empty dict to store request information
+        tweet_info = dict()
+
+        # if single string was provided
+        if isinstance(attributes, str):
+            # convert to list for iteration
+            attributes = [attributes]
+        for attr in attributes:
+            # if invalid attribute was provided
+            if attr not in get_args(self.LITERALS_TWEET_INFO):
+                raise ValueError(&quot;Invalid attribute for '{}'&quot;.format(attr))
+            # get default attributes from tweepy Status model
+            elif attr in tweet_obj._json.keys():
+                tweet_info[attr] = tweet_obj._json[attr]
+            # get all quoting users
+            elif attr == &quot;quoting_users&quot;:
+                quoting_users = self.fetcher.get_quoting_users_ids(tweet_id)
+                tweet_info[attr] = quoting_users
+            # get all liking users
+            elif attr == &quot;liking_users&quot;:
+                liking_users = self.fetcher.get_liking_users_ids(tweet_id)
+                tweet_info[attr] = liking_users
+            # get all retweeters
+            elif attr == &quot;retweeters&quot;:
+                retweeters = self.fetcher.get_retweeters_ids(tweet_id)
+                tweet_info[attr] = retweeters
+            # get public metrics
+            elif attr == &quot;public_metrics&quot;:
+                tweet_info[attr] = self.fetcher.get_public_metrics(tweet_id)
+            # get context annotations
+            elif attr == &quot;tweet_annotations&quot;:
+                tweet_info[attr] = self.fetcher.get_context_annotations_and_entities(tweet_id)
+            # get tweet sentiment
+            elif attr == &quot;sentiment&quot;:
+                tweet_info[attr] = self.data_processor.detect_tweet_sentiment(tweet_obj.full_text)
+            # if attribute was not found
+            else:
+                tweet_info[attr] = None
+        # if timestamp should be returned
+        if return_timestamp:
+            tweet_info[&quot;utc_timestamp&quot;] = strf_datetime(datetime.utcnow(), format=&quot;%Y-%m-%d %H:%M:%S.%f&quot;)
+
+        return self._handle_output(tweet_info)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="compare_tweets">compare_tweets</h3>
+<p>This function allows a comparison of multiple tweets.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterAPI.compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>tweets</code> (List[str  |  int]): List of Tweet IDs.</li>
+<li><code>compare</code> (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be from the <a href="../../user-guide/overview/literals-compare-tweets/">this list</a>.</li>
+<li><code>return_timestamp</code> (bool, optional): Add UTC Timestamp to results. Defaults to False.</li>
+<li><code>features</code> (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from the <a href="../../user-guide/overview/literals-compare-tweets/">features list</a>. Defaults to None.</li>
+</ul>
+<p>This function takes in multiple tweet IDs as string or integer representation. The comparison attributes are passed in by a list object or by a single string.</p>
+<p>For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def compare_tweets(self, tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None) -&gt; Any:
+    &quot;&quot;&quot;Compare two or more Tweets with the specified comparison attribute.
+
+    For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.
+
+    Args:
+        tweets (List[str  |  int]): List of Tweet IDs.
+        compare (str | List[LITERALS_COMPARE_TWEETS]): Comparison attribute. Needs to be from the following: view_count, like_count, retweet_count, quote_count, reply_count, common_quoting_users, distinct_quoting_users, common_liking_users, distinct_liking_users, common_retweeters, distinct_retweeters, similarity, created_at.
+        return_timestamp (bool, optional): Add UTC Timestamp to results. Defaults to False.
+        features (List[str] | None, optional): Defined features of Twitter User Object on which similarity will be computed. Must be from: retweet_count, reply_count, like_count, quote_count, impression_count. Defaults to None.
+
+    Raises:
+        AssertionError: If a list of one Tweet ID was provided.
+        ValueError: If invalid comparison attribute was provided.
+
+    Returns:
+        dict: Requested results for comparison attribute.
+
+    References: https://mathun3003.github.io/PySNA/user-guide/overview/TwitterAPI/#compare_tweets
+    &quot;&quot;&quot;
+    # tweets list must contain at least two IDs
+    assert len(tweet_ids) &gt; 1, &quot;'tweets' list object needs at least two entries, not {}&quot;.format(len(tweet_ids))
+
+    # catch if feature vector contains only numeric values, and contains at least two elements
+    if features:
+        assert len(features) &gt; 1, &quot;'features' list must have at least two elements. {} was/were given&quot;.format(len(features))
+        for feat in features:
+            if feat not in get_args(self.SIMILARITY_FEATURES_COMPARE_TWEETS):
+                raise ValueError(f&quot;Only numeric features are supported. Must be from: {', '.join(get_args(self.SIMILARITY_FEATURES_COMPARE_TWEETS))}. You passed in {feat}.&quot;)
+
+    # if single comparison attribute was provided as string
+    if isinstance(compare, str):
+        # change to list object
+        compare = [compare]
+    # init empty dict to store results
+    results = dict()
+    # iterate over every given comparison atttribute
+    for attr in compare:
+        # if invalid attribute was provided
+        if attr not in get_args(self.LITERALS_COMPARE_TWEETS):
+            raise ValueError(&quot;Invalid attribute for '{}'&quot;.format(attr))
+        # match comparison attribute
+        match attr:
+            # compare numer of views / impressions
+            case &quot;view_count&quot;:
+                # get individual view_counts
+                view_counts = {tweet_id: self.fetcher.get_public_metrics(tweet_id)[&quot;impression_count&quot;] for tweet_id in tweet_ids}
+                # add descriptive metrics
+                view_counts = self.data_processor.calc_descriptive_metrics(view_counts)
+                results[attr] = view_counts
+            # compare number of likes
+            case &quot;like_count&quot;:
+                # get individual like_counts
+                like_counts = {tweet_id: self.fetcher.get_public_metrics(tweet_id)[&quot;like_count&quot;] for tweet_id in tweet_ids}
+                # add descriptive metrics
+                like_counts = self.data_processor.calc_descriptive_metrics(like_counts)
+                results[attr] = like_counts
+            # compare number or retweets
+            case &quot;retweet_count&quot;:
+                # get individual number of retweets
+                retweet_counts = {tweet_id: self.fetcher.get_public_metrics(tweet_id)[&quot;retweet_count&quot;] for tweet_id in tweet_ids}
+                # add descriptive metrics
+                retweet_counts = self.data_processor.calc_descriptive_metrics(retweet_counts)
+                results[attr] = retweet_counts
+            # compare number of quotes
+            case &quot;quote_count&quot;:
+                # get individual number of quotes
+                quote_counts = {tweet_id: self.fetcher.get_public_metrics(tweet_id)[&quot;quote_count&quot;] for tweet_id in tweet_ids}
+                # add descriptive metrics
+                quote_counts = self.data_processor.calc_descriptive_metrics(quote_counts)
+                results[attr] = quote_counts
+            # compare number of commonts
+            case &quot;reply_count&quot;:
+                # get individual number of replies first
+                reply_counts = {tweet_id: self.fetcher.get_public_metrics(tweet_id)[&quot;reply_count&quot;] for tweet_id in tweet_ids}
+                # add descriptive metrics
+                reply_counts = self.data_processor.calc_descriptive_metrics(reply_counts)
+                results[attr] = reply_counts
+            # get all quoting users all Tweets have in common
+            case &quot;common_quoting_users&quot;:
+                # get individual quoting users first
+                quoting_users = [self.fetcher.get_quoting_users_ids(tweet_id) for tweet_id in tweet_ids]
+                # get common quoting users by calculating the intersection
+                common_quoting_users = self.data_processor.intersection(quoting_users)
+                # return quoting users
+                results[attr] = common_quoting_users
+            # get distinct quoting users for each tweet
+            case &quot;distinct_quoting_users&quot;:
+                # get individual quoting users first
+                quoting_users = {tweet_id: self.fetcher.get_quoting_users_ids(tweet_id) for tweet_id in tweet_ids}
+                # get distinct quoting users for each tweet by calculating the difference for each set
+                distinct_quoting_users = self.data_processor.difference(quoting_users)
+                results[attr] = distinct_quoting_users
+            # get all liking users that all tweets have in common
+            case &quot;common_liking_users&quot;:
+                # get individual liking users first
+                liking_users = [self.fetcher.get_liking_users_ids(tweet_id) for tweet_id in tweet_ids]
+                # get common liking users by calculating the intersection
+                common_liking_users = self.data_processor.intersection(liking_users)
+                # return common liking users
+                results[attr] = common_liking_users
+            # get distinct liking users of all tweets
+            case &quot;distinct_liking_users&quot;:
+                # get individual liking users first
+                liking_users = {tweet_id: self.fetcher.get_liking_users_ids(tweet_id) for tweet_id in tweet_ids}
+                # get distinct liking users for each tweet by calculating the difference for each set
+                distinct_liking_users = self.data_processor.difference(liking_users)
+                results[attr] = distinct_liking_users
+            # get all retweeters all tweets have in common
+            case &quot;common_retweeters&quot;:
+                # get individual retweeters first
+                retweeters = [self.fetcher.get_retweeters_ids(tweet_id) for tweet_id in tweet_ids]
+                # get common retweeters by calculating the intersection
+                common_retweeters = self.data_processor.intersection(retweeters)
+                # return common retweeters
+                results[attr] = common_retweeters
+            # get distinct retweeters of all tweets
+            case &quot;distinct_retweeters&quot;:
+                # get individual retweeters first
+                retweeters = {tweet_id: self.fetcher.get_retweeters_ids(tweet_id) for tweet_id in tweet_ids}
+                # get distinct retweeters by calculating the difference for each set
+                distinct_retweeters = self.data_processor.difference(retweeters)
+                results[attr] = distinct_retweeters
+            # compute similarity between two tweets basd on the defined features
+            case &quot;similarity&quot;:
+                # feature list object must be defined
+                if features is None:
+                    raise ValueError(&quot;'features' list must be provided.&quot;)
+                # get public metrics for Tweet objects first
+                public_metrics = {tweet_id: self.fetcher.get_public_metrics(tweet_id) for tweet_id in tweet_ids}
+                # calculate similarity based on defined feature vector
+                results[attr] = self.data_processor.calc_similarity(tweet_metrics=public_metrics, features=features)
+            # compare creation dates of tweets
+            case &quot;created_at&quot;:
+                # get individual creation dates first
+                creation_dates = {tweet_id: self.fetcher.get_tweet_object(tweet_id).created_at for tweet_id in tweet_ids}
+                # add datetime metrics
+                creation_dates = self.data_processor.calc_datetime_metrics(creation_dates)
+                results[attr] = creation_dates
+            # if attribute was not found
+            case _:
+                results[attr] = None
+    # if UTC timestamp should be returned
+    if return_timestamp:
+        results[&quot;utc_timestamp&quot;] = strf_datetime(datetime.utcnow(), format=&quot;%Y-%m-%d %H:%M:%S.%f&quot;)
+
+    return self._handle_output(results)
+</code></pre>
+
+</details>
+
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../user-guide/overview/cli/" class="btn btn-neutral float-left" title="CLI Tool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TwitterDataFetcher/" class="btn btn-neutral float-right" title="TwitterDataFetcher">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../user-guide/overview/cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TwitterDataFetcher/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
                   </li>
@@ -65,13 +65,23 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">TwitterDataFetcher</a>
+    <ul class="current">
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -99,12 +109,818 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>Coming soon...</p>
+                <h2 id="twitterdatafetcher">TwitterDataFetcher</h2>
+<p>The TwitterDataFetcher class is used to specifically query Twitter data. To simplify
+the queries to the Twitter API, this software component uses already existing
+open-source software for interacting with the API, namely the <a href="https://github.com/tweepy/tweepy">Tweepy Python package</a>.</p>
+<p>It uses the Tweepy Client class to query the data dictionaries of the Twitter
+Search API v2 as well as the Tweepy API class to access the data dictionaries based
+on the Twitter Search API v1.</p>
+<p>The Twitter Search API v1 is mainly used to query user and tweet objects. Although this API version is partially deprecated, it offers a comparable content to the latest API version and often requires less API calls to receive the same information compared to the v2 API.</p>
+<p>Additional direct requests to the Twitter Search
+API v2 are performed, too, using the Python <code>requests</code> library to query endpoints
+that have been migrated or deprecated in the Tweepy package.</p>
+<p>This class can also be used to in isolation to collect Twitter data. It requires, therefore, authentication for the Twitter platform. Provide the secrets for the Twitter API and, if desired, for the Botometer API. You can find a list of required secrets in the <a href="../../user-guide/overview/TwitterAPI/">user guide for the TwitterAPI</a> class.</p>
+<p>This class has the concern to fetch Twitter data. No further processing is performed within this class.</p>
+<h1 id="initialization">Initialization</h1>
+<p>If you want to use this class for data processing or other package components, follow the steps below.</p>
+<p>Import the <code>TwitterDataFetcher</code> class from the <code>fetch</code> module.</p>
+<pre><code class="language-python">from pysna.fetch import TwitterDataFetcher
+
+fetcher = TwitterDataFetcher(
+    bearer_token: Any | None = None,
+    consumer_key: Any | None = None,
+    consumer_secret: Any | None = None,
+    access_token: Any | None = None,
+    access_token_secret: Any | None = None,
+    x_rapidapi_key: Any | None = None,
+    x_rapidapi_host: Any | None = None
+)
+</code></pre>
+<p>and invoke a function:</p>
+<pre><code class="language-python">user_id = 123450897612
+fetcher.get_latest_activity(user_id)
+</code></pre>
+<p>Find the necessary secrets on the <a href="../../user-guide/overview/TwitterAPI/#initialization">user guide instructions</a>.</p>
+<h1 id="methods">Methods</h1>
+<h2 id="private-methods">Private Methods</h2>
+<h3 id="manual_request">manual_request</h3>
+<p>Performs a manual request to the Twitter API. Returns JSON formatted API response.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher._manual_request(url: str, method: str = &quot;GET&quot;, header: dict | None = None, payload: dict | None = None, additional_fields: Dict[str, List[str]] | None = None)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>url</code> (str): API URL (without specified fields)  </li>
+<li><code>method</code> (str): Request method according to REST. Defaults to "GET".  </li>
+<li><code>header</code>: Custom HTTP Header. Defaults to None.  </li>
+<li><code>payload</code>: JSON data for HTTP requests. Defaults to None.  </li>
+<li><code>additional_fields</code> (Dict[str, List[str]] | None, optional): Fields can be specified (e.g., tweet.fields) according to the official API reference. Defaults to None.  </li>
+</ul>
+<p>The function will raise an exception if the response status code is unlike 200.</p>
+<p>With this function, performig manual requests is facilitated as the query string is built by the function based on the provided input arguments.</p>
+<p>The <code>url</code> argument has to be provided in raw form (i.e., without any parameters or fields).<br />
+The <code>method</code> argument allows to specify the REST request method (i.e., GET, POST, PUT, DELETE). Defaults to GET.<br />
+The <code>header</code> argument allows to specify a custom header. This is useful if another API besides the Twitter API is fetched. If no custom header is provided, the default header for the Twitter API authentification is used based on the provided <code>bearer_token</code> during instantiation.<br />
+The <code>payload</code> argument allows to send data for a POST or PUT request. The data must be provided as a dictionary.<br />
+The <code>additional_fields</code> argument is used to specify Twitter fields (i.e., user fields or tweet fields) and, thus, enhance the query and return additional information. The argument can be used as follows:</p>
+<pre><code class="language-python">{&quot;tweet.fields&quot;: [&quot;public_metrics&quot;]}
+</code></pre>
+<p>The function will then build the query string and send it to the API.</p>
+<p>You can find the full list of Twitter fields in the documentation: <a href="https://developer.twitter.com/en/docs/twitter-api/fields">https://developer.twitter.com/en/docs/twitter-api/fields</a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def _manual_request(self, url: str, method: str = &quot;GET&quot;, header: dict | None = None, payload: dict | None = None, additional_fields: Dict[str, List[str]] | None = None) -&gt; dict:
+    &quot;&quot;&quot;Perform a manual request to the Twitter API.
+
+    Args:
+        url (str): API URL (without specified fields)
+        method (str): Request method according to REST. Defaults to &quot;GET&quot;.
+        header (dict | None): Custom HTTP Header. Defaults to None.
+        payload (dict | None): JSON data for HTTP requests. Defaults to None.
+        additional_fields (Dict[str, List[str]] | None, optional): Fields can be specified (e.g., tweet.fields) according to the official API reference. Defaults to None.
+
+    Raises:
+        Exception: If status code != 200.
+
+    Returns:
+        dict: JSON formatted response of API request.
+    &quot;&quot;&quot;
+    # if additional_fields were provided
+    if additional_fields:
+        # init empty string
+        fields = &quot;?&quot;
+        # create fields string dynamically for every field in additional_fields
+        for field in additional_fields.keys():
+            # e.g., in format &quot;tweet.fields=lang,author_id&quot;
+            fields += f&quot;{field}={','.join(additional_fields[field])}&amp;&quot;
+        # append fields to url
+        url += fields[:-1]
+    if header is None:
+        # set header
+        header = {&quot;Authorization&quot;: f&quot;Bearer {self._bearer_token}&quot;}
+    response = requests.request(method=method, url=url, headers=header, json=payload)
+    if response.status_code != 200:
+        raise Exception(&quot;Request returned an error: {} {}&quot;.format(response.status_code, response.text))
+    return response.json()
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="paginate">paginate</h3>
+<p>Custom pagination function</p>
+<p>It turns out that the pagination functions from the Tweepy Python packge are considerably slower than doing the pagination manually. For this reason, this function was designed.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher._paginate(func, params: Dict[str, str | int], limit: int | None = None, response_attribute: str = &quot;data&quot;, page_attribute: str | None = None)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>func</code>: Function used for pagination</li>
+<li><code>params</code> (Dict[str, str  |  int]): Dict containing request parameters. Must be of the form <code>{'id': ..., 'limit': ..., 'pagination_token': ...}</code></li>
+<li><code>limit</code> (int | None, optional): Maximum number of results. Defaults to None, thus, no limit.</li>
+<li><code>response_attribute</code> (str, optional): Attribute of the Response object. Defaults to "data". Options: ["data", "includes"]</li>
+<li><code>page_attribute</code> (str, optional): The attribute that should be extracted for every entry of a page. Defaults to None.</li>
+</ul>
+<p>The <code>params</code> argument is used to specify the parameters for the next page. Therefore, an <code>id</code> is needed as well as a key indicating the maximm number of results (i.e., <code>limit</code>). <code>None</code> indicates that no limit is desired and, thus, all available results will be returned. The <code>pagination_token</code> key can be set to <code>None</code> initially. This pagination token will be reset during iteraion. In case, you wish to start from a different page than the first one, provide a pagination token. All parameters must be provided via a dictionary of the form:</p>
+<pre><code class="language-python">{&quot;id&quot;: 1234456,
+&quot;limit&quot;: None, # no limit
+&quot;pagination_token&quot;: None}
+</code></pre>
+<p>The <code>response_attribute</code> argument specifies where to collect the data from the response. If <code>data</code> is specified, the results are received from the default attribute field of the response. If <code>includes</code> is specified, the results are obtained from the additional information provided by the Twitter fields.`</p>
+<p>The <code>page_attribute</code> argument specifies what attribute should be extracted for every entry of a page. For instance, if this argument is set to <code>id</code>, then the IDs will be extracted from every entry (e.g., user IDs of user objects).</p>
+<p>Inside that function, a counter is incremented for every result that has been fetched. If the limit was reached, the function will break out the loop and will return immediately the obtained results. Otherwise, the function will check if last page was reached and will fetch the next page (if available).</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def _paginate(self, func, params: Dict[str, str | int], limit: int | None = None, response_attribute: str = &quot;data&quot;, page_attribute: str | None = None) -&gt; list:
+    &quot;&quot;&quot;Pagination function
+
+    Args:
+        func: Function used for pagination
+        params (Dict[str, str  |  int]): Dict containing request parameters. Should be of the form {'id': ..., 'max_results': ..., 'pagination_token': ...}
+        limit (int | None, optional): Maximum number of results. Defaults to None, thus, no limit.
+        response_attribute (str, optional): Attribute of the Response object. Defaults to &quot;data&quot;. Options: [&quot;data&quot;, &quot;includes&quot;]
+
+    Raises:
+        KeyError: 'id', 'max_results', and 'pagination_token' should be provided in the params dict.
+
+    Returns:
+        set: Results
+    &quot;&quot;&quot;
+    # init counter
+    counter = 0
+    # init empty results set
+    results = list()
+    # set break out var
+    break_out = False
+    while not break_out:
+        # make request
+        response = func(**params)
+        # if any data exists
+        if response.__getattribute__(response_attribute) is not None:
+            # iterate over response results
+            for item in response.__getattribute__(response_attribute):
+                # add result
+                if page_attribute is None:
+                    results.append(item)
+                else:
+                    results.append(item.__getattribute__(page_attribute))
+                # increment counter
+                counter += 1
+                # if limit was reached, break
+                if (limit is not None) and (counter == limit):
+                    # set break_out var to true
+                    break_out = True
+                    break
+            # if last page was reached
+            if &quot;next_token&quot; not in response.meta:
+                break
+            # else, set new pagination token for next iteration
+            else:
+                params[&quot;pagination_token&quot;] = response.meta[&quot;next_token&quot;]
+        # if no data exists, break
+        else:
+            break
+    return results
+</code></pre>
+
+</details>
+
+<hr />
+<h2 id="twitter-user-related-methods">Twitter user related methods</h2>
+<h3 id="get_user_object">get_user_object</h3>
+<p>Request Twitter user object using Tweepy. The user object is fetched from the Twitter Search API v1. For this, the Tweepy API class is used.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_user_object(user: str | int)
+</code></pre>
+<p>The function takes in either the user ID as string or integer or the user's unique screen name. It returns the requested API v1 user object.</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<p>If the requested user has been suspended from Twitter, an error will be returned and a messeage will be logged to stdout.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_user_object(self, user: str | int) -&gt; tweepy.models.User:
+    &quot;&quot;&quot;Request Twitter User Object via tweepy
+
+    Args:
+        user (str): Either User ID or screen name
+
+    Returns:
+        tweepy.User: Twitter User object from tweepy
+    &quot;&quot;&quot;
+    try:
+        # check if string for user1 is convertible to int in order to check for user ID or screen name
+        if (isinstance(user, int)) or (user.isdigit()):
+            # get profile for user by user ID
+            user_obj = self.api.get_user(user_id=user)
+        else:
+            # get profile for user by screen name
+            user_obj = self.api.get_user(screen_name=user)
+    except tweepy.errors.Forbidden as e:
+        # log to stdout
+        log.error(&quot;403 Forbidden: access refused or access is not allowed.&quot;)
+        # if user ID was provided
+        if user.isdigit() or isinstance(user, int):
+            url = f&quot;https://api.twitter.com/2/users/{user}&quot;
+        else:
+            # if screen name was provided
+            url = f&quot;https://api.twitter.com/2/users/by/username/{user}&quot;
+        response = self._manual_request(url)
+        # if an error occured that says the user has been suspended
+        if any(&quot;User has been suspended&quot; in error[&quot;detail&quot;] for error in response[&quot;errors&quot;]):
+            log.error(&quot;User has been suspended from Twitter. Requested user: {}&quot;.format(user))
+            raise e
+        else:
+            raise e
+    return user_obj
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_user_follower_ids">get_user_follower_ids</h3>
+<p>Request Twitter follower IDs from user.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_user_follower_ids(user: str | int)
+</code></pre>
+<p>This function takes in a Twitter user identifier (either ID or unique screen name). It returns all follower user IDs from the specified user as a set. Here, the ``tweepy.Cursor```is used for pagination.</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_user_follower_ids(self, user: str | int) -&gt; Set[int]:
+    &quot;&quot;&quot;Request Twitter follower IDs from user
+
+    Args:
+        user (str | int): Either User ID or screen name.
+
+    Returns:
+        Set[int]: Array containing follower IDs
+    &quot;&quot;&quot;
+    # check if string for user1 is convertible to int in order to check for user ID or screen name
+    if (isinstance(user, int)) or (user.isdigit()):
+        params = {&quot;user_id&quot;: user}
+    else:
+        params = {&quot;screen_name&quot;: user}
+
+    follower_ids = list()
+    for page in tweepy.Cursor(self.api.get_follower_ids, **params).pages():
+        follower_ids.extend(page)
+    return set(follower_ids)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_user_followee_ids">get_user_followee_ids</h3>
+<p>Request Twitter followee IDs from user.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_user_followee_ids(user: str | int)
+</code></pre>
+<p>This function takes in a Twitter user identifier (i.e., either ID or unique screen name) and returns a set containing all IDs from the user's followees (AKA friends or follows).</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_user_followee_ids(self, user: str | int) -&gt; Set[int]:
+    &quot;&quot;&quot;Request Twitter followee IDs from user
+
+    Args:
+        user (str): Either User ID or screen name.
+
+    Returns:
+        Set[int]: Array containing follow IDs
+    &quot;&quot;&quot;
+    # check if string for user1 is convertible to int in order to check for user ID or screen name
+    if (isinstance(user, int)) or (user.isdigit()):
+        params = {&quot;user_id&quot;: user}
+    else:
+        params = {&quot;screen_name&quot;: user}
+
+    followee_ids = list()
+    for page in tweepy.Cursor(self.api.get_friend_ids, **params).pages():
+        followee_ids.extend(page)
+    return set(followee_ids)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_latest_activity">get_latest_activity</h3>
+<p>Returns latest user's activity by fetching the top element from its timeline.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_latest_activity(user: str | int)
+</code></pre>
+<p>This function takes in a Twitter user identifier (i.e., either ID or unique screen name) and returns the latest activity from the user's timeline. Therefore, the <a href="./#manual_request"><code>_manual_request</code></a> function is used to request the <a href="https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline">corresponding endpoint</a>.</p>
+<p>Often, this will be a tweet composed by the user itself. Then, all available data of that tweet will be returned as a dictionary.</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_latest_activity(self, user: str | int) -&gt; dict:
+    &quot;&quot;&quot;Returns latest user's activity by fetching the top element from its timeline.
+
+    Args:
+        user (str | int): User ID or screen name.
+
+    Returns:
+        dict: Latest activity.
+    &quot;&quot;&quot;
+    # if screen name was provided
+    if (isinstance(user, str)) and (user.isdigit() is False):
+        url = f&quot;https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&amp;include_rts=true&amp;trim_user=true&amp;tweet_mode=extended&quot;
+    # else go with user ID
+    else:
+        url = f&quot;https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&amp;include_rts=true&amp;trim_user=true&amp;tweet_mode=extended&quot;
+    response_json = self._manual_request(url)
+    # return the first item since timeline is sorted descending
+    return response_json[0]
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_latest_activity_date">get_latest_activity_date</h3>
+<p>Get latest activity date from specified user by fetching the top element from its timeline and extract the creation date.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_latest_activity_date(user: str | int)
+</code></pre>
+<p>This function takes in a Twitter user identifier (i.e., either ID or unique screen name) and returns the latest activity date from the user's timeline. Therefore, the <a href="./#manual_request"><code>_manual_request</code></a> function is used to request the <a href="https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline">corresponding endpoint</a>.</p>
+<p>The latest activity date is determined by fetching the latest activity from the user's timeline first, and then extracting the creation date. Usually, this will be a tweet composed by the user. If this is the case, the creation date of that tweet will be returned, representing the latest public available activity date.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_latest_activity_date(self, user: str | int) -&gt; str:
+    &quot;&quot;&quot;Get latest activity date from specified user by fetching the top element from its timeline.
+
+    Args:
+        user (str | int): User ID or screen name.
+
+    Returns:
+        str: Activity date of latest activity.
+    &quot;&quot;&quot;
+    # if screen name was provided
+    if (isinstance(user, str)) and (user.isdigit() is False):
+        url = f&quot;https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={user}&amp;include_rts=true&amp;trim_user=true&quot;
+    # else go with user ID
+    else:
+        url = f&quot;https://api.twitter.com/1.1/statuses/user_timeline.json?user_id={user}&amp;include_rts=true&amp;trim_user=true&quot;
+    response_json = self._manual_request(url)
+    # return the first item since timeline is sorted descending
+    return response_json[0][&quot;created_at&quot;]
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_relationship">get_relationship</h3>
+<p>Get relationship between two Twitter users.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_relationship(source_user: str | int, target_user: str | int)
+</code></pre>
+<p>The function takes in a source and a target user identifier. It uses the <a href="https://docs.tweepy.org/en/stable/api.html#tweepy.API.get_friendship">Tweepy.API.get_friendship</a> function to get the relationship. Therefore, this function handles the performed query based on the provided user identifiers.</p>
+<p>The function will return the parsed JSON relationship for the source and target user as a dictionary.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_relationship(self, source_user: str | int, target_user: str | int) -&gt; dict:
+    &quot;&quot;&quot;Get relationship between two users.
+
+    Args:
+        user1 (str | int): Source user ID or screen name.
+        user2 (str | int): Target user ID or screen name.
+
+    Returns:
+        dict: Unpacked tuple of JSON from tweepy Friendship model.
+
+    Reference: https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show#example-response
+    &quot;&quot;&quot;
+
+    params = {&quot;source_id&quot;: None, &quot;source_screen_name&quot;: None, &quot;target_id&quot;: None, &quot;target_screen_name&quot;: None}
+    # if source_user is int or a digit
+    if (isinstance(source_user, int)) or (isinstance(source_user, str) and (source_user.isdigit())):
+        params[&quot;source_id&quot;] = source_user
+    # else if screen name was provided
+    elif (isinstance(source_user, str)) and (not source_user.isdigit()):
+        params[&quot;source_screen_name&quot;] = source_user
+    else:
+        log.error(&quot;No ID or username provided for {}&quot;.format(source_user))
+
+    # if target_user is int or a digit
+    if (isinstance(target_user, int)) or (isinstance(target_user, str) and (target_user.isdigit())):
+        params[&quot;target_id&quot;] = target_user
+    # else if screen name was provided
+    elif (isinstance(target_user, str)) and (not target_user.isdigit()):
+        params[&quot;target_screen_name&quot;] = target_user
+    else:
+        log.error(&quot;No ID or username provided for {}&quot;.format(target_user))
+
+    relationship = self.api.get_friendship(**params)
+    return {&quot;source&quot;: relationship[0]._json, &quot;target&quot;: relationship[1]._json}
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_relationship_pairs">get_relationship_pairs</h3>
+<p>Creates pairs for each uniqie combination of provided users based on their relationship.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_relationship_pairs(users: List[str | int])
+</code></pre>
+<p>This function takes in a list of user identifiers (i.e., IDs or unique screen names). It will create a pair of each combination of the provided users and returns their individual relationships.</p>
+<p>For instance, if three users <code>WWU_Muenster</code>, <code>goetheuni</code>, <code>UniKonstanz</code> were provided, the pairs are determined as follows:</p>
+<ol>
+<li>(<code>WWU_Muenster</code>, <code>goetheuni</code>)</li>
+<li>(<code>WWU_Muenster</code>, <code>UniKonstanz</code>)</li>
+<li>(<code>goetheuni</code>, <code>WWU_Muenster</code>)</li>
+<li>(<code>goetheuni</code>, <code>UniKonstanz</code>)</li>
+<li>(<code>UniKonstanz</code>, <code>WWU_Muenster</code>)</li>
+<li>(<code>UniKonstanz</code>, <code>goehteuni</code>)</li>
+</ol>
+<p>These pairs are set as dictionary keys. The respective relationships are stored as dictionary values.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_relationship_pairs(self, users: List[str | int]) -&gt; dict:
+    &quot;&quot;&quot;Creates pairs for each unique combination of provided users based on their relationship.
+
+    Args:
+        users (List[str  |  int]): List of user IDs or screen names.
+
+    Returns:
+        dict: Pairs of users containing their relationship to each other.
+    &quot;&quot;&quot;
+    # init emtpy relationships dict
+    relationships = dict()
+    # iterate over every pair combination of provided users
+    for user in users:
+        for other_user in users:
+            if user != other_user:
+                relationships[(user, other_user)] = self.get_relationship(source_user=user, target_user=other_user)
+    return relationships
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_liked_tweets_ids">get_liked_tweets_ids</h3>
+<p>Get (all) liked tweet IDs of the provided user.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_liked_tweets_ids(user: str | int, limit: int | None = None)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>user</code> (str | int): User ID or screen name.</li>
+<li><code>limit</code> (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.</li>
+</ul>
+<p>This function uses the custom <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function to get the specified number of results. To get the tweet IDs, the <a href="https://docs.tweepy.org/en/stable/client.html#tweepy.Client.get_liked_tweets">tweepy.Client.get_liked_tweets</a> function is used.</p>
+<p>The function wil return a Python set of the IDs of the liked tweets by the user.</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_liked_tweets_ids(self, user: str | int, limit: int | None = None) -&gt; list():
+    &quot;&quot;&quot;Get (all) liked Tweets of provided user.
+
+    Args:
+        user (str | int): User ID or screen name.
+        limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
+
+    Returns:
+        Set[int]: Tweet Objects of liked Tweets.
+    &quot;&quot;&quot;
+    # if user ID was provided
+    if (isinstance(user, int)) or (user.isdigit()):
+        params = {&quot;id&quot;: user, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+    else:
+        user_obj = self.get_user_object(user)
+        params = {&quot;id&quot;: user_obj.id, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+
+    page_results = self._paginate(self.client.get_liked_tweets, params, limit=limit, page_attribute=&quot;id&quot;)
+    return page_results
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_composed_tweets_ids">get_composed_tweets_ids</h3>
+<p>Get (all) composed tweet IDs of provided user by pagination.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_composed_tweets_ids(user: str | int, limit: int | None = None)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>user</code> (str | int): User ID or screen name.</li>
+<li><code>limit</code> (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.</li>
+</ul>
+<p>This function uses the custom <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function to get the specified number of results. To get the tweet IDs, the <a href="https://docs.tweepy.org/en/stable/client.html?#tweepy.Client.get_users_tweets">tweepy.Client.get_users_tweets</a> function is used.</p>
+<p>The function wil return a Python set of the IDs of the composed tweets by the user.</p>
+<p>The function handles the performed request based on what user identifier was given.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_composed_tweets_ids(self, user: str | int, limit: int | None = None) -&gt; list:
+    &quot;&quot;&quot;Get (all) composed Tweets of provided user by pagination.
+
+    Args:
+        user (str | int): User ID or screen name.
+        limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
+
+    Returns:
+        list: Tweet Objects of composed Tweets.
+    &quot;&quot;&quot;
+
+    # user ID is required, if screen name was provided
+    if (isinstance(user, str)) and (not user.isdigit()):
+        user = self.get_user_object(user).id
+    # set params
+    params = {&quot;id&quot;: user, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+    # get page results
+    page_results = self._paginate(self.client.get_users_tweets, params, limit=limit, page_attribute=&quot;id&quot;)
+    return page_results
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_botometer_scores">get_botometer_scores</h3>
+<p>Returns bot scores from the Botometer API for the specified Twitter account.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_botometer_scores(user: str | int)
+</code></pre>
+<p>This function takes in a Twitter account identifier (i.e., ID or unique screen name.)</p>
+<p>This function relies on the external <a href="https://rapidapi.com/OSoMe/api/botometer-pro/details">Botometer API</a>. To use this function, the corresponding RapidAPI secrets need to be provided. See the <a href="../../user-guide/overview/TwitterAPI/#initialization">secrets overview</a> for more details.</p>
+<p>The function gets the user's timeline first and takes the latest 100 tweets from its timeline. Then, this data is send via the <code>`payload</code> argument of the <a href="./#manual_request"><code>TwitterDataFetcher._manual_request</code></a> function using a POST request. Then, the JSON response is returned.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_botometer_scores(self, user: str | int) -&gt; dict:
+    &quot;&quot;&quot;Returns bot scores from the Botometer API for the specified Twitter user.
+
+    Args:
+        user (str | int): User ID or screen name.
+
+    Returns:
+        dict: The raw Botometer scores for the specified user.
+
+    Reference: https://rapidapi.com/OSoMe/api/botometer-pro/details
+    &quot;&quot;&quot;
+    if (self._x_rapidapi_key is None) or (self._x_rapidapi_host is None):
+        raise ValueError(&quot;'X_RAPIDAPI_KEY' and 'X_RAPIDAPI_HOST' secrets for Botometer API need to be provided.&quot;)
+    # get user object
+    user_obj = self.get_user_object(user)
+    # get user timeline
+    timeline = list(map(lambda x: x._json, self.api.user_timeline(user_id=user_obj.id, count=200)))
+    # get user data
+    if timeline:
+        user_data = timeline[0][&quot;user&quot;]
+    else:
+        user_data = user_obj._json
+    screen_name = &quot;@&quot; + user_data[&quot;screen_name&quot;]
+    # get latest 100 Tweets
+    tweets = list(map(lambda x: x._json, self.api.search_tweets(screen_name, count=100)))
+    # set payload
+    payload = {&quot;mentions&quot;: tweets, &quot;timeline&quot;: timeline, &quot;user&quot;: user_data}
+    # set header
+    headers = {&quot;content-type&quot;: &quot;application/json&quot;, &quot;X-RapidAPI-Key&quot;: self._x_rapidapi_key, &quot;X-RapidAPI-Host&quot;: self._x_rapidapi_host}
+    # set url
+    url = &quot;https://botometer-pro.p.rapidapi.com/4/check_account&quot;
+    # get results
+    response = self._manual_request(url, &quot;POST&quot;, headers, payload)
+    return response
+</code></pre>
+
+</details>
+
+<hr />
+<h2 id="tweet-related-methods">Tweet related methods</h2>
+<h3 id="get_tweet_object">get_tweet_object</h3>
+<p>Request Twitter tweet object via tweepy.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_tweet_object(tweet: str | int)
+</code></pre>
+<p>The function takes in either the tweet ID as string or integer. It returns the extended tweet object requested via the API v1 using the <a href="https://docs.tweepy.org/en/stable/api.html#tweepy.API.get_status">tweepy.API.get_status</a> function.</p>
+<p>If the requested tweet object has been deleted, an error will be returned and a messeage will be logged to stdout.</p>
+<p>Reference: <a href="https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet">https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet</a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_tweet_object(self, tweet: str | int) -&gt; tweepy.models.Status:
+    &quot;&quot;&quot;Request Twitter Tweet Object via tweepy
+
+    Args:
+        tweet (int | str): Tweet ID
+
+    Returns:
+        tweepy.models.Status: tweepy Status Model
+
+    Reference: https://developer.twitter.com/en/docs/twitter-api/v1/data-dictionary/object-model/tweet
+    &quot;&quot;&quot;
+    try:
+        tweet_obj = self.api.get_status(tweet, include_entities=True, tweet_mode=&quot;extended&quot;)
+    except tweepy.errors.NotFound as e:
+        log.error(&quot;404 Not Found: Resource not found.&quot;)
+        raise e
+    except tweepy.errors.Forbidden as e:
+        log.error(&quot;403 Forbidden: access refused or access is not allowed.&quot;)
+        raise e
+    return tweet_obj
+</code></pre>
+
+</details>
+<hr />
+<h3 id="get_liking_users_ids">get_liking_users_ids</h3>
+<p>Get (all) liking users of provided tweet by pagination.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_liking_users_ids(tweet_id: str | int, limit: int | None = None)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>tweet</code> (str | int): Tweet ID.</li>
+<li><code>limit</code> (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.</li>
+</ul>
+<p>The function takes in the tweet ID as string or integer representation as well as the limit argument. If limit is none, all available results will be returned. It returns the user IDs of the users that liked the specified tweet.</p>
+<p>This function uses the custom <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function to get the specified number of results. To get the user IDs, the <a href="https://docs.tweepy.org/en/stable/client.html?#tweepy.Client.get_liking_users">tweepy.Client.get_liking_users</a> function is used.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_liking_users_ids(self, tweet_id: str | int, limit: int | None = None) -&gt; list:
+    &quot;&quot;&quot;Get (all) liking users of provided Tweet by pagination.
+
+    Args:
+        tweet (str | int): Tweet ID.
+        limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
+
+    Returns:
+        Set[int]: User Objects as list.
+    &quot;&quot;&quot;
+    # set params
+    params = {&quot;id&quot;: tweet_id, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+    # get page results
+    page_results = self._paginate(self.client.get_liking_users, params, limit=limit, page_attribute=&quot;id&quot;)
+    return page_results
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_retweeters_ids">get_retweeters_ids</h3>
+<p>Get (all) retweeting users of provided tweet by pagination.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_retweeters_ids(tweet_id: str | int, limit: int | None = None)
+</code></pre>
+<p>Args:</p>
+<ul>
+<li><code>tweet</code> (str | int): Tweet ID.</li>
+<li><code>limit</code> (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.</li>
+</ul>
+<p>The function takes in the tweet ID as string or integer representation as well as the limit argument. If limit is none, all available results will be returned. It returns the user IDs of the users that retweeted the specified tweet.</p>
+<p>This function uses the custom <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function to get the specified number of results. To get the user IDs, the <a href="https://docs.tweepy.org/en/stable/client.html?#tweepy.Client.get_retweeters">tweepy.Client.get_retweeters</a> function is used.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_retweeters_ids(self, tweet_id: str | int, limit: int | None = None) -&gt; list:
+    &quot;&quot;&quot;Get (all) retweeting users of provided Tweet by pagination.
+
+    Args:
+        tweet (str | int): Tweet ID.
+        limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
+
+    Returns:
+        Set[int]: User Objects of retweeting users.
+    &quot;&quot;&quot;
+    params = {&quot;id&quot;: tweet_id, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+    # get page results
+    page_results = self._paginate(self.client.get_retweeters, params, limit=limit, page_attribute=&quot;id&quot;)
+    return page_results
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_quoting_users_ids">get_quoting_users_ids</h3>
+<p>Get (all) quoting users of provided Tweet by pagination.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_quoting_users_ids(tweet_id: str | int, limit: int | None = None)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>tweet_id</code> (str | int): Tweet ID.</li>
+<li><code>limit</code> (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.</li>
+</ul>
+<p>The function takes in the tweet ID as string or integer representation as well as the limit argument. If limit is none, all available results will be returned. It returns the user IDs of the users that quoted the specified tweet.</p>
+<p>This function uses the custom <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function to get the specified number of results. To get the tweet objects, the <a href="https://docs.tweepy.org/en/stable/client.html?#tweepy.Client.get_quote_tweets">tweepy.Client.get_quote_tweets</a> function is used. Then, the quoting users IDs are extracted from the additional information provided within the <code>includes</code> fields of each page. For more details, see the instructions on the <a href="./#paginate"><code>TwitterDataFetcher._paginate</code></a> function</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_quoting_users_ids(self, tweet_id: str | int, limit: int | None = None) -&gt; list:
+    &quot;&quot;&quot;Get (all) quoting users of provided Tweet by pagination.
+
+    Args:
+        tweet_id (str | int): Tweet ID.
+        limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
+
+    Returns:
+        list: User Objects of quoting users.
+    &quot;&quot;&quot;
+    params = {&quot;id&quot;: tweet_id, &quot;max_results&quot;: 100, &quot;pagination_token&quot;: None}
+    # get page results
+    page_results = self._paginate(self.client.get_quote_tweets, params, limit=limit, response_attribute=&quot;includes&quot;, page_attribute=&quot;id&quot;)
+    return page_results
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_context_annotations_and_entities">get_context_annotations_and_entities</h3>
+<p>Get context annotations and entities from a tweet object.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_context_annotations_and_entities(tweet_id: str | int)
+</code></pre>
+<p>The function takes in the tweet ID as string or integer representation.</p>
+<p>The function returns the context annotations (e.g., topics) and named entities of the specified tweet. Therefore, it uses the <a href="./#manual_request"><code>TwitterDataFetcher._manual_request</code></a> function. The tweet fields for <code>context_annotations</code> and <code>entities</code> are set. If any context annotation or named entity exist, the JSON response of the request is returned, else <code>None</code>.</p>
+<p>Reference: <a href="https://developer.twitter.com/en/docs/twitter-api/annotations/overview">https://developer.twitter.com/en/docs/twitter-api/annotations/overview</a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_context_annotations_and_entities(self, tweet_id: str | int) -&gt; dict | None:
+    &quot;&quot;&quot;Get context annotations and entities from a Tweet.
+
+    Args:
+        tweet_id (str | int): Tweet ID
+
+    Returns:
+        dict | None: context annotations and entities if available, else None.
+
+    Reference: https://developer.twitter.com/en/docs/twitter-api/annotations/overview
+    &quot;&quot;&quot;
+    url = f&quot;https://api.twitter.com/2/tweets/{tweet_id}&quot;
+    response_json = self._manual_request(url, additional_fields={&quot;tweet.fields&quot;: [&quot;context_annotations&quot;, &quot;entities&quot;]})
+    # if key is not awailable, return None
+    if &quot;context_annotations&quot; or &quot;entities&quot; in response_json[&quot;data&quot;]:
+        return response_json[&quot;data&quot;]
+    else:
+        return None
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="get_public_metrics">get_public_metrics</h3>
+<p>Get public metrics from tweet object.</p>
+<p>Function:</p>
+<pre><code class="language-python">TwitterDataFetcher.get_public_metrics(tweet_id: str | int)
+</code></pre>
+<p>The function takes in the tweet ID as string or integer representation.</p>
+<p>The following public metrics are returned:  </p>
+<ul>
+<li><code>impressions_count</code> (=views)</li>
+<li><code>quote_count</code></li>
+<li><code>reply_count</code></li>
+<li><code>retweet_count</code></li>
+<li><code>favorite_count</code> (=likes)</li>
+</ul>
+<p>Here you can find an interpretation of the metrics: <a href="https://developer.twitter.com/en/docs/twitter-api/metrics">https://developer.twitter.com/en/docs/twitter-api/metrics</a></p>
+<p>The function returns the public metrics of the tweet. Therefore, it uses the <a href="./#manual_request"><code>TwitterDataFetcher._manual_request</code></a> function. The tweet field for <code>public_metrics</code> is set. If any context annotation or named entity exist, the JSON response of the request is returned, else <code>None</code>.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def get_public_metrics(self, tweet_id: str | int) -&gt; dict:
+    &quot;&quot;&quot;Get public metrics from Tweet Object
+
+    Args:
+        tweet_id (str | int): Tweet ID
+
+    Returns:
+        dict: Available public metrics for specified Tweet.
+
+    Metrics:
+        - impressions_count (=views)
+        - quote_count
+        - reply_count
+        - retweet_count
+        - favorite_count (=likes)
+
+    Reference: https://developer.twitter.com/en/docs/twitter-api/metrics
+    &quot;&quot;&quot;
+    # set URL
+    url = f&quot;https://api.twitter.com/2/tweets/{tweet_id}&quot;
+    # make request
+    response_json = self._manual_request(url, additional_fields={&quot;tweet.fields&quot;: [&quot;public_metrics&quot;]})
+    # get public metrics from JSON response
+    public_metrics = response_json[&quot;data&quot;][&quot;public_metrics&quot;]
+    return public_metrics
+</code></pre>
+
+</details>
+<hr />
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../../user-guide/overview/cli/" class="btn btn-neutral float-left" title="CLI Tool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TwitterAPI/" class="btn btn-neutral float-left" title="TwitterAPI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../TwitterDataProcessor/" class="btn btn-neutral float-right" title="TwitterDataProcessor">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -132,7 +948,7 @@
         </span>
     
     
-      <span><a href="../../user-guide/overview/cli/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../TwitterAPI/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../TwitterDataProcessor/" style="color: #fcfcfc">Next &raquo;</a></span>

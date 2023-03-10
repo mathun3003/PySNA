@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">TwitterAPI</a>
     <ul class="current">
@@ -77,13 +77,21 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataFetcher/">TwitterDataFetcher</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/TwitterDataProcessor/">TwitterDataProcessor</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/cli/">CLI Functions</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../maintenance/repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -100,7 +108,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>Overview &raquo;</li>
+          <li>User Guide &raquo;</li>
       <li>TwitterAPI</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/mathun3003/PySNA/edit/master/docs/user-guide/overview/TwitterAPI.md" class="icon icon-github"> Edit on GitHub</a>
@@ -149,7 +157,8 @@
 <pre><code class="language-python">TwitterAPI.user_info(user: str | int, attributes: List[LITERALS_USER_INFO] | str, return_timestamp: bool = False)
 </code></pre>
 <p>Receive requested user information from Twitter User Object.  </p>
-<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<p>This function takes in a Twitter user identifier (i.e., an ID or unique screen name). The attributes are passed in by a list object or by a single string.</p>
+<p>For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, <code>None</code> will be returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>user</code> (str | int): Twitter User either specified by corresponding ID or screen name.</li>
@@ -184,7 +193,8 @@ print(results)
 <pre><code class="language-python">TwitterAPI.compare_users(users: List[str | int], compare: str | List[LITERALS_COMPARE_USERS], return_timestamp: bool = False, features: List[str] | None = None)
 </code></pre>
 <p>Compare two or more users with the specified comparison attribute(s).  </p>
-<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<p>This function takes in multiple Twitter user identifiers (i.e., IDs or unique screen names). The comparison attributes are passed in by a list object or by a single string.</p>
+<p>For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>users</code> (List[str | int]):  User IDs or unique screen names.</li>
@@ -225,7 +235,8 @@ print(results)
 <pre><code class="language-python">tweet_info(tweet_id: str | int, attributes: List[LITERALS_TWEET_INFO] | str, return_timestamp: bool = False)
 </code></pre>
 <p>Receive requested Tweet information from Tweet Object.  </p>
-<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<p>This function takes in a tweet ID as string or integer representation. The attributes are passed in by a list object or by a single string.</p>
+<p>For a single provided attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned. If the requested attribute for the objet is not available, <code>None</code> will be returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>tweet_id</code> (str | int): Tweet ID either in string or integer representation.  </li>
@@ -257,7 +268,8 @@ print(results)
 <pre><code class="language-python">compare_tweets(tweet_ids: List[str | int], compare: str | List[LITERALS_COMPARE_TWEETS], return_timestamp: bool = False, features: List[str] | None = None)
 </code></pre>
 <p>Compare two or more Tweets with the specified comparison attribute.  </p>
-<p>For one attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
+<p>This function takes in multiple tweet IDs as string or integer representation. The comparison attributes are passed in by a list object or by a single string.</p>
+<p>For a single attribute, only the corresponding value is returned. For multiple attributes, a dictionary with the key-value pairs of the requested attributes is returned.</p>
 <p>Args:</p>
 <ul>
 <li><code>tweet_ids</code> (List[str | int]): Tweet IDs either in string or integer representation. At least two Tweet IDs are required.  </li>

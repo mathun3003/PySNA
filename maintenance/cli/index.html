@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>CLI Functions - PySNA Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "CLI Functions";
+        var mkdocs_page_input_path = "maintenance\\cli.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/bash.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> PySNA Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../user-guide/installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/Utilities/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/cli/">CLI Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Implementation Details</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">CLI Functions</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PySNA Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Implementation Details &raquo;</li>
+      <li>CLI Functions</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/mathun3003/PySNA/edit/master/docs/maintenance/cli.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="command-line-interface-functions">Command-line Interface Functions</h2>
+<p>The functions for the CLI are implemented using the <a href="https://docs.python.org/3/library/argparse.html">argparse</a> Python library.</p>
+<p>Initially, the usage message is set that users can receive by calling <code>pysna --help</code>. Then, the package version is collected by using a regular expression search for the version specification in the <code>__init__.py</code>. The version is added to the main parser argument for <code>--version</code>.<br />
+Then, the required secrets (i.e., secrets for the Twitter API. See <a href="../../user-guide/overview/TwitterAPI/#initialization">here</a> for more information) and optional secrets (i.e., Botometer API secrets) are set.</p>
+<p>Since every function call via the CLI will generate a new CLI session, it is technically infeasible to store the secrets across all CLI sessions and function calls. To avoid passing in the secrets every time the user calls a function, a config file path is defined where the secrets will be stored. Then, the parsers will read the configured secrets from this config file path, so the user does not need to pass in the secrets manually for every function call.</p>
+<p>The <code>config_file_path</code> is set under the home directory: <code>~/.pysna/config/secrets.env</code>. The <code>.pysna</code> folder is hidden.</p>
+<p>For the CLI tool, two parsers were defined: The main parser reacting to the <code>pysna</code> command and the <code>--version</code> and <code>-help</code> flags. The subparser is used to define subcommands for the main parser such that commands/functions can be chained (e.g., <code>pysna user-info</code>).</p>
+<p>For every subcommand, the help instructions can be found via the <code>--help</code> flag (e.g., <code>pysna user-info --help</code>).</p>
+<hr />
+<h1 id="internal-functions">Internal Functions</h1>
+<p>Internal functions are used to process data, parse file contents, or handle user input.</p>
+<h3 id="read_secrets">read_secrets</h3>
+<p>This function reads the secrets from the specified environment path. For default, the <code>config_file_path</code> variable is passed in by all user functions. If any other path is provided, the function will read the secrets from this file. Only <code>.env</code> files are supported.</p>
+<p>Function:</p>
+<pre><code class="language-python">read_secrets(env_path: str)
+</code></pre>
+<p>The <code>.env</code> file must be of the form:</p>
+<pre><code>BEARER_TOKEN=
+CONSUMER_KEY=
+CONSUMER_SECRET=
+ACCESS_TOKEN=
+ACCESS_TOKEN_SECRET=
+X_RAPIDAPI_KEY=
+X_RAPIDAPI_HOST=
+</code></pre>
+<p>The function will read the secrets and return a dictionary containing the lowered keys and secrets from the <code>.env</code> file.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def read_secrets(env_path: str) -&gt; dict:
+    if not os.path.exists(env_path):
+        raise Exception(&quot;No config file found for secrets. Use the 'set-secrets' function to create a config file or provide a .env file using the '--env' flag.&quot;)
+    else:
+        load_dotenv(env_path)
+        # catch environmental variables
+        for secret in REQUIRED_SECRETS:
+            if secret not in os.environ:
+                raise KeyError(f&quot;{secret} must be provided in the environment variables.&quot;)
+        # collect secrets
+        secrets = {secret.lower(): os.getenv(secret) for secret in REQUIRED_SECRETS + OPTIONAL_SECRETS}
+        return secrets
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="output">output</h3>
+<p>The output function receives the data returned by one of the user functions. Then, this function decides based on the provided arguments if the data should be printed to the console, exported to a file (CSV or JSON) or appended to a file.</p>
+<p>In case, the user specified a file path using the <code>--output</code> flag but does not specify the <code>--append</code> flag, then the data will be written to a JSON (if the path ends with a <code>.json</code>) or CSV (if the path ends with a <code>.csv</code>) file. If the user also specified the <code>--append</code> flag, then the data will be appended to the specified file. Otherwise, the data will be printed to stdout.</p>
+<p>Function:</p>
+<pre><code class="language-python">output(data: dict, encoding: str, path: str | None = None, append: bool = False)
+</code></pre>
+<p>Args:  </p>
+<ul>
+<li><code>data</code> (dict): input data that has been fetched by a function.</li>
+<li><code>encoding</code> (str): encoding option of the export. Defaults to UTF-8.</li>
+<li><code>path</code> (str | None): the path to the file. Defaults to None.</li>
+<li><code>append</code> (bool): wheather to append the data or not. Defaults to false.</li>
+</ul>
+<p>This function is used for every main user function. It handles the specified flags by the user (i.e., <code>return_timestamp</code>, <code>append</code>, <code>encoding</code>)</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def output(data: dict, encoding: str, path: str | None = None, append: bool = False):
+    # either print results if '--output' arg was provided
+    if (path is not None) and (append is False):
+        if path.endswith(&quot;.json&quot;):
+            export_to_json(data, path, encoding)
+        elif path.endswith(&quot;.csv&quot;):
+            export_to_csv(data, path, encoding)
+    # or append to existing file
+    elif (path is not None) and (append is True):
+        if path.endswith(&quot;.json&quot;):
+            append_to_json(data, path, encoding)
+        elif path.endswith(&quot;.csv&quot;):
+            append_to_csv(data, path, encoding)
+    # or print them to the CLI in JSON format
+    else:
+        print(json.dumps(data, ensure_ascii=False))
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="argument">argument</h3>
+<p>Convenience function to properly format arguments to pass to the subcommand decorator.</p>
+<p>Function:</p>
+<pre><code class="language-python">argument(*name_or_flags, **kwargs)
+</code></pre>
+<p>This function returns a tuple of a list of names or flags and the specified keyword arguments. It is a helper function used to pass in arguments to the decorator <a href="./#subcommand-decorator"><code>subcommand</code></a></p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def argument(*name_or_flags, **kwargs):
+    &quot;&quot;&quot;Convenience function to properly format arguments to pass to the subcommand decorator.&quot;&quot;&quot;
+    return (list(name_or_flags), kwargs)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="subcommand-decorator">subcommand (decorator)</h3>
+<p>Decorator to define a new subcommand in a sanity-preserving way.
+The function will be stored in the <code>func</code> variable when the parser parses arguments so that it can be called directly like so:</p>
+<pre><code class="language-python">args = cli.parse_args()
+args.func(args)
+</code></pre>
+<p>Usage example:</p>
+<pre><code class="language-python">@subcommand([argument(&quot;-d&quot;, help=&quot;Enable debug mode&quot;, action=&quot;store_true&quot;)])
+def subcommand(args):
+    print(args)
+</code></pre>
+<p>Then on the command line:</p>
+<pre><code class="language-bash">python cli.py subcommand -d
+</code></pre>
+<p>This function is a Python decorator defining a function as a subcommand to the main parser. It adds a new argument to the subparser. Developers can define the function name using the <code>function_name</code> argument (e.g., <code>user-info</code>) and pass in the function arguments using the <code>args</code> argument in combination with the <a href="./#argument"><code>argument</code></a> function.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def subcommand(function_name: str, args=[], parent=subparsers):
+    &quot;&quot;&quot;Decorator to define a new subcommand in a sanity-preserving way.
+    The function will be stored in the ``func`` variable when the parser
+    parses arguments so that it can be called directly like so::
+        args = cli.parse_args()
+        args.func(args)
+    Usage example::
+        @subcommand([argument(&quot;-d&quot;, help=&quot;Enable debug mode&quot;, action=&quot;store_true&quot;)])
+        def subcommand(args):
+            print(args)
+    Then on the command line::
+        $ python cli.py subcommand -d
+    &quot;&quot;&quot;
+
+    def decorator(func):
+        parser = parent.add_parser(function_name, description=func.__doc__)
+        for arg in args:
+            parser.add_argument(*arg[0], **arg[1])
+        parser.set_defaults(func=func)
+
+    return decorator
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="main">main</h3>
+<p>This function is called when the user runs the <code>pysna</code> command on the console. It parses the provided arguments (such as the subcommands and related arguments) or prints the help or usage instructions to the console.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def main():
+    args = parser.parse_args()
+    if args.subcommand is None:
+        parser.print_help()
+    else:
+        args.func(args)
+</code></pre>
+
+</details>
+
+<hr />
+<h1 id="user-functions">User Functions</h1>
+<p>User functions are designed to be used by the package user. They form the basis for interaction with the package.</p>
+<h3 id="set_secrets">set_secrets</h3>
+<p>Since every CLI sessions requires secrets for authentification with the Twitter API, this function serves a way to store the secrets at a hidden place under the <code>config_file_path</code>.</p>
+<p>The user has to run this function once to set the secrets. Whenever the user wishes to change/overwrite set secrets, he or she can rerun this function. The user has to pass in a file path to a <code>.env</code> file. The <code>.env</code> file must be of the form:</p>
+<pre><code>BEARER_TOKEN=
+CONSUMER_KEY=
+CONSUMER_SECRET=
+ACCESS_TOKEN=
+ACCESS_TOKEN_SECRET=
+X_RAPIDAPI_KEY=
+X_RAPIDAPI_HOST=
+</code></pre>
+<p>In case, any secrets was not provided, an exception will be thrown.</p>
+<p>If all secrets were collected by the function, it creates the <code>config_file_path</code> under the home directory of the user and copies the <code>.env</code> file to this path.</p>
+<p>After copying, a message wil be prompted saying the user that the secrets has been set.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">@subcommand(&quot;set-secrets&quot;, args=[argument(&quot;secrets_file&quot;, type=str, help=&quot;Path to the secrets file. Only .env files are supported.&quot;)])
+def set_secrets(args):
+    &quot;&quot;&quot;CLI function to set or overwrite a config file for storing API secrets. Config file will be set to '~/.pysna/config/secrets.env'.&quot;&quot;&quot;
+    if not args.secrets_file.endswith(&quot;.env&quot;):
+        raise Exception(&quot;Only .env files are supported. Please pass in a .env file.&quot;)
+    # check .env file format
+    load_dotenv(args.secrets_file)
+    for secret in REQUIRED_SECRETS:
+        if secret not in os.environ:
+            raise Exception(
+                f&quot;{secret} must be provided in the {args.secrets_file} file.&quot;
+                f&quot;\nMake sure that your {args.secrets_file} has the following format:&quot;
+                f&quot;\nBEARER_TOKEN=...\nCONSUMER_KEY=...\nCONSUMER_SECRET=...\nACCESS_TOKEN=...\nACCESS_TOKEN_SECRET=...&quot;
+                f&quot;\nIf you wish to use the Botometer API, also provide the {', '.join(OPTIONAL_SECRETS)} keys in the {args.secrets_file} file.&quot;
+            )
+    # create folders if it does not exist yet
+    os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+    # copy file content from args.secrets_file to config file path
+    shutil.copy2(args.secrets_file, config_file_path)
+    print(f&quot;Secrets from {args.secrets_file} file were set.&quot;)
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="user_info_cli">user_info_cli</h3>
+<p>CLI function equivalent to the <a href="../TwitterAPI/#user_info">TwitterAPI.user_info</a> function. This function is a wrapper around the <a href="../TwitterAPI/#user_info">TwitterAPI.user_info</a> function and handles the inputs and outputs to the console.</p>
+<p>Args:</p>
+<ul>
+<li><code>user</code>: User ID or screen name.</li>
+<li><code>attributes</code> (List): User attributes. Must be from <a href="../../user-guide/overview/literals-user-info/">his list</a>.</li>
+<li><code>env</code> (str, optional): Path to <code>.env</code> file. Defaults to <code>config_file_path</code>. If the user wishes to use different secrets for authentification, he or she can pass in the path to another <code>.env</code> file. This file must also have the same form, as described in the <a href="./#read_secrets"><code>read_secrets</code></a> function section.</li>
+<li><code>return_timestamp</code> (bool, optional): Wheather to return the Unix timestamp of the request. Defaults to false.</li>
+<li><code>output</code> (str, optional): Export file path. This argument is also used in combination with the <code>append</code> argument to specify that the data should be added to an existing file. If both arguments were provided, data is appended.</li>
+<li><code>encoding</code> (str, optional): Encoding of the data. Defaults to UTF-8.</li>
+<li><code>append</code> (bool, optional): Wheather to append the data to an existing file or not. If the flag is provided (i.e., true), the file path needs to be specified with the <code>output</code> argument.</li>
+</ul>
+<p>First, the secrets are loaded from the environment file path. Then, the authentication to the TwitterAPI using the <code>TwitterAPI</code> class is performed. After that, the <code>TwitterAPI</code> instance calls the <code>user_info</code> function with the specified arguments. The results are either printed to the console, exported to a file, or appended to a file.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">@subcommand(
+    &quot;user-info&quot;,
+    args=[
+        argument(&quot;user&quot;, help=&quot;Twitter User ID or screen name&quot;),
+        argument(&quot;attributes&quot;, nargs=&quot;+&quot;, default=[], help=f&quot;List or string of desired User attributes. Must be from {', '.join(get_args(TwitterAPI.LITERALS_USER_INFO))}&quot;),
+        argument(&quot;--env&quot;, &quot;-e&quot;, type=str, default=config_file_path, required=False, help=f&quot;Path to .env file. Defaults to {config_file_path}.&quot;),
+        argument(&quot;--return-timestamp&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Returns the UTC timestamp of the request.&quot;),
+        argument(
+            &quot;--output&quot;,
+            &quot;-o&quot;,
+            type=str,
+            default=None,
+            required=False,
+            help=&quot;Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)&quot;,
+        ),
+        argument(&quot;--encoding&quot;, type=str, default=&quot;utf-8&quot;, required=False, help=&quot;Encoding of the output file. Defaults to UTF-8.&quot;),
+        argument(&quot;--append&quot;, &quot;-a&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Add results to an existing JSON file. File needs to be specified in the --output flag.&quot;),
+    ],
+)
+def user_info_cli(args):
+    &quot;&quot;&quot;CLI function to request information from the specified Twitter user.&quot;&quot;&quot;
+    # read secrets
+    secrets = read_secrets(args.env)
+    # establish connection to the API
+    api = TwitterAPI(**secrets)
+    # get results
+    result = api.user_info(user=args.user, attributes=args.attributes, return_timestamp=args.return_timestamp)
+    # handle output
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="tweet_info_cli">tweet_info_cli</h3>
+<p>CLI function equivalent to the <a href="../TwitterAPI/#tweet_info">TwitterAPI.tweet_info</a> function. This function is a wrapper around the <a href="../TwitterAPI/#tweet_info">TwitterAPI.tweet_info</a> function and handles the inputs and outputs to the console.</p>
+<p>Args:  </p>
+<ul>
+<li><code>tweet_id</code>: The tweet ID</li>
+<li><code>attributes</code> (List): Tweet attributes. Must be from <a href="../../user-guide/overview/literals-tweet-info/">this list</a>.</li>
+<li><code>env</code> (str, optional): Path to <code>.env</code> file. Defaults to <code>config_file_path</code>. If the user wishes to use different secrets for authentification, he or she can pass in the path to another <code>.env</code> file. This file must also have the same form, as described in the <a href="./#read_secrets"><code>read_secrets</code></a> function section.</li>
+<li><code>return_timestamp</code> (bool, optional): Wheather to return the Unix timestamp of the request. Defaults to false.</li>
+<li><code>output</code> (str, optional): Export file path. This argument is also used in combination with the <code>append</code> argument to specify that the data should be added to an existing file. If both arguments were provided, data is appended.</li>
+<li><code>encoding</code> (str, optional): Encoding of the data. Defaults to UTF-8.</li>
+<li><code>append</code> (bool, optional): Wheather to append the data to an existing file or not. If the flag is provided (i.e., true), the file path needs to be specified with the <code>output</code> argument.</li>
+</ul>
+<p>First, the secrets are loaded from the environment file path. Then, the authentication to the TwitterAPI using the <code>TwitterAPI</code> class is performed. After that, the <code>TwitterAPI</code> instance calls the <code>tweet_info</code> function with the specified arguments. The results are either printed to the console, exported to a file, or appended to a file.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">@subcommand(
+    &quot;tweet-info&quot;,
+    args=[
+        argument(&quot;tweet_id&quot;, help=&quot;Tweet ID&quot;),
+        argument(&quot;attributes&quot;, nargs=&quot;+&quot;, default=[], help=f&quot;List or string of desired Tweet attribute. Must be from {', '.join(get_args(TwitterAPI.LITERALS_TWEET_INFO))}&quot;),
+        argument(&quot;--env&quot;, &quot;-e&quot;, type=str, default=config_file_path, required=False, help=f&quot;Path to .env file. Defaults to {config_file_path}.&quot;),
+        argument(&quot;--return-timestamp&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Returns the UTC timestamp of the request.&quot;),
+        argument(
+            &quot;--output&quot;,
+            &quot;-o&quot;,
+            type=str,
+            default=None,
+            required=False,
+            help=&quot;Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)&quot;,
+        ),
+        argument(&quot;--encoding&quot;, type=str, default=&quot;utf-8&quot;, required=False, help=&quot;Encoding of the output file. Defaults to UTF-8.&quot;),
+        argument(&quot;--append&quot;, &quot;-a&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Add results to an existing JSON file. File needs to be specified in the --output flag.&quot;),
+    ],
+)
+def tweet_info_cli(args):
+    &quot;&quot;&quot;CLI function to request information from the specified Tweet.&quot;&quot;&quot;
+    # read secrets
+    secrets = read_secrets(args.env)
+    # establish connection to the API
+    api = TwitterAPI(**secrets)
+    # get results
+    result = api.tweet_info(tweet_id=args.tweet_id, attributes=args.attributes, return_timestamp=args.return_timestamp)
+    # handle output
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="compare_users_cli">compare_users_cli</h3>
+<p>CLI function equivalent to the <a href="../TwitterAPI/#compare_users">TwitterAPI.compare_users</a> function. This function is a wrapper around the <a href="../TwitterAPI/#compare_users">TwitterAPI.compare_users</a> function and handles the inputs and outputs to the console.</p>
+<p>Args:  </p>
+<ul>
+<li><code>users</code> (List): User IDs or screen names.
+-- <code>compare</code> (List): Comparison attributes for Twitter users. Must be from <a href="../../user-guide/overview/literals-compare-users/">this list</a>. Short form: <code>-c</code>.</li>
+<li><code>features</code> (List): Features that should be contained within the feature vectors for the <code>similarity</code> comparison attribute. Must be from <a href="../../user-guide/overview/literals-compare-users/">this list</a>. Short form: <code>-f</code></li>
+<li><code>env</code> (str, optional): Path to <code>.env</code> file. Defaults to <code>config_file_path</code>. If the user wishes to use different secrets for authentification, he or she can pass in the path to another <code>.env</code> file. This file must also have the same form, as described in the <a href="./#read_secrets"><code>read_secrets</code></a> function section.</li>
+<li><code>return_timestamp</code> (bool, optional): Wheather to return the Unix timestamp of the request. Defaults to false.</li>
+<li><code>output</code> (str, optional): Export file path. This argument is also used in combination with the <code>append</code> argument to specify that the data should be added to an existing file. If both arguments were provided, data is appended.</li>
+<li><code>encoding</code> (str, optional): Encoding of the data. Defaults to UTF-8.</li>
+<li><code>append</code> (bool, optional): Wheather to append the data to an existing file or not. If the flag is provided (i.e., true), the file path needs to be specified with the <code>output</code> argument.</li>
+</ul>
+<p>First, the secrets are loaded from the environment file path. Then, the authentication to the TwitterAPI using the <code>TwitterAPI</code> class is performed. After that, the <code>TwitterAPI</code> instance calls the <code>compare_users</code> function with the specified arguments. The results are either printed to the console, exported to a file, or appended to a file.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">@subcommand(
+    &quot;compare-users&quot;,
+    args=[
+        argument(&quot;users&quot;, nargs=&quot;+&quot;, default=[], help=&quot;The IDs or screen names of the users.&quot;),
+        argument(&quot;--compare&quot;, &quot;-c&quot;, nargs=&quot;+&quot;, default=[], required=True, help=f&quot;The comparison attribute(s). Must be from following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_USERS))}.&quot;),
+        argument(
+            &quot;--features&quot;,
+            &quot;-f&quot;,
+            nargs=&quot;+&quot;,
+            default=[],
+            required=False,
+            help=f&quot;Features that should be contained in the feature vector for similarity comparison. Must be from: {', '.join(get_args(TwitterAPI.SIMILARITY_FEATURES_COMPARE_USERS))}&quot;,
+        ),
+        argument(&quot;--env&quot;, &quot;-e&quot;, type=str, default=config_file_path, required=False, help=f&quot;Path to .env file. Defaults to {config_file_path}.&quot;),
+        argument(&quot;--return-timestamp&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Returns the UTC timestamp of the request.&quot;),
+        argument(
+            &quot;--output&quot;,
+            &quot;-o&quot;,
+            type=str,
+            default=None,
+            required=False,
+            help=&quot;Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)&quot;,
+        ),
+        argument(&quot;--encoding&quot;, type=str, default=&quot;utf-8&quot;, required=False, help=&quot;Encoding of the output file. Defaults to UTF-8.&quot;),
+        argument(&quot;--append&quot;, &quot;-a&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Add results to an existing JSON file. File needs to be specified in the --output flag.&quot;),
+    ],
+)
+def compare_users_cli(args):
+    &quot;&quot;&quot;CLI function to compare multiple Twitter users with the specified comparision attribute(s).&quot;&quot;&quot;
+    # read secrets
+    secrets = read_secrets(args.env)
+    # establish connection to the API
+    api = TwitterAPI(**secrets)
+    # get results
+    result = api.compare_users(users=args.users, compare=args.compare, return_timestamp=args.return_timestamp, features=args.features)
+    # handle output
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="compare_tweets_cli">compare_tweets_cli</h3>
+<p>CLI function equivalent to the <a href="../TwitterAPI/#compare_tweets">TwitterAPI.compare_tweets</a> function. This function is a wrapper around the <a href="../TwitterAPI/#compare_tweets">TwitterAPI.compare_tweets</a> function and handles the inputs and outputs to the console.</p>
+<p>Args:  </p>
+<ul>
+<li><code>tweets</code> (List): Tweet IDs</li>
+<li><code>compare</code> (List): Comparison attributes for Twitter users. Must be from <a href="../../user-guide/overview/literals-compare-tweets/">this list</a>. Short form: <code>-c</code>.</li>
+<li><code>features</code> (List): Features that should be contained within the feature vectors for the <code>similarity</code> comparison attribute. Must be from <a href="../../user-guide/overview/literals-compare-tweets/">this list</a>. Short form: <code>-f</code></li>
+<li><code>env</code> (str, optional): Path to <code>.env</code> file. Defaults to <code>config_file_path</code>. If the user wishes to use different secrets for authentification, he or she can pass in the path to another <code>.env</code> file. This file must also have the same form, as described in the <a href="./#read_secrets"><code>read_secrets</code></a> function section.</li>
+<li><code>return_timestamp</code> (bool, optional): Wheather to return the Unix timestamp of the request. Defaults to false.</li>
+<li><code>output</code> (str, optional): Export file path. This argument is also used in combination with the <code>append</code> argument to specify that the data should be added to an existing file. If both arguments were provided, data is appended.</li>
+<li><code>encoding</code> (str, optional): Encoding of the data. Defaults to UTF-8.</li>
+<li><code>append</code> (bool, optional): Wheather to append the data to an existing file or not. If the flag is provided (i.e., true), the file path needs to be specified with the <code>output</code> argument.</li>
+</ul>
+<p>First, the secrets are loaded from the environment file path. Then, the authentication to the TwitterAPI using the <code>TwitterAPI</code> class is performed. After that, the <code>TwitterAPI</code> instance calls the <code>compare_tweets</code> function with the specified arguments. The results are either printed to the console, exported to a file, or appended to a file.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">@subcommand(
+    &quot;compare-tweets&quot;,
+    args=[
+        argument(&quot;tweets&quot;, nargs=&quot;+&quot;, default=[], help=&quot;The IDs of the Tweets.&quot;),
+        argument(&quot;--compare&quot;, &quot;-c&quot;, nargs=&quot;+&quot;, default=[], required=True, help=f&quot;The comparison attribute(s). Must be the following: {', '.join(get_args(TwitterAPI.LITERALS_COMPARE_TWEETS))}.&quot;),
+        argument(
+            &quot;--features&quot;, &quot;-f&quot;, nargs=&quot;+&quot;, default=[], required=False, help=f&quot;Features that should be contained in the feature vector for similarity comparison. Must be from: {', '.join(get_args(TwitterAPI.SIMILARITY_FEATURES_COMPARE_TWEETS))}&quot;
+        ),
+        argument(&quot;--env&quot;, &quot;-e&quot;, type=str, default=config_file_path, required=False, help=f&quot;Path to .env file. Defaults to {config_file_path}.&quot;),
+        argument(&quot;--return-timestamp&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Returns the UTC timestamp of the request.&quot;),
+        argument(
+            &quot;--output&quot;,
+            &quot;-o&quot;,
+            type=str,
+            default=None,
+            required=False,
+            help=&quot;Store results in a JSON or CSV file. Specify output file path (including file name). File extension specifies file export (e.g., '.csv' for CSV file export and '.json' for JSON file export)&quot;,
+        ),
+        argument(&quot;--encoding&quot;, type=str, default=&quot;utf-8&quot;, required=False, help=&quot;Encoding of the output file. Defaults to UTF-8.&quot;),
+        argument(&quot;--append&quot;, &quot;-a&quot;, type=bool, default=False, required=False, action=argparse.BooleanOptionalAction, help=&quot;Add results to an existing JSON file. File needs to be specified in the --output flag.&quot;),
+    ],
+)
+def compare_tweets_cli(args):
+    &quot;&quot;&quot;CLI function to compare multiple Tweets with the specified comparision attribute(s).&quot;&quot;&quot;
+    # read secrets
+    secrets = read_secrets(args.env)
+    # establish connection to the API
+    api = TwitterAPI(**secrets)
+    # get results
+    result = api.compare_tweets(tweet_ids=args.tweets, compare=args.compare, return_timestamp=args.return_timestamp, features=args.features)
+    # handle output
+    output(result, path=args.output, encoding=args.encoding, append=args.append)
+    pass
+</code></pre>
+
+</details>
+
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../utils/" class="btn btn-neutral float-left" title="Utility Functions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../testing/" class="btn btn-neutral float-right" title="Software Testing">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/mathun3003/PySNA" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../utils/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../testing/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

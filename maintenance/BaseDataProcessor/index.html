@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
                   </li>
@@ -65,13 +65,23 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">BaseDataProcessor</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -99,13 +109,241 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>Coming soon...</p>
+                <h2 id="basedataprocessor">BaseDataProcessor</h2>
+<p>The <code>BaseDataProcessor</code> class contains general operations for data processing. It forms the basis for the <code>TwitterDataProcessor</code> class. The <code>BaseDataProcessor</code> class is used within the <code>TwitterAPI</code> class for processing data that is not specific to any social media platform. Methods exist for calculating descriptive metrics for numeric and datetime values as well as calculating the intersection and difference of sets.  </p>
+<p>This class can also be used to process previously collected data.</p>
+<h1 id="initialization">Initialization</h1>
+<p>If you want to use this class for data processing or other package components, follow the steps below.  </p>
+<p>Import the <code>BaseDataProcessor</code> class from the <code>process</code> module:</p>
+<pre><code class="language-python">from pysna.process import BaseDataProcessor
+# init instance
+data_processor = BaseDataProcessor()
+</code></pre>
+<p>and start invoking a function:</p>
+<pre><code class="language-python">sets = [set(1,2,4), set(1,3,5), set(1,8,9)]
+# calculate intersection of all sets
+data_processor.intersection(sets)
+</code></pre>
+<h1 id="methods">Methods</h1>
+<p>The methods of this class use functions from <a href="https://numpy.org/">Numpy</a> and default Python operations.  </p>
+<h3 id="calc_descriptive_metrics">calc_descriptive_metrics</h3>
+<p>Calculates descriptive metrics of a given data set. Returns the given data set with appended statistical metrics. Input data set must be a dictionary containing numeric values.</p>
+<p>Function:</p>
+<pre><code class="language-python">BaseDataProcessor.calc_descriptive_metrics(data: Dict[str | int, Number])
+</code></pre>
+<p>The following metrics are calculated:</p>
+<ul>
+<li>Max Value</li>
+<li>Min Value</li>
+<li>Mean Value</li>
+<li>Median</li>
+<li>Standard Deviation</li>
+<li>Sample Variance</li>
+<li>Range (Max - Min)</li>
+<li>Interquartiles Range</li>
+<li>Mean Absolute Deviation</li>
+</ul>
+<p>These metrics might help to interpret the data more accurately and saves time to evaluate data manually.  </p>
+<p>All metrics are calculated and appended to a new key 'metrics' in the input dictionary. This implementation enables to enrich input data with statistical metrics without the need to append the metrics to the dictionary after calculation.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">import numpy as np
+
+def calc_descriptive_metrics(self, data: Dict[str | int, Number]) -&gt; dict:
+    &quot;&quot;&quot;Calculates descriptive metrics of a given data set.
+
+    Args:
+        data (Dict[str  |  int, Number]): Data dictionary containing numeric values.
+
+    Raises:
+        ValueError: If non-numeric values are contained in the data dictionary.
+
+    Returns:
+        dict: Input data dictionary containing descriptive metrics.
+
+    Metrics:
+        - Max Value
+        - Min Value
+        - Mean Value
+        - Median
+        - Standard Deviation
+        - Sample Variance
+        - Range (Max - Min)
+        - Interquartiles Range
+        - Mean Absolute Deviation
+    &quot;&quot;&quot;
+    if not any(isinstance(value, Number) for value in data.values()):
+        raise ValueError(&quot;Only numeric values are allowed.&quot;)
+    # extract numeric values by iterating over data dict with iterable items
+    numerics = list(data.values())
+    # init empty dict to store descriptive metrics
+    metrics = dict()
+    # calc max
+    metrics[&quot;max&quot;] = max(numerics)
+    # calc min
+    metrics[&quot;min&quot;] = min(numerics)
+    # calc mean
+    metrics[&quot;mean&quot;] = np.array(numerics).mean()
+    # calc median
+    metrics[&quot;median&quot;] = np.median(numerics)
+    # calc standard deviation
+    metrics[&quot;std&quot;] = np.std(numerics)
+    # calc variance
+    metrics[&quot;var&quot;] = np.var(numerics)
+    # calc range
+    metrics[&quot;range&quot;] = max(numerics) - min(numerics)
+    # calc interquarile range
+    metrics[&quot;IQR&quot;] = np.subtract(*np.percentile(numerics, [75, 25]))
+    # calc absolute mean deviation
+    metrics[&quot;mad&quot;] = np.mean(np.absolute(numerics - np.mean(numerics)))
+    # add metrics
+    data[&quot;metrics&quot;] = metrics
+    return data
+</code></pre>
+
+</details>
+
+<hr />
+<h3 id="calc_datetime_metrics">calc_datetime_metrics</h3>
+<p>Calculates descriptive metrics on datetime objects. The function takes in a dictionary with datetime values. The function will return the input dictionary with appended metrics.  </p>
+<p>Function:</p>
+<pre><code class="language-python">BaseDataProcessor.calc_datetime_metrics(dates: Dict[str, datetime])
+</code></pre>
+<p>The following metrics are calculated:</p>
+<ul>
+<li>Mean</li>
+<li>Median</li>
+<li>Max</li>
+<li>Min</li>
+<li>Time Span (in days, seconds, and microseconds)</li>
+<li>Deviation from mean (in days and seconds). Negative values indicate below average, positive ones above average.</li>
+<li>Deviation from median (in days and seconds). Negative values indicate below median, positive ones above average.</li>
+</ul>
+<p>The metrics will help to analyze creation dates of social media accounts or posts. The metrics are choosed based on typical behaviors of social bots as they are often created within a short period. These metrics will help to figure out if it is likely that the investigated account is a social bot.</p>
+<p>All metrics are calculated and appended to a new key 'metrics' in the input dictionary. This implementation enables to enrich input data with statistical metrics without the need to append the metrics to the dictionary after calculation.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def calc_datetime_metrics(self, dates: Dict[str, datetime]) -&gt; dict():
+    &quot;&quot;&quot;Calculates descriptive metrics on datetime objects.
+
+    Args:
+        dates (Dict[str, datetime]): Dictionary containing identifiers as keys and datetime objects as values.
+
+    Returns:
+        dict: Input dates with added datetime metrics.
+
+    Metrics:
+        - Mean
+        - Median
+        - Max
+        - Min
+        - Time Span (in days, seconds, and microseconds)
+        - Deviation from mean (in days and seconds). Negative values indicate below average, positive ones above average.
+        - Deviation from median (in days and seconds). Negative values indicate below median, positive ones above average.
+    &quot;&quot;&quot;
+    # use the datetime's timestamp to make them comparable
+    timestamps = [dt.timestamp() for dt in dates.values()]
+    # calc mean of creation dates
+    total_time = sum(timestamps)
+    mean_timestamp = total_time / len(timestamps)
+    # convert mean timestamp back to datetime object with timezone information
+    mean_datetime = datetime.fromtimestamp(mean_timestamp, tz=timezone.utc)
+
+    # calculate time differences to mean datetime of every creation date
+    time_diffs_mean = {key: {&quot;days&quot;: (dt - mean_datetime).days, &quot;seconds&quot;: (dt - mean_datetime).seconds} for key, dt in dates.items()}
+
+    # find the median of the timestamps
+    median_timestamp = np.median(timestamps)
+    # Convert median timestamp back to datetime object
+    median_datetime = datetime.fromtimestamp(median_timestamp, tz=timezone.utc)
+
+    # calculate time differences to median timestamp of every creation date
+    time_diffs_median = {key: {&quot;days&quot;: (dt - median_datetime).days, &quot;seconds&quot;: (dt - median_datetime).seconds} for key, dt in dates.items()}
+
+    # calc range of creation dates
+    max_date, min_date = max(dates.values()), min(dates.values())
+    time_span = max_date - min_date
+
+    # convert creation dates to isoformat for readability
+    dates = {key: dt.isoformat() for key, dt in dates.items()}
+
+    # add metrics to output
+    dates[&quot;metrics&quot;] = dict()
+    dates[&quot;metrics&quot;][&quot;deviation_from_mean&quot;] = time_diffs_mean
+    dates[&quot;metrics&quot;][&quot;deviation_from_median&quot;] = time_diffs_median
+    dates[&quot;metrics&quot;][&quot;time_span&quot;] = {&quot;days&quot;: time_span.days, &quot;seconds&quot;: time_span.seconds, &quot;microseconds&quot;: time_span.microseconds}
+    dates[&quot;metrics&quot;][&quot;mean&quot;] = mean_datetime.isoformat()
+    dates[&quot;metrics&quot;][&quot;median&quot;] = median_datetime.isoformat()
+    dates[&quot;metrics&quot;][&quot;max&quot;] = max_date.isoformat()
+    dates[&quot;metrics&quot;][&quot;min&quot;] = min_date.isoformat()
+    return dates
+</code></pre>
+
+</details>
+<hr />
+<h3 id="intersection">intersection</h3>
+<p>Calculates the intersection of multiple sets. This function takes in a list of sets and returns their intersection.</p>
+<p>Function:</p>
+<pre><code class="language-python">BaseDataProcessor.intersection(iterable: List[set])
+</code></pre>
+<p>This function is used, for example, to get the follower IDs of multiple social media accounts. The sets contain the individual follower IDs of the social media accounts.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def intersection(self, iterable: List[set]) -&gt; list:
+    &quot;&quot;&quot;Calculates the intersection of multiple sets.
+
+    Args:
+        iterable (List[set]): List containing sets.
+
+    Returns:
+        list: intersection set casted to list.
+    &quot;&quot;&quot;
+    intersection = set.intersection(*map(set, iterable))
+    return list(intersection)
+</code></pre>
+
+</details>
+<hr />
+<h3 id="difference">difference</h3>
+<p>Calculates the difference of multiple sets. The function takes in a list of dictionaries containing identifiers (e.g., account IDs) as keys and the sets as values. This function will return for each key in the dictionary the individual difference of each set.</p>
+<p>Function:</p>
+<pre><code class="language-python">BaseDataProcessor.difference(sets: Dict[int | str, set])
+</code></pre>
+<p>This function is used to calculate the difference of followers of the specified social media accounts. In this context, the account IDs are stored as dictionary keys and their follower IDs as values.</p>
+<details>
+<summary>Source Code</summary>
+
+<pre><code class="language-python">def difference(self, sets: Dict[int | str, set]) -&gt; dict:
+    &quot;&quot;&quot;Calculates the difference of multiple sets.
+
+    Args:
+        sets (Dict[set]): Dictionary containing sets where keys are identifiers.
+
+    Returns:
+        dict: Individual difference of each set that was provided.
+    &quot;&quot;&quot;
+    # init empty dict to store individual differences for each set
+    differences = dict()
+    for key, values in sets.items():
+        differences[key] = list(set(values))
+        for other_key, other_values in sets.items():
+            if key != other_key:
+                differences[key] = list(set(differences[key]) - set(other_values))
+    return differences
+</code></pre>
+
+</details>
+
+<hr />
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../TwitterDataProcessor/" class="btn btn-neutral float-left" title="TwitterDataProcessor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../testing/" class="btn btn-neutral float-right" title="Software Testing">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../utils/" class="btn btn-neutral float-right" title="Utility Functions">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -135,7 +373,7 @@
       <span><a href="../TwitterDataProcessor/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../testing/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../utils/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

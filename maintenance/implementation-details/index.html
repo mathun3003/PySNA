@@ -54,7 +54,7 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../user-guide/quick-start/">Quick Start</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">Overview</span></p>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../user-guide/overview/TwitterAPI/">TwitterAPI</a>
                   </li>
@@ -65,13 +65,21 @@
               </ul>
               <p class="caption"><span class="caption-text">Implementation Details</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TwitterAPI/">TwitterAPI</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataFetcher/">TwitterDataFetcher</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../TwitterDataProcessor/">TwitterDataProcessor</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../BaseDataProcessor/">BaseDataProcessor</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../utils/">Utility Functions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cli/">CLI Functions</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../testing/">Software Testing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repository/">Repository Information</a>
                   </li>
               </ul>
       </div>
@@ -98,8 +106,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p><img alt="PySNA Architecture depicted in UML" src="../../assets/PySNA_Architecture.png" /></p>
-<p>Coming soon...</p>
+                <h2 id="implementation-details">Implementation Details</h2>
+<p>This package was designed to perform more detailed and advanced queries to the Twitter API and allows a more detailed analysis of Twitter data.  </p>
+<p>Four classes were implemented: <code>TwitterAPI</code>, <code>TwitterDataFetcher</code>, <code>BaseDataProcessor</code>, <code>TwitterDataProcessor</code></p>
+<p>The figure below shows the architecture of the PySNA package:</p>
+<p><img alt="PySNA Architecture depicted in UML" src="../../assets/PySNA_Architecture.png" /></p>
+<p><em>PySNA Architecture depicted in UML</em></p>
+<p>The <code>TwitterAPI</code> class uses instances of <code>TwitterDataFetcher</code> and <code>TwitterDataProcessor</code>. This class serves as an interface to the user and is the main class of the package. With this class, all functions of the package (except the ones from the <code>utils.py</code> module) can be used. It is built on top of the famous <a href="https://github.com/tweepy/tweepy">Tweepy</a> Python package. Therefore, it inherits the Tweepy Client class and extends it with the functions provided by this package.</p>
+<p>During the implementation of this package, the Separation of Concerns design principle was realized. That means, that every class in this package serves a single, well-defined purpose and no interleaving of different procedures exist. Whereas the <code>TwitterDataProcessor</code> class serves the purpose of processing Twitter-related data and the <code>TwitterDataFetcher</code> class is used for fetching social data from the Twitter platform using its API, the <code>TwitterAPI</code> class offers an interface for user interaction. Each class also has a single responsibility.</p>
+<p>The design principle of making classes and encapuslation ensures that related data and procedures are kept together within one function and/or class.</p>
+<p>An overview of all attributes and methods of the implemented classes is provided in the following UML diagram:</p>
+<p><img alt="PySNA Class Overview depicted in UML" src="../../assets/PySNA%20Classes.png" /></p>
+<p><em>PySNA Class Overview depicted in UML</em></p>
+<hr />
+<p>Available content:</p>
+<ul>
+<li><a href="../TwitterAPI/">TwitterAPI</a></li>
+<li><a href="../TwitterDataFetcher/">TwitterDataFetcher</a></li>
+<li><a href="../TwitterDataProcessor/">TwitterDataProcessor</a></li>
+<li><a href="../BaseDataProcessor/">BaseDataProcessor</a></li>
+<li><a href="../utils/">Utility Functions</a></li>
+<li><a href="../cli/">CLI Functions</a></li>
+<li><a href="../testing/">Software Testing</a></li>
+</ul>
               
             </div>
           </div><footer>
