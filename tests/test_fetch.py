@@ -236,26 +236,25 @@ class TestTwitterDataFetcher(PySNATestCase):
         self.assertListEqual(cassette_response_1, expected_response)
         self.assertListEqual(cassette_response_2, expected_response)
 
-    # BUG: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
     @tape.use_cassette("tests/cassettes/get_liked_tweets_ids.yaml")
     def test_get_liked_tweets_ids(self):
-        cassette_response_1 = self.fetcher.get_liked_tweets_ids(test_user_id_1)
-        cassette_response_2 = self.fetcher.get_liked_tweets_ids(str(test_user_id_1))
-        cassette_response_3 = self.fetcher.get_liked_tweets_ids(test_username_1)
+        cassette_response_1 = self.fetcher.get_liked_tweets_ids(test_user_id_1, limit=10)
+        cassette_response_2 = self.fetcher.get_liked_tweets_ids(str(test_user_id_1), limit=10)
+        cassette_response_3 = self.fetcher.get_liked_tweets_ids(test_username_1, limit=10)
         # ensure set instances
-        self.assertIsInstance(cassette_response_1, set)
-        self.assertIsInstance(cassette_response_2, set)
-        self.assertIsInstance(cassette_response_3, set)
+        self.assertIsInstance(cassette_response_1, list)
+        self.assertIsInstance(cassette_response_2, list)
+        self.assertIsInstance(cassette_response_3, list)
         # ensure same responses
-        self.assertSetEqual(cassette_response_1, cassette_response_2)
-        self.assertSetEqual(cassette_response_1, cassette_response_3)
-        self.assertSetEqual(cassette_response_2, cassette_response_3)
+        self.assertListEqual(cassette_response_1, cassette_response_2)
+        self.assertListEqual(cassette_response_1, cassette_response_3)
+        self.assertListEqual(cassette_response_2, cassette_response_3)
         with open("tests/fixtures/get_liked_tweets_ids.pickle", "rb") as handle:
             expected_response = pickle.load(handle)
         # ensure expected response
-        self.assertSetEqual(cassette_response_1, expected_response)
-        self.assertSetEqual(cassette_response_2, expected_response)
-        self.assertSetEqual(cassette_response_3, expected_response)
+        self.assertListEqual(cassette_response_1, expected_response)
+        self.assertListEqual(cassette_response_2, expected_response)
+        self.assertListEqual(cassette_response_3, expected_response)
 
     @tape.use_cassette("tests/cassettes/get_composed_tweets_ids.yaml")
     def test_get_composed_tweets_ids(self):
