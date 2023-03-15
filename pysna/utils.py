@@ -14,7 +14,7 @@ def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: st
     """Export dictionary data to CSV file.
 
     Args:
-        data (dict): Data dictionary
+        data (dict): Data dictionary (nested dictionaries are not allowed)
         export_path (str): Export path including file name and extension.
         encoding (str, optional): Encoding of CSV file. Defaults to 'utf-8'.
         sep (str, optional): Value separator for CSV file. Defaults to ",".
@@ -24,7 +24,9 @@ def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: st
         ValueError: If nested dictionary was provided.
         IOError: If export fails due to bad input.
 
-    References: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
+    References:
+        - https://mathun3003.github.io/PySNA/user-guide/overview/Utilities/#export-to-csv
+        - https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
     """
     # catch nested dict
     if any(isinstance(data[key], dict) for key in data.keys()):
@@ -38,7 +40,7 @@ def export_to_csv(data: dict, export_path: str, encoding: str = "utf-8", sep: st
         raise e
 
 
-def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str = ",", *args):
+def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str = ","):
     """Append a dictionary to an existing CSV file.
 
     Args:
@@ -54,15 +56,13 @@ def append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str =
         IOError: If export fails due to bad input.
 
     References:
+        - https://mathun3003.github.io/PySNA/user-guide/overview/Utilities/#append-to-csv
         - https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html
         - https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
     """
     # catch nested dict
     if any(isinstance(data[key], dict) for key in data.keys()):
         raise ValueError("'data' dictionary must not contain nested dictionaries. Use JSON export instead.")
-    if args:
-        if any(not isinstance(kwargs, dict) for kwargs in args):
-            raise ValueError("'args' must be of type list containing dictionaries.")
     try:
         # read existing file
         f = pd.read_csv(filepath, sep=sep, encoding=encoding)
@@ -83,6 +83,9 @@ def export_to_json(data: dict, export_path: str, encoding: str = "utf-8", ensure
         data (dict): Data dictionary
         export_path (str): Export path including file name and extension.
         encoding (str, optional): Encoding of JSON file. Defaults to "utf-8".
+        ensure_ascii (bool): Wheather to convert characters to ASCII. Defaults to False.
+
+    References: https://mathun3003.github.io/PySNA/user-guide/overview/Utilities/#export-to-json
     """
 
     try:
@@ -115,6 +118,8 @@ def append_to_json(input_dict: Dict[str, Any], filepath: str, encoding: str = "u
 
     Raises:
         ValueError: If input dict and file do not have the same keys or columns, respectively.
+
+    References: https://mathun3003.github.io/PySNA/user-guide/overview/Utilities/#append-to-json
     """
 
     # load file from path
@@ -151,6 +156,8 @@ def load_from_json(filepath: str, encoding: str = "utf-8", **kwargs) -> dict:
 
     Returns:
         dict: Python Dictionary containing (deserialized) data from JSON file.
+
+    References: https://mathun3003.github.io/PySNA/user-guide/overview/Utilities/#load-from-json
     """
     # read from filepath
     with open(filepath, "r", encoding=encoding) as jsonfile:
@@ -165,7 +172,7 @@ def load_from_json(filepath: str, encoding: str = "utf-8", **kwargs) -> dict:
     return f
 
 
-def strf_datetime(date: datetime, format="%Y-%m-%d %H:%M:%S") -> str:
+def strf_datetime(date: datetime, format: str = "%Y-%m-%d %H:%M:%S") -> str:
     """Convert datetime object to string representation.
 
     Args:
@@ -179,7 +186,7 @@ def strf_datetime(date: datetime, format="%Y-%m-%d %H:%M:%S") -> str:
 
 
 def _tuple_to_string(obj: Any) -> Any:
-    """Serialize tuple-keys to string representation. A tuple wil be obtain a leading '__tuple__' string and decomposed in list representation.
+    """Serialize tuple-keys to string representation. A tuple wil obtain a leading '__tuple__' string and decomposed in list representation.
 
     Args:
         obj (Any): Typically a dict, tuple, list, int, or string.

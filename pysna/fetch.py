@@ -51,8 +51,8 @@ class TwitterDataFetcher:
         Args:
             url (str): API URL (without specified fields)
             method (str): Request method according to REST. Defaults to "GET".
-            header: Custom HTTP Header. Defaults to None.
-            payload: JSON data for HTTP requests. Defaults to None.
+            header (dict | None): Custom HTTP Header. Defaults to None.
+            payload (dict | None): JSON data for HTTP requests. Defaults to None.
             additional_fields (Dict[str, List[str]] | None, optional): Fields can be specified (e.g., tweet.fields) according to the official API reference. Defaults to None.
 
         Raises:
@@ -85,8 +85,9 @@ class TwitterDataFetcher:
         Args:
             func: Function used for pagination
             params (Dict[str, str  |  int]): Dict containing request parameters. Should be of the form {'id': ..., 'max_results': ..., 'pagination_token': ...}
-            max_results (int | None, optional): Maximum number of results. Defaults to None, thus, no limit.
+            limit (int | None, optional): Maximum number of results. Defaults to None, thus, no limit.
             response_attribute (str, optional): Attribute of the Response object. Defaults to "data". Options: ["data", "includes"]
+            page_attribute (str, optional): The attribute that should be extracted for every entry of a page. Defaults to None.
 
         Raises:
             KeyError: 'id', 'max_results', and 'pagination_token' should be provided in the params dict.
@@ -114,7 +115,7 @@ class TwitterDataFetcher:
                         results.append(item.__getattribute__(page_attribute))
                     # increment counter
                     counter += 1
-                    # if max_results was reached, break
+                    # if limit was reached, break
                     if (limit is not None) and (counter == limit):
                         # set break_out var to true
                         break_out = True
@@ -171,8 +172,7 @@ class TwitterDataFetcher:
         """Request Twitter follower IDs from user
 
         Args:
-            user (str): Either User ID or screen name.
-            max_results (int): The maximum number of results to be returned per page. This can be a number between 1 and 100. By default, each page will return 100 results.
+            user (str | int): Either User ID or screen name.
 
         Returns:
             Set[int]: Array containing follower IDs
@@ -189,7 +189,7 @@ class TwitterDataFetcher:
         return set(follower_ids)
 
     def get_user_followee_ids(self, user: str | int) -> Set[int]:
-        """Request Twitter follow IDs from user
+        """Request Twitter followee IDs from user
 
         Args:
             user (str): Either User ID or screen name.
@@ -405,7 +405,7 @@ class TwitterDataFetcher:
             limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
-            Set[int]: User Objects as list.
+            list: User Objects as list.
         """
         # set params
         params = {"id": tweet_id, "max_results": 100, "pagination_token": None}
@@ -421,7 +421,7 @@ class TwitterDataFetcher:
             limit (int | None): The maximum number of results to be returned. By default, each page will return the maximum number of results available.
 
         Returns:
-            Set[int]: User Objects of retweeting users.
+            list: User Objects of retweeting users.
         """
         params = {"id": tweet_id, "max_results": 100, "pagination_token": None}
         # get page results
@@ -480,7 +480,10 @@ class TwitterDataFetcher:
 
         Reference: https://developer.twitter.com/en/docs/twitter-api/metrics
         """
+        # set URL
         url = f"https://api.twitter.com/2/tweets/{tweet_id}"
+        # make request
         response_json = self._manual_request(url, additional_fields={"tweet.fields": ["public_metrics"]})
+        # get public metrics from JSON response
         public_metrics = response_json["data"]["public_metrics"]
         return public_metrics

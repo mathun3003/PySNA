@@ -15,6 +15,8 @@ from pysna.utils import append_to_csv, append_to_json, export_to_csv, export_to_
 msg = """
 The command-line interface for the PySNA package
 
+Reference: https://mathun3003.github.io/PySNA/user-guide/overview/cli/
+
 Usage:
   pysna set-secrets <path>
   pysna user-info <user> <attributes> [--return-timestamp] [--output] [--append] [--encoding] [--env]

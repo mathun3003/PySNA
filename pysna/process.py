@@ -199,14 +199,14 @@ class TwitterDataProcessor(BaseDataProcessor):
         """
         return " ".join(re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
 
-    def detect_tweet_sentiment(self, tweet: str) -> str:
-        """Utility function to classify sentiment of passed tweet using textblob's sentiment method. English Tweets only.
+    def detect_tweet_sentiment(self, tweet: str) -> dict:
+        """Utility function to classify sentiment of passed tweet using vader sentiment analyzer. English Tweets only.
 
         Args:
             tweet (str): The raw text of the Tweet.
 
         Returns:
-            str: the sentiment of the Tweet. Either positive, neutral, or negative.
+            str: the sentiment of the Tweet (either positive, neutral, or negative) and the polarity scores.
         """
         # create VADER instance
         analyser = SentimentIntensityAnalyzer()
