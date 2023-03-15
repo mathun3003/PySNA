@@ -1,4 +1,12 @@
 # PySNA
+
+[![PyPI Version](https://img.shields.io/pypi/v/pysna?label=PyPI)](https://pypi.org/project/pysna/)
+[![Twitter API v1.1](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fstandard)](https://developer.twitter.com/en/docs/twitter-api/v1)
+[![Twitter API v2](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.twitter.com/en/docs/twitter-api)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
+
 Python Package for Social Network Analytics
 
 Installation
@@ -62,6 +70,9 @@ Thus, the following functions are added to the tweepy package:
 Furthermore, some utility functions exist:
 - ``export_to_json``
 - ``append_to_json``
+- ``load_from_json``
+- ``export_to_csv``
+- ``append_to_csv``
 
 You can find further information on the [Documentation](https://mathun3003.github.io/PySNA/).
 
@@ -86,11 +97,7 @@ pysna compare-users "WWU_Muenster" "goetheuni" -c "tweets_count" "common_followe
 
 This will perform a comparison on the ``"WWU_Muenster"`` and ``"goetheuni"`` Twitter Accounts based on their number of composed Tweets and common followers. The results are exported to the ``results.json`` file. Also, the timestamp of the request will be returned.
 
-NOTE: every request needs valid credentials for the official Twitter API. If you run this command from a different directory than from your project root, pass in the path to an ``.env`` file containing your secrets. Also, if you have a differend named environment file in your project root (e.g., ``local.env``), you have to pass the filename, too, using the ``--env`` flag:
-
-    pysna compare-users [...] --env ./local.env
-
-The default value is set to ``./.env``.
+**NOTE**: Every request needs valid credentials for the official Twitter API. Thus, pass in a .env file to every function call by using the ``--env`` flag or use the ``set-secrets`` function to set the API secrets for upcoming requests (recommended). See the corresponding section in the [documentation](https://mathun3003.github.io/PySNA/user-guide/overview/cli/).
 
 
 Notes
