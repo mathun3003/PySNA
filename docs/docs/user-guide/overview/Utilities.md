@@ -207,7 +207,7 @@ ________
 Function:
 
 ```python
-append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str = ",", *args)
+append_to_csv(data: dict, filepath: str, encoding: str = "utf-8", sep: str = ",")
 ```
 
 Append a dictionary to an existing CSV file.  
@@ -220,7 +220,6 @@ Args:
 - ```filepath``` (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
 - ```encoding``` (str, optional): Encoding of CSV file. Defaults to UTF-8.
 - ```sep``` (str, optional): Value separator for CSV file. Defaults to ",".
-- ```args```: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: ```*[read_kwargs, write_kwargs]```, whereas both are dictionaries (i.e., provide a list of two dictionaries).
 
 References:  
 
