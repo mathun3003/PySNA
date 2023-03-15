@@ -13,7 +13,7 @@ nav:
       - TwitterAPI: user-guide/overview/TwitterAPI.md
       - Utility Functions: user-guide/overview/Utilities.md
       - CLI Tool: user-guide/overview/cli.md
-  - Implementation Details: # TODO
+  - Implementation Details:
       - TwitterAPI: maintenance/TwitterAPI.md
       - TwitterDataFetcher: maintenance/TwitterDataFetcher.md
       - TwitterDataProcessor: maintenance/TwitterDataProcessor.md
@@ -21,7 +21,7 @@ nav:
       - Utility Functions: maintenance/utils.md
       - CLI Functions: maintenance/cli.md
       - Software Testing: maintenance/testing.md
-      - Repository Information: maintenance/repository.md # TODO
+      - Repository Information: maintenance/repository.md
 
 # Theme
 theme:

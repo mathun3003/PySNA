@@ -18,7 +18,7 @@ HERE = pathlib.Path(__file__).parent
 VERSION = version
 PACKAGE_NAME = "pysna"
 AUTHOR = "Mathis Hunke"
-AUTHOR_EMAIL = "mhunke1@uni-muenster.de"
+AUTHOR_EMAIL = "mathun3003@gmail.com"
 URL = "https://github.com/mathun3003/PySNA"
 
 LICENSE = "MIT License"
@@ -43,4 +43,9 @@ setup(
     packages=find_packages(),
     python_requires=">=3.10",
     entry_points={"console_scripts": ["pysna = pysna.cli:main"]},
+    project_urls={
+        "Documentation": "https://mathun3003.github.io/PySNA/",
+        "Issue Tracker": "https://github.com/mathun3003/PySNA/issues",
+        "Source Code": "https://github.com/mathun3003/PySNA",
+    },
 )
