@@ -475,7 +475,7 @@
 <h3 id="append_to_csv">append_to_csv</h3>
 <p>Append a dictionary to an existing CSV file.</p>
 <p>Function:</p>
-<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args)
+<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;)
 </code></pre>
 <p>Args:  </p>
 <ul>
@@ -483,14 +483,7 @@
 <li><code>filepath</code> (str): Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
 <li><code>encoding</code> (str, optional): Encoding of CSV file.. Defaults to 'utf-8'.</li>
 <li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to ",".</li>
-<li><code>args</code>: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.</li>
 </ul>
-<p>The <code>args</code> argument allows to specify additional read and write options. Therefore, the user can pass in a list containing keyword arguments for read and write. Thus, the <code>args</code> argument has to be of the form:</p>
-<pre><code class="language-python">[{&quot;doublequote&quot;: False},    # read keywords arguments
-{&quot;prefix&quot;: &quot;foo_&quot;}]         # write keywords argument
-</code></pre>
-<p>Read keyword arguments will be passed to the p<code>andas.read_csv</code> function whereas write keyword arguments will be passed to the <code>pandas.DataFrame.to_csv</code> function.</p>
-<p>The function will raise a <code>ValueError</code> if a nested dictionary was provided.</p>
 <p>This function was designed to allow an append of a simple one-level dictionary to an existing CSV file. However, it is highly recommended to use the JSON export function instead.</p>
 <p>References:  </p>
 <ul>
@@ -500,7 +493,7 @@
 <details>
 <summary>Source Code</summary>
 
-<pre><code class="language-python">def append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args):
+<pre><code class="language-python">def append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;):
     &quot;&quot;&quot;Append a dictionary to an existing CSV file.
 
     Args:
@@ -508,11 +501,9 @@
         filepath (str): Absolute or relative filepath including the file extension. Depending on the current working directory.
         encoding (str, optional): Encoding of CSV file.. Defaults to 'utf-8'.
         sep (str, optional): Value separator for CSV file. Defaults to &quot;,&quot;.
-        args: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: *[read_kwargs, write_kwargs]. See references below for further details on possible read/write arguments.
 
     Raises:
         ValueError: If nested dictionary was provided.
-        ValueError: If 'args' does not contain a dictionaries for read and write.
         IOError: If export fails due to bad input.
 
     References:
@@ -522,9 +513,6 @@
     # catch nested dict
     if any(isinstance(data[key], dict) for key in data.keys()):
         raise ValueError(&quot;'data' dictionary must not contain nested dictionaries. Use JSON export instead.&quot;)
-    if args:
-        if any(not isinstance(kwargs, dict) for kwargs in args):
-            raise ValueError(&quot;'args' must be of type list containing dictionaries.&quot;)
     try:
         # read existing file
         f = pd.read_csv(filepath, sep=sep, encoding=encoding)

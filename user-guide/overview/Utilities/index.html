@@ -268,7 +268,7 @@ export_to_csv(results, export_path=&quot;user_info.csv&quot;)
 <hr />
 <h3 id="append-to-csv">Append to CSV</h3>
 <p>Function:</p>
-<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;, *args)
+<pre><code class="language-python">append_to_csv(data: dict, filepath: str, encoding: str = &quot;utf-8&quot;, sep: str = &quot;,&quot;)
 </code></pre>
 <p>Append a dictionary to an existing CSV file.<br />
 Will raise an exception if <code>data</code> dictionary contains nested dictionaries.</p>
@@ -278,7 +278,6 @@ Will raise an exception if <code>data</code> dictionary contains nested dictiona
 <li><code>filepath</code> (str): Absolute or relative filepath including the file extension. Depending on the current working directory.</li>
 <li><code>encoding</code> (str, optional): Encoding of CSV file. Defaults to UTF-8.</li>
 <li><code>sep</code> (str, optional): Value separator for CSV file. Defaults to ",".</li>
-<li><code>args</code>: Keyword Arguments for reading and writing from/to CSV file from pandas. Pass in: <code>*[read_kwargs, write_kwargs]</code>, whereas both are dictionaries (i.e., provide a list of two dictionaries).</li>
 </ul>
 <p>References:  </p>
 <ul>
