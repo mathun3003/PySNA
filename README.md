@@ -1,8 +1,6 @@
 # PySNA
 
 [![PyPI Version](https://img.shields.io/pypi/v/pysna?label=PyPI)](https://pypi.org/project/pysna/)
-[![Twitter API v1.1](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fstandard)](https://developer.twitter.com/en/docs/twitter-api/v1)
-[![Twitter API v2](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.twitter.com/en/docs/twitter-api)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
@@ -103,5 +101,6 @@ This will perform a comparison on the ``"WWU_Muenster"`` and ``"goetheuni"`` Twi
 Notes
 ------------
 
-- Only Python 3.10 is supported.
+- Only Python >= 3.10 is supported.
 - Only ``.env`` files are supported for the CLI, yet.
+- Use the ``sample.local.env`` to ensure functionality of the CLI tool.
